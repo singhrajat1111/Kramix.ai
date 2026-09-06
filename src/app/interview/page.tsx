@@ -21,6 +21,9 @@ import { HiringCommitteeEngine } from "@/lib/committee/hiring-committee-engine";
 import { UpgradeBanner } from "@/components/UpgradeBanner";
 import { useUserAccount } from "@/components/auth/AuthProvider";
 import { RouteGuard } from "@/components/common/RouteGuard";
+import { getDemoQuestionsForRole } from "@/lib/demo/question-bank";
+import { shouldShowUpgradeGate, DEMO_QUESTION_LIMIT } from "@/lib/demo/session-limit";
+import { DemoEndModal } from "@/components/demo/DemoEndModal";
 import {
   AlertTriangle,
   Loader2,
@@ -58,6 +61,18 @@ export default function InterviewRoomPage() {
   const [multiRoundSession, setMultiRoundSession] = useState<InterviewSession | null>(null);
   const [showOrientation, setShowOrientation] = useState<boolean>(true);
   const [completedRoundReport, setCompletedRoundReport] = useState<InterviewReport | null>(null);
+
+  // Demo Mode Gating & Bank Modal
+  const [demoModalState, setDemoModalState] = useState<{
+    isOpen: boolean;
+    reason: "limit_reached" | "role_not_covered";
+    role?: string;
+    company?: string;
+    questionsCompleted?: number;
+  }>({
+    isOpen: false,
+    reason: "limit_reached",
+  });
 
   // Authoritative Avatar State & Mode
   const [authoritativeAvatarState, setAuthoritativeAvatarState] =
@@ -382,6 +397,27 @@ export default function InterviewRoomPage() {
         setCurrentPrompt(interviewerResponse);
         setLiveSpeech("");
 
+        // In Demo Mode: Enforce DEMO_QUESTION_LIMIT (4 questions)
+        const questionsAnsweredSoFar = newState.candidateResponses.length;
+        if (isDemoMode && shouldShowUpgradeGate(questionsAnsweredSoFar)) {
+          setInterviewState("ROUND_COMPLETE");
+          setAuthoritativeAvatarState("IDLE");
+          speakText(
+            "That concludes your 4-question demo interview. Thank you for participating!",
+            () => {
+              setDemoModalState({
+                isOpen: true,
+                reason: "limit_reached",
+                role: candidate.targetRole || "Software Engineer",
+                company: candidate.targetCompanies[0] || "Target Company",
+                questionsCompleted: questionsAnsweredSoFar,
+              });
+            },
+            "IDLE"
+          );
+          return;
+        }
+
         if (nextAction === "CONCLUDE") {
           setInterviewState("ROUND_COMPLETE");
           speakText(interviewerResponse, () => {
@@ -402,7 +438,15 @@ export default function InterviewRoomPage() {
         isSubmittingRef.current = false;
       }
     },
-    [speakText, handleConcludeAndEvaluate, startListeningForCandidate, elapsedSeconds]
+    [
+      speakText,
+      handleConcludeAndEvaluate,
+      startListeningForCandidate,
+      elapsedSeconds,
+      isDemoMode,
+      candidate.targetRole,
+      candidate.targetCompanies,
+    ]
   );
 
   // Sync ref to current submitAnswer handler
@@ -507,6 +551,31 @@ export default function InterviewRoomPage() {
     const isDemo = aiConfig.provider === "demo" || !aiConfig.apiKey;
     setIsDemoMode(isDemo);
 
+    // In Demo Mode: Source questions directly from kramix-question-bank.md
+    if (isDemo) {
+      const demoResult = getDemoQuestionsForRole(loadedCandidate.targetRole, DEMO_QUESTION_LIMIT);
+      if (!demoResult.roleCovered) {
+        setDemoModalState({
+          isOpen: true,
+          reason: "role_not_covered",
+          role: loadedCandidate.targetRole || "Target Role",
+          company: loadedCandidate.targetCompanies[0] || "Target Company",
+        });
+      } else {
+        // Populate round questions with the curated demo bank (3 technical + 1 behavioral)
+        loadedRound.sampleQuestions = demoResult.questions.map((q) => q.question);
+        loadedPlan.questionBank = demoResult.questions.map((q, idx) => ({
+          id: `demo_bank_q_${idx + 1}`,
+          roundCategory: loadedRound.category,
+          category: q.category === "behavioral" ? "Behavioral" : "Technical",
+          questionText: q.question,
+          intent: q.keyPoints.join(", "),
+          evaluationCriteria: q.keyPoints,
+          difficulty: "Mid",
+        }));
+      }
+    }
+
     setCandidate(loadedCandidate);
     setSelectedRound(loadedRound);
     setResearchPlan(loadedPlan);
@@ -529,7 +598,7 @@ export default function InterviewRoomPage() {
     const provider = getLLMProvider(aiConfig);
     const director = new InterviewDirector(loadedCandidate, loadedPlan, loadedRound, provider, {
       maxDurationMinutes: loadedRound.typicalDurationMinutes || 25,
-      maxQuestions: loadedPlan.blueprint?.questionBudget || 4,
+      maxQuestions: isDemo ? DEMO_QUESTION_LIMIT : loadedPlan.blueprint?.questionBudget || 4,
       maxFollowUpsPerQuestion: loadedPlan.blueprint?.followUpPolicy?.maxFollowUps ?? 2,
       blueprint: loadedPlan.blueprint,
       previousRoundContext,
@@ -738,7 +807,7 @@ export default function InterviewRoomPage() {
         className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 flex-1 items-stretch"
       >
         {/* Candidate Feed */}
-        <div className="flex flex-col h-full min-h-[380px]">
+        <div className="flex flex-col h-full min-h-[260px] sm:min-h-[320px] lg:min-h-[380px]">
           <CandidateVideo
             isMuted={isMuted}
             isVideoOff={isVideoOff}
@@ -749,7 +818,7 @@ export default function InterviewRoomPage() {
         </div>
 
         {/* AI Interviewer Avatar Engine */}
-        <div className="flex flex-col h-full min-h-[380px]">
+        <div className="flex flex-col h-full min-h-[260px] sm:min-h-[320px] lg:min-h-[380px]">
           <InterviewerAvatarEngine
             state={authoritativeAvatarState}
             mode={avatarMode}
@@ -992,6 +1061,30 @@ export default function InterviewRoomPage() {
           </div>
         </div>
       )}
+
+      {/* Demo Gating & End-of-Demo Modal */}
+      <DemoEndModal
+        isOpen={demoModalState.isOpen}
+        reason={demoModalState.reason}
+        role={demoModalState.role || candidate.targetRole || "Software Engineer"}
+        company={demoModalState.company || candidate.targetCompanies[0] || "Target Company"}
+        questionsCompleted={demoModalState.questionsCompleted || DEMO_QUESTION_LIMIT}
+        onClose={() => setDemoModalState((prev) => ({ ...prev, isOpen: false }))}
+        onBringOwnKey={() => {
+          setDemoModalState((prev) => ({ ...prev, isOpen: false }));
+          router.push("/setup");
+        }}
+        onContactAuthor={(targetRole, targetCompany) => {
+          const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || "singh.rajat70880@gmail.com";
+          const subject = encodeURIComponent(
+            `Kramix API Access Request — ${targetRole || "Software Engineer"} @ ${targetCompany || "Target Company"}`
+          );
+          const body = encodeURIComponent(
+            `Hi, I'd like access to Kramix live mode.\nRole: ${targetRole}\nCompany: ${targetCompany}\n\nI'm ready to conduct full adaptive mock interviews!`
+          );
+          window.location.href = `mailto:${contactEmail}?subject=${subject}&body=${body}`;
+        }}
+      />
       </div>
     </RouteGuard>
   );

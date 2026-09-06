@@ -1,0 +1,1650 @@
+[
+  {
+    "role": "Shared Behavioral",
+    "category": "behavioral",
+    "question": "Tell me about yourself.",
+    "keyPoints": [
+      "concise professional summary",
+      "relevant experience",
+      "why this role",
+      "forward-looking close"
+    ]
+  },
+  {
+    "role": "Shared Behavioral",
+    "category": "behavioral",
+    "question": "Why do you want to work here / in this role?",
+    "keyPoints": [
+      "specific company/role knowledge",
+      "alignment with candidate's goals",
+      "genuine interest signals"
+    ]
+  },
+  {
+    "role": "Shared Behavioral",
+    "category": "behavioral",
+    "question": "Describe a challenging project and how you handled it.",
+    "keyPoints": [
+      "clear situation/task/action/result structure",
+      "ownership",
+      "concrete outcome"
+    ]
+  },
+  {
+    "role": "Shared Behavioral",
+    "category": "behavioral",
+    "question": "Tell me about a time you disagreed with a teammate or manager.",
+    "keyPoints": [
+      "respectful disagreement",
+      "focus on outcome",
+      "what was learned"
+    ]
+  },
+  {
+    "role": "Shared Behavioral",
+    "category": "behavioral",
+    "question": "How do you handle tight deadlines or pressure?",
+    "keyPoints": [
+      "prioritization method",
+      "communication with stakeholders",
+      "specific example"
+    ]
+  },
+  {
+    "role": "Shared Behavioral",
+    "category": "behavioral",
+    "question": "Where do you see yourself in 3-5 years?",
+    "keyPoints": [
+      "realistic growth path",
+      "aligns with role trajectory",
+      "shows ambition without overreach"
+    ]
+  },
+  {
+    "role": "Shared Behavioral",
+    "category": "behavioral",
+    "question": "Describe a time you made a mistake. What did you do?",
+    "keyPoints": [
+      "ownership",
+      "corrective action",
+      "lesson applied afterward"
+    ]
+  },
+  {
+    "role": "Shared Behavioral",
+    "category": "behavioral",
+    "question": "How do you prioritize tasks when everything feels urgent?",
+    "keyPoints": [
+      "a framework (impact/effort",
+      "deadlines",
+      "stakeholder input)",
+      "example"
+    ]
+  },
+  {
+    "role": "Shared Behavioral",
+    "category": "behavioral",
+    "question": "Tell me about a time you had to learn something quickly.",
+    "keyPoints": [
+      "learning approach",
+      "resourcefulness",
+      "applied outcome"
+    ]
+  },
+  {
+    "role": "Shared Behavioral",
+    "category": "behavioral",
+    "question": "Why are you leaving your current role / what are you looking for?",
+    "keyPoints": [
+      "positive framing",
+      "growth-oriented reasoning",
+      "no negativity toward past employer"
+    ]
+  },
+  {
+    "role": "Frontend Developer (React)",
+    "category": "technical",
+    "question": "What is the virtual DOM and why does React use it?",
+    "keyPoints": [
+      "in-memory representation",
+      "diffing/reconciliation",
+      "batched updates for performance"
+    ]
+  },
+  {
+    "role": "Frontend Developer (React)",
+    "category": "technical",
+    "question": "Explain the difference between state and props.",
+    "keyPoints": [
+      "props are read-only/passed down",
+      "state is local/mutable",
+      "triggers re-render on change"
+    ]
+  },
+  {
+    "role": "Frontend Developer (React)",
+    "category": "technical",
+    "question": "What are React hooks, and why were they introduced?",
+    "keyPoints": [
+      "functional component state/lifecycle without classes",
+      "useState/useEffect",
+      "reusability via custom hooks"
+    ]
+  },
+  {
+    "role": "Frontend Developer (React)",
+    "category": "technical",
+    "question": "How does useEffect's dependency array work?",
+    "keyPoints": [
+      "controls when effect re-runs",
+      "empty array = mount only",
+      "missing deps = runs every render",
+      "cleanup function"
+    ]
+  },
+  {
+    "role": "Frontend Developer (React)",
+    "category": "technical",
+    "question": "How would you optimize a slow-rendering React list?",
+    "keyPoints": [
+      "key prop correctness",
+      "React.memo",
+      "useMemo/useCallback",
+      "virtualization (react-window) for long lists"
+    ]
+  },
+  {
+    "role": "Frontend Developer (React)",
+    "category": "technical",
+    "question": "What's the difference between controlled and uncontrolled components?",
+    "keyPoints": [
+      "controlled = React state drives input value",
+      "uncontrolled = DOM manages it via refs"
+    ]
+  },
+  {
+    "role": "Backend Developer (Node.js / Express)",
+    "category": "technical",
+    "question": "Explain the Node.js event loop.",
+    "keyPoints": [
+      "single-threaded",
+      "non-blocking I/O",
+      "call stack",
+      "callback/microtask queue",
+      "phases (timers",
+      "I/O",
+      "etc.)"
+    ]
+  },
+  {
+    "role": "Backend Developer (Node.js / Express)",
+    "category": "technical",
+    "question": "How do you handle errors in async Express routes?",
+    "keyPoints": [
+      "try/catch with async/await",
+      "centralized error-handling middleware",
+      "avoiding unhandled promise rejections"
+    ]
+  },
+  {
+    "role": "Backend Developer (Node.js / Express)",
+    "category": "technical",
+    "question": "What is middleware in Express and how does it work?",
+    "keyPoints": [
+      "functions with access to req/res/next",
+      "chain of execution",
+      "order matters"
+    ]
+  },
+  {
+    "role": "Backend Developer (Node.js / Express)",
+    "category": "technical",
+    "question": "How would you secure a REST API?",
+    "keyPoints": [
+      "authentication (JWT/OAuth)",
+      "input validation",
+      "rate limiting",
+      "HTTPS",
+      "helmet.js",
+      "CORS config"
+    ]
+  },
+  {
+    "role": "Backend Developer (Node.js / Express)",
+    "category": "technical",
+    "question": "Explain the difference between SQL and NoSQL, and when you'd pick each.",
+    "keyPoints": [
+      "schema rigidity vs flexibility",
+      "relational joins vs document model",
+      "consistency vs scalability tradeoffs"
+    ]
+  },
+  {
+    "role": "Backend Developer (Node.js / Express)",
+    "category": "technical",
+    "question": "How do you handle database connection pooling?",
+    "keyPoints": [
+      "reusing connections vs opening new ones per request",
+      "pool size tuning",
+      "avoiding connection exhaustion"
+    ]
+  },
+  {
+    "role": "Full Stack Developer (MERN)",
+    "category": "technical",
+    "question": "Walk through the data flow of a MERN app from client click to database write.",
+    "keyPoints": [
+      "React event → API call (Axios/fetch) → Express route → Mongoose model → MongoDB → response back up"
+    ]
+  },
+  {
+    "role": "Full Stack Developer (MERN)",
+    "category": "technical",
+    "question": "How do you manage state across a large React + Node app?",
+    "keyPoints": [
+      "local vs global state",
+      "Context API vs Redux/Zustand",
+      "server state via React Query"
+    ]
+  },
+  {
+    "role": "Full Stack Developer (MERN)",
+    "category": "technical",
+    "question": "How would you structure a scalable MERN project folder layout?",
+    "keyPoints": [
+      "separation of concerns (routes/controllers/models)",
+      "shared config",
+      "environment-based settings"
+    ]
+  },
+  {
+    "role": "Full Stack Developer (MERN)",
+    "category": "technical",
+    "question": "How do you handle authentication across frontend and backend?",
+    "keyPoints": [
+      "JWT issuance on login",
+      "storage (httpOnly cookie vs localStorage tradeoffs)",
+      "token refresh strategy"
+    ]
+  },
+  {
+    "role": "Full Stack Developer (MERN)",
+    "category": "technical",
+    "question": "What's your approach to deploying a full stack app?",
+    "keyPoints": [
+      "separate frontend/backend hosting vs monorepo",
+      "environment variables",
+      "CI/CD basics"
+    ]
+  },
+  {
+    "role": "Full Stack Developer (MERN)",
+    "category": "technical",
+    "question": "How do you debug an issue that only appears in production?",
+    "keyPoints": [
+      "logging/monitoring tools",
+      "reproducing with prod-like data",
+      "checking env differences"
+    ]
+  },
+  {
+    "role": "Python Developer",
+    "category": "technical",
+    "question": "Explain Python's GIL and its implications.",
+    "keyPoints": [
+      "Global Interpreter Lock",
+      "one thread executes Python bytecode at a time",
+      "affects CPU-bound multithreading",
+      "workarounds (multiprocessing",
+      "async I/O)"
+    ]
+  },
+  {
+    "role": "Python Developer",
+    "category": "technical",
+    "question": "What's the difference between a list and a tuple?",
+    "keyPoints": [
+      "mutability",
+      "performance",
+      "use cases (fixed vs dynamic data)"
+    ]
+  },
+  {
+    "role": "Python Developer",
+    "category": "technical",
+    "question": "Explain list comprehensions and when to avoid them.",
+    "keyPoints": [
+      "concise syntax for transforming iterables",
+      "avoid when logic gets too complex/unreadable"
+    ]
+  },
+  {
+    "role": "Python Developer",
+    "category": "technical",
+    "question": "How does Python handle memory management?",
+    "keyPoints": [
+      "reference counting",
+      "garbage collection for cycles",
+      "memory pools"
+    ]
+  },
+  {
+    "role": "Python Developer",
+    "category": "technical",
+    "question": "What are decorators and give a practical use case.",
+    "keyPoints": [
+      "functions wrapping functions",
+      "logging/timing/auth examples",
+      "`@` syntax sugar"
+    ]
+  },
+  {
+    "role": "Python Developer",
+    "category": "technical",
+    "question": "How would you handle a memory leak in a long-running Python service?",
+    "keyPoints": [
+      "profiling tools (tracemalloc",
+      "memory_profiler)",
+      "identifying reference cycles",
+      "closing resources properly"
+    ]
+  },
+  {
+    "role": "Java Developer",
+    "category": "technical",
+    "question": "Explain the difference between JDK, JRE, and JVM.",
+    "keyPoints": [
+      "JDK = development kit",
+      "JRE = runtime environment",
+      "JVM = execution engine that runs bytecode"
+    ]
+  },
+  {
+    "role": "Java Developer",
+    "category": "technical",
+    "question": "What is the difference between an abstract class and an interface?",
+    "keyPoints": [
+      "abstract class can have state/partial implementation",
+      "interface is a contract (default methods in modern Java)",
+      "multiple inheritance via interfaces"
+    ]
+  },
+  {
+    "role": "Java Developer",
+    "category": "technical",
+    "question": "Explain garbage collection in Java.",
+    "keyPoints": [
+      "automatic memory management",
+      "generational GC (young/old gen)",
+      "stop-the-world pauses",
+      "tuning options"
+    ]
+  },
+  {
+    "role": "Java Developer",
+    "category": "technical",
+    "question": "What are Java Streams and why use them?",
+    "keyPoints": [
+      "functional-style operations on collections",
+      "lazy evaluation",
+      "map/filter/reduce chaining"
+    ]
+  },
+  {
+    "role": "Java Developer",
+    "category": "technical",
+    "question": "How does exception handling work in Java (checked vs unchecked)?",
+    "keyPoints": [
+      "checked exceptions must be declared/handled",
+      "unchecked (RuntimeException) don't require it",
+      "try-with-resources"
+    ]
+  },
+  {
+    "role": "Java Developer",
+    "category": "technical",
+    "question": "What is dependency injection and why is it useful?",
+    "keyPoints": [
+      "inversion of control",
+      "testability",
+      "decoupling components",
+      "common in Spring"
+    ]
+  },
+  {
+    "role": "Spring Boot Developer",
+    "category": "technical",
+    "question": "What problem does Spring Boot solve compared to plain Spring?",
+    "keyPoints": [
+      "auto-configuration",
+      "embedded server",
+      "starter dependencies",
+      "less boilerplate XML config"
+    ]
+  },
+  {
+    "role": "Spring Boot Developer",
+    "category": "technical",
+    "question": "Explain the Spring Bean lifecycle.",
+    "keyPoints": [
+      "instantiation",
+      "dependency injection",
+      "initialization callbacks",
+      "destruction"
+    ]
+  },
+  {
+    "role": "Spring Boot Developer",
+    "category": "technical",
+    "question": "What is `@RestController` vs `@Controller`?",
+    "keyPoints": [
+      "RestController combines Controller + ResponseBody",
+      "returns data directly (JSON) vs view rendering"
+    ]
+  },
+  {
+    "role": "Spring Boot Developer",
+    "category": "technical",
+    "question": "How do you handle exceptions globally in Spring Boot?",
+    "keyPoints": [
+      "`@ControllerAdvice` + `@ExceptionHandler`",
+      "consistent error response structure"
+    ]
+  },
+  {
+    "role": "Spring Boot Developer",
+    "category": "technical",
+    "question": "Explain Spring Data JPA and its benefits.",
+    "keyPoints": [
+      "repository abstraction over JDBC/Hibernate",
+      "derived query methods",
+      "reduces boilerplate"
+    ]
+  },
+  {
+    "role": "Spring Boot Developer",
+    "category": "technical",
+    "question": "How would you secure a Spring Boot API?",
+    "keyPoints": [
+      "Spring Security",
+      "JWT filters",
+      "role-based access control",
+      "method-level security annotations"
+    ]
+  },
+  {
+    "role": "AI Engineer / LLM Engineer",
+    "category": "technical",
+    "question": "What is RAG (Retrieval-Augmented Generation) and why use it?",
+    "keyPoints": [
+      "combines retrieval from external knowledge with generation",
+      "reduces hallucination",
+      "keeps model current without retraining"
+    ]
+  },
+  {
+    "role": "AI Engineer / LLM Engineer",
+    "category": "technical",
+    "question": "Explain the difference between fine-tuning and prompt engineering.",
+    "keyPoints": [
+      "fine-tuning changes model weights (costly",
+      "permanent)",
+      "prompting shapes behavior at inference time (cheap",
+      "flexible)"
+    ]
+  },
+  {
+    "role": "AI Engineer / LLM Engineer",
+    "category": "technical",
+    "question": "What are embeddings and how are they used in search?",
+    "keyPoints": [
+      "vector representations of meaning",
+      "cosine similarity for relevance",
+      "used in semantic search/RAG"
+    ]
+  },
+  {
+    "role": "AI Engineer / LLM Engineer",
+    "category": "technical",
+    "question": "How do you reduce hallucination in an LLM application?",
+    "keyPoints": [
+      "grounding via RAG",
+      "lower temperature",
+      "explicit \"say I don't know\" instructions",
+      "output validation"
+    ]
+  },
+  {
+    "role": "AI Engineer / LLM Engineer",
+    "category": "technical",
+    "question": "What is agentic AI, and how does it differ from a simple chatbot?",
+    "keyPoints": [
+      "multi-step planning",
+      "tool use",
+      "autonomous decision-making across a task vs single-turn Q&A"
+    ]
+  },
+  {
+    "role": "AI Engineer / LLM Engineer",
+    "category": "technical",
+    "question": "How would you evaluate the quality of an LLM-generated response?",
+    "keyPoints": [
+      "human eval",
+      "automated metrics (BLEU/ROUGE limitations)",
+      "LLM-as-judge",
+      "task-specific success criteria"
+    ]
+  },
+  {
+    "role": "Machine Learning Engineer",
+    "category": "technical",
+    "question": "Explain bias-variance tradeoff.",
+    "keyPoints": [
+      "underfitting (high bias) vs overfitting (high variance)",
+      "model complexity balance",
+      "regularization"
+    ]
+  },
+  {
+    "role": "Machine Learning Engineer",
+    "category": "technical",
+    "question": "How do you handle imbalanced datasets?",
+    "keyPoints": [
+      "resampling (SMOTE",
+      "undersampling)",
+      "class weights",
+      "appropriate metrics (F1/precision-recall over accuracy)"
+    ]
+  },
+  {
+    "role": "Machine Learning Engineer",
+    "category": "technical",
+    "question": "What is cross-validation and why use it?",
+    "keyPoints": [
+      "k-fold splitting",
+      "more robust performance estimate",
+      "reduces overfitting to a single train/test split"
+    ]
+  },
+  {
+    "role": "Machine Learning Engineer",
+    "category": "technical",
+    "question": "Explain the difference between bagging and boosting.",
+    "keyPoints": [
+      "bagging trains parallel models on random subsets (reduces variance)",
+      "boosting trains sequentially correcting errors (reduces bias)"
+    ]
+  },
+  {
+    "role": "Machine Learning Engineer",
+    "category": "technical",
+    "question": "How would you deploy a trained ML model to production?",
+    "keyPoints": [
+      "model serialization",
+      "serving via API (FastAPI/Flask or managed endpoint)",
+      "monitoring for drift"
+    ]
+  },
+  {
+    "role": "Machine Learning Engineer",
+    "category": "technical",
+    "question": "What is feature engineering and give an example.",
+    "keyPoints": [
+      "transforming raw data into predictive features",
+      "domain knowledge application",
+      "example (extracting day-of-week from timestamp)"
+    ]
+  },
+  {
+    "role": "Data Scientist",
+    "category": "technical",
+    "question": "Walk through your typical data science project workflow.",
+    "keyPoints": [
+      "problem framing",
+      "data collection/cleaning",
+      "EDA",
+      "modeling",
+      "evaluation",
+      "communication of results"
+    ]
+  },
+  {
+    "role": "Data Scientist",
+    "category": "technical",
+    "question": "How do you handle missing data?",
+    "keyPoints": [
+      "understand missingness pattern (MCAR/MAR/MNAR)",
+      "imputation strategies",
+      "dropping vs flagging"
+    ]
+  },
+  {
+    "role": "Data Scientist",
+    "category": "technical",
+    "question": "Explain p-value and statistical significance.",
+    "keyPoints": [
+      "probability of observing result under null hypothesis",
+      "common threshold (0.05)",
+      "doesn't imply practical significance"
+    ]
+  },
+  {
+    "role": "Data Scientist",
+    "category": "technical",
+    "question": "How would you explain a complex model to a non-technical stakeholder?",
+    "keyPoints": [
+      "analogy-based explanation",
+      "focus on business impact",
+      "visual aids over technical jargon"
+    ]
+  },
+  {
+    "role": "Data Scientist",
+    "category": "technical",
+    "question": "What's the difference between correlation and causation?",
+    "keyPoints": [
+      "correlation shows association",
+      "causation requires controlled experiment/causal inference",
+      "confounding variables"
+    ]
+  },
+  {
+    "role": "Data Scientist",
+    "category": "technical",
+    "question": "How do you decide which metric to optimize for a business problem?",
+    "keyPoints": [
+      "align metric with business goal",
+      "consider tradeoffs (precision vs recall)",
+      "stakeholder input"
+    ]
+  },
+  {
+    "role": "Data Analyst",
+    "category": "technical",
+    "question": "How would you approach a dataset you've never seen before?",
+    "keyPoints": [
+      "check shape/schema",
+      "missing values",
+      "distributions",
+      "obvious quality issues before analysis"
+    ]
+  },
+  {
+    "role": "Data Analyst",
+    "category": "technical",
+    "question": "Explain the difference between a JOIN types in SQL (INNER/LEFT/RIGHT/FULL).",
+    "keyPoints": [
+      "which rows are kept from each table",
+      "common use cases for each"
+    ]
+  },
+  {
+    "role": "Data Analyst",
+    "category": "technical",
+    "question": "How do you identify and handle outliers?",
+    "keyPoints": [
+      "IQR/z-score methods",
+      "domain judgment on whether to remove or investigate"
+    ]
+  },
+  {
+    "role": "Data Analyst",
+    "category": "technical",
+    "question": "What makes a good dashboard?",
+    "keyPoints": [
+      "answers a specific question",
+      "minimal clutter",
+      "right chart type for the data",
+      "actionable not just decorative"
+    ]
+  },
+  {
+    "role": "Data Analyst",
+    "category": "technical",
+    "question": "How would you explain a drop in a key metric to leadership?",
+    "keyPoints": [
+      "structured investigation (segment breakdown",
+      "time-based comparison)",
+      "root cause before conclusions",
+      "clear narrative"
+    ]
+  },
+  {
+    "role": "Data Analyst",
+    "category": "technical",
+    "question": "Write a SQL query to find the second-highest value in a column (verbally describe approach).",
+    "keyPoints": [
+      "subquery with MAX excluding top value",
+      "or OFFSET/LIMIT with ORDER BY",
+      "or window functions (RANK/DENSE_RANK)"
+    ]
+  },
+  {
+    "role": "Data Engineer",
+    "category": "technical",
+    "question": "Explain the difference between ETL and ELT.",
+    "keyPoints": [
+      "transform-before-load vs load-then-transform",
+      "modern data warehouses favor ELT for flexibility/scale"
+    ]
+  },
+  {
+    "role": "Data Engineer",
+    "category": "technical",
+    "question": "How would you design a pipeline to handle daily batch ingestion of large files?",
+    "keyPoints": [
+      "orchestration tool (Airflow)",
+      "idempotency",
+      "error handling/retries",
+      "partitioning strategy"
+    ]
+  },
+  {
+    "role": "Data Engineer",
+    "category": "technical",
+    "question": "What is data partitioning and why does it matter?",
+    "keyPoints": [
+      "splitting data by key (date",
+      "region) for query performance and manageability"
+    ]
+  },
+  {
+    "role": "Data Engineer",
+    "category": "technical",
+    "question": "How do you ensure data quality in a pipeline?",
+    "keyPoints": [
+      "schema validation",
+      "anomaly detection",
+      "automated tests on row counts/nulls",
+      "alerting"
+    ]
+  },
+  {
+    "role": "Data Engineer",
+    "category": "technical",
+    "question": "Explain the difference between a data warehouse and a data lake.",
+    "keyPoints": [
+      "structured/schema-on-write vs raw/schema-on-read",
+      "use cases for each"
+    ]
+  },
+  {
+    "role": "Data Engineer",
+    "category": "technical",
+    "question": "How would you handle schema changes in an upstream source without breaking downstream consumers?",
+    "keyPoints": [
+      "versioning",
+      "backward-compatible changes",
+      "communication/contract with consumers"
+    ]
+  },
+  {
+    "role": "DevOps Engineer",
+    "category": "technical",
+    "question": "Explain the CI/CD pipeline concept.",
+    "keyPoints": [
+      "continuous integration (automated build/test on commit)",
+      "continuous delivery/deployment (automated release)",
+      "reduces manual error"
+    ]
+  },
+  {
+    "role": "DevOps Engineer",
+    "category": "technical",
+    "question": "What is Infrastructure as Code and why use it?",
+    "keyPoints": [
+      "version-controlled",
+      "repeatable infrastructure provisioning (Terraform/CloudFormation)",
+      "reduces drift"
+    ]
+  },
+  {
+    "role": "DevOps Engineer",
+    "category": "technical",
+    "question": "How do you handle secrets management in a CI/CD pipeline?",
+    "keyPoints": [
+      "dedicated secrets managers (Vault",
+      "AWS Secrets Manager)",
+      "never hardcoding",
+      "environment injection"
+    ]
+  },
+  {
+    "role": "DevOps Engineer",
+    "category": "technical",
+    "question": "Explain the difference between containers and virtual machines.",
+    "keyPoints": [
+      "containers share host OS kernel (lightweight)",
+      "VMs virtualize full hardware (heavier",
+      "more isolated)"
+    ]
+  },
+  {
+    "role": "DevOps Engineer",
+    "category": "technical",
+    "question": "How would you design a zero-downtime deployment strategy?",
+    "keyPoints": [
+      "blue-green or rolling deployments",
+      "health checks",
+      "rollback plan"
+    ]
+  },
+  {
+    "role": "DevOps Engineer",
+    "category": "technical",
+    "question": "What metrics would you monitor for a production system?",
+    "keyPoints": [
+      "latency",
+      "error rate",
+      "throughput",
+      "resource utilization (the \"four golden signals\")"
+    ]
+  },
+  {
+    "role": "Cloud Engineer (AWS)",
+    "category": "technical",
+    "question": "Explain the difference between EC2, Lambda, and ECS.",
+    "keyPoints": [
+      "EC2 = full VM control",
+      "Lambda = serverless functions",
+      "ECS = container orchestration"
+    ]
+  },
+  {
+    "role": "Cloud Engineer (AWS)",
+    "category": "technical",
+    "question": "How would you design a highly available architecture on AWS?",
+    "keyPoints": [
+      "multi-AZ deployment",
+      "load balancing",
+      "auto-scaling",
+      "managed database replicas"
+    ]
+  },
+  {
+    "role": "Cloud Engineer (AWS)",
+    "category": "technical",
+    "question": "What is IAM and why is least-privilege important?",
+    "keyPoints": [
+      "identity and access management",
+      "granting only necessary permissions",
+      "reduces blast radius of compromised credentials"
+    ]
+  },
+  {
+    "role": "Cloud Engineer (AWS)",
+    "category": "technical",
+    "question": "Explain the difference between S3 storage classes.",
+    "keyPoints": [
+      "Standard vs Infrequent Access vs Glacier",
+      "cost vs retrieval speed tradeoffs"
+    ]
+  },
+  {
+    "role": "Cloud Engineer (AWS)",
+    "category": "technical",
+    "question": "How do you monitor and alert on AWS infrastructure?",
+    "keyPoints": [
+      "CloudWatch metrics/alarms",
+      "log aggregation",
+      "dashboards for key services"
+    ]
+  },
+  {
+    "role": "Cloud Engineer (AWS)",
+    "category": "technical",
+    "question": "How would you approach cost optimization on AWS?",
+    "keyPoints": [
+      "right-sizing instances",
+      "reserved/spot instances",
+      "unused resource cleanup",
+      "cost monitoring tools"
+    ]
+  },
+  {
+    "role": "Mobile Developer (Android / Kotlin)",
+    "category": "technical",
+    "question": "Explain the Android Activity lifecycle.",
+    "keyPoints": [
+      "onCreate/onStart/onResume/onPause/onStop/onDestroy",
+      "state handling across transitions"
+    ]
+  },
+  {
+    "role": "Mobile Developer (Android / Kotlin)",
+    "category": "technical",
+    "question": "What is Jetpack Compose and how does it differ from XML layouts?",
+    "keyPoints": [
+      "declarative UI vs imperative XML+code",
+      "less boilerplate",
+      "recomposition model"
+    ]
+  },
+  {
+    "role": "Mobile Developer (Android / Kotlin)",
+    "category": "technical",
+    "question": "How do you handle background tasks in Android?",
+    "keyPoints": [
+      "WorkManager for deferrable tasks",
+      "coroutines for async work",
+      "avoiding blocking the main thread"
+    ]
+  },
+  {
+    "role": "Mobile Developer (Android / Kotlin)",
+    "category": "technical",
+    "question": "Explain Kotlin coroutines and structured concurrency.",
+    "keyPoints": [
+      "lightweight threads",
+      "suspend functions",
+      "scope-based lifecycle management to avoid leaks"
+    ]
+  },
+  {
+    "role": "Mobile Developer (Android / Kotlin)",
+    "category": "technical",
+    "question": "How would you optimize app startup time?",
+    "keyPoints": [
+      "lazy initialization",
+      "reducing work in Application class",
+      "baseline profiles"
+    ]
+  },
+  {
+    "role": "Mobile Developer (Android / Kotlin)",
+    "category": "technical",
+    "question": "How do you handle different screen sizes and densities?",
+    "keyPoints": [
+      "density-independent pixels",
+      "responsive layouts (ConstraintLayout)",
+      "resource qualifiers"
+    ]
+  },
+  {
+    "role": "Mobile Developer (iOS / Swift)",
+    "category": "technical",
+    "question": "Explain the difference between value types and reference types in Swift.",
+    "keyPoints": [
+      "structs/enums (value",
+      "copied) vs classes (reference",
+      "shared)",
+      "implications for mutability and performance"
+    ]
+  },
+  {
+    "role": "Mobile Developer (iOS / Swift)",
+    "category": "technical",
+    "question": "What is ARC and how does it manage memory?",
+    "keyPoints": [
+      "Automatic Reference Counting",
+      "strong/weak/unowned references",
+      "retain cycles"
+    ]
+  },
+  {
+    "role": "Mobile Developer (iOS / Swift)",
+    "category": "technical",
+    "question": "Explain the MVVM pattern and why it's popular in iOS.",
+    "keyPoints": [
+      "separation of view logic from business logic",
+      "testability",
+      "works well with SwiftUI bindings"
+    ]
+  },
+  {
+    "role": "Mobile Developer (iOS / Swift)",
+    "category": "technical",
+    "question": "How do you handle asynchronous code in Swift?",
+    "keyPoints": [
+      "async/await",
+      "completion handlers (older pattern)",
+      "Combine framework"
+    ]
+  },
+  {
+    "role": "Mobile Developer (iOS / Swift)",
+    "category": "technical",
+    "question": "What's the difference between UIKit and SwiftUI?",
+    "keyPoints": [
+      "imperative/older vs declarative/newer",
+      "interoperability",
+      "when each is appropriate"
+    ]
+  },
+  {
+    "role": "Mobile Developer (iOS / Swift)",
+    "category": "technical",
+    "question": "How would you debug a memory leak in an iOS app?",
+    "keyPoints": [
+      "Instruments (Leaks/Allocations tool)",
+      "checking for retain cycles in closures",
+      "weak self usage"
+    ]
+  },
+  {
+    "role": "React Native Developer",
+    "category": "technical",
+    "question": "How does React Native bridge JavaScript and native code?",
+    "keyPoints": [
+      "the bridge (or new JSI architecture)",
+      "async communication between JS thread and native modules"
+    ]
+  },
+  {
+    "role": "React Native Developer",
+    "category": "technical",
+    "question": "How do you handle platform-specific code (iOS vs Android)?",
+    "keyPoints": [
+      "Platform.OS checks",
+      "`.ios.js`/`.android.js` file extensions"
+    ]
+  },
+  {
+    "role": "React Native Developer",
+    "category": "technical",
+    "question": "How would you optimize a React Native app's performance?",
+    "keyPoints": [
+      "minimizing bridge traffic",
+      "FlatList optimization",
+      "avoiding unnecessary re-renders",
+      "Hermes engine"
+    ]
+  },
+  {
+    "role": "React Native Developer",
+    "category": "technical",
+    "question": "Explain how navigation typically works in a React Native app.",
+    "keyPoints": [
+      "React Navigation stack/tab/drawer navigators",
+      "deep linking considerations"
+    ]
+  },
+  {
+    "role": "React Native Developer",
+    "category": "technical",
+    "question": "How do you handle native modules that don't have existing RN support?",
+    "keyPoints": [
+      "writing custom native modules bridging to iOS/Android SDKs"
+    ]
+  },
+  {
+    "role": "Golang Developer",
+    "category": "technical",
+    "question": "Explain goroutines and channels.",
+    "keyPoints": [
+      "lightweight concurrent functions",
+      "channels for safe communication between them",
+      "avoiding shared-memory races"
+    ]
+  },
+  {
+    "role": "Golang Developer",
+    "category": "technical",
+    "question": "What is the difference between a slice and an array in Go?",
+    "keyPoints": [
+      "arrays are fixed-size",
+      "slices are dynamic views over an underlying array"
+    ]
+  },
+  {
+    "role": "Golang Developer",
+    "category": "technical",
+    "question": "How does Go handle error handling differently from exceptions?",
+    "keyPoints": [
+      "explicit error return values",
+      "no try/catch",
+      "encourages handling errors at each call site"
+    ]
+  },
+  {
+    "role": "Golang Developer",
+    "category": "technical",
+    "question": "Explain Go's garbage collection approach.",
+    "keyPoints": [
+      "concurrent",
+      "low-latency GC",
+      "tradeoffs vs manual memory management"
+    ]
+  },
+  {
+    "role": "Golang Developer",
+    "category": "technical",
+    "question": "How would you structure a Go microservice project?",
+    "keyPoints": [
+      "cmd/internal/pkg layout conventions",
+      "dependency injection without heavy frameworks"
+    ]
+  },
+  {
+    "role": ".NET Developer (C#)",
+    "category": "technical",
+    "question": "Explain the difference between .NET Framework and .NET Core/.NET 5+.",
+    "keyPoints": [
+      "Windows-only legacy vs cross-platform modern runtime",
+      "performance improvements"
+    ]
+  },
+  {
+    "role": ".NET Developer (C#)",
+    "category": "technical",
+    "question": "What is dependency injection in ASP.NET Core?",
+    "keyPoints": [
+      "built-in DI container",
+      "service lifetimes (transient/scoped/singleton)"
+    ]
+  },
+  {
+    "role": ".NET Developer (C#)",
+    "category": "technical",
+    "question": "Explain async/await in C#.",
+    "keyPoints": [
+      "non-blocking I/O",
+      "Task-based asynchronous pattern",
+      "avoiding deadlocks (ConfigureAwait)"
+    ]
+  },
+  {
+    "role": ".NET Developer (C#)",
+    "category": "technical",
+    "question": "What is Entity Framework and how does it simplify data access?",
+    "keyPoints": [
+      "ORM abstraction over SQL",
+      "migrations",
+      "LINQ query translation"
+    ]
+  },
+  {
+    "role": ".NET Developer (C#)",
+    "category": "technical",
+    "question": "How do you handle configuration across environments in ASP.NET Core?",
+    "keyPoints": [
+      "appsettings.json per environment",
+      "environment variables",
+      "IOptions pattern"
+    ]
+  },
+  {
+    "role": "Flutter Developer",
+    "category": "technical",
+    "question": "Explain the widget tree and how Flutter renders UI.",
+    "keyPoints": [
+      "everything is a widget",
+      "declarative composition",
+      "rebuild on state change"
+    ]
+  },
+  {
+    "role": "Flutter Developer",
+    "category": "technical",
+    "question": "What's the difference between StatelessWidget and StatefulWidget?",
+    "keyPoints": [
+      "immutable vs widgets holding mutable state that triggers rebuilds"
+    ]
+  },
+  {
+    "role": "Flutter Developer",
+    "category": "technical",
+    "question": "How do you manage state in a larger Flutter app?",
+    "keyPoints": [
+      "Provider",
+      "Riverpod",
+      "Bloc — tradeoffs in complexity vs scalability"
+    ]
+  },
+  {
+    "role": "Flutter Developer",
+    "category": "technical",
+    "question": "How does Flutter achieve cross-platform rendering without native UI components?",
+    "keyPoints": [
+      "Skia rendering engine draws directly",
+      "consistent UI across platforms"
+    ]
+  },
+  {
+    "role": "Flutter Developer",
+    "category": "technical",
+    "question": "How would you optimize a Flutter app with jank/dropped frames?",
+    "keyPoints": [
+      "avoiding rebuilds of large subtrees",
+      "const constructors",
+      "using DevTools performance overlay"
+    ]
+  },
+  {
+    "role": "QA / SDET (Software Development Engineer in Test)",
+    "category": "technical",
+    "question": "What's the difference between manual and automated testing, and when do you use each?",
+    "keyPoints": [
+      "automation for repetitive/regression tests",
+      "manual for exploratory/usability testing"
+    ]
+  },
+  {
+    "role": "QA / SDET (Software Development Engineer in Test)",
+    "category": "technical",
+    "question": "Explain the testing pyramid.",
+    "keyPoints": [
+      "many unit tests",
+      "fewer integration tests",
+      "fewest end-to-end tests — cost/speed tradeoffs"
+    ]
+  },
+  {
+    "role": "QA / SDET (Software Development Engineer in Test)",
+    "category": "technical",
+    "question": "How would you design a test plan for a new feature?",
+    "keyPoints": [
+      "requirements review",
+      "edge cases",
+      "happy path + negative cases",
+      "risk-based prioritization"
+    ]
+  },
+  {
+    "role": "QA / SDET (Software Development Engineer in Test)",
+    "category": "technical",
+    "question": "What is flaky test and how do you deal with it?",
+    "keyPoints": [
+      "test that passes/fails inconsistently",
+      "causes (timing/race conditions/test isolation)",
+      "quarantine and root-cause approach"
+    ]
+  },
+  {
+    "role": "QA / SDET (Software Development Engineer in Test)",
+    "category": "technical",
+    "question": "Explain the difference between load testing and stress testing.",
+    "keyPoints": [
+      "load = expected traffic behavior",
+      "stress = breaking point/beyond-capacity behavior"
+    ]
+  },
+  {
+    "role": "QA / SDET (Software Development Engineer in Test)",
+    "category": "technical",
+    "question": "How do you approach test automation framework design?",
+    "keyPoints": [
+      "page object model",
+      "reusable utilities",
+      "CI integration",
+      "reporting"
+    ]
+  },
+  {
+    "role": "Cybersecurity Analyst",
+    "category": "technical",
+    "question": "Explain the CIA triad.",
+    "keyPoints": [
+      "Confidentiality",
+      "Integrity",
+      "Availability — foundational security principles"
+    ]
+  },
+  {
+    "role": "Cybersecurity Analyst",
+    "category": "technical",
+    "question": "What is the difference between symmetric and asymmetric encryption?",
+    "keyPoints": [
+      "single shared key vs public/private key pair",
+      "use cases for each"
+    ]
+  },
+  {
+    "role": "Cybersecurity Analyst",
+    "category": "technical",
+    "question": "How would you respond to a suspected data breach?",
+    "keyPoints": [
+      "containment first",
+      "evidence preservation",
+      "root cause investigation",
+      "stakeholder/legal notification"
+    ]
+  },
+  {
+    "role": "Cybersecurity Analyst",
+    "category": "technical",
+    "question": "Explain common web vulnerabilities (OWASP Top 10 examples).",
+    "keyPoints": [
+      "SQL injection",
+      "XSS",
+      "CSRF — cause and basic mitigation for each"
+    ]
+  },
+  {
+    "role": "Cybersecurity Analyst",
+    "category": "technical",
+    "question": "What is the principle of least privilege?",
+    "keyPoints": [
+      "granting minimum access necessary",
+      "reducing attack surface"
+    ]
+  },
+  {
+    "role": "Cybersecurity Analyst",
+    "category": "technical",
+    "question": "How do you stay current with emerging threats?",
+    "keyPoints": [
+      "threat intel feeds",
+      "CVE monitoring",
+      "security community engagement"
+    ]
+  },
+  {
+    "role": "Database Administrator / SQL Developer",
+    "category": "technical",
+    "question": "Explain database normalization and when you might denormalize.",
+    "keyPoints": [
+      "reducing redundancy via normal forms",
+      "denormalizing for read performance in specific cases"
+    ]
+  },
+  {
+    "role": "Database Administrator / SQL Developer",
+    "category": "technical",
+    "question": "What is indexing and how does it improve query performance?",
+    "keyPoints": [
+      "data structure (B-tree typically) for faster lookups",
+      "tradeoff with write performance"
+    ]
+  },
+  {
+    "role": "Database Administrator / SQL Developer",
+    "category": "technical",
+    "question": "Explain ACID properties.",
+    "keyPoints": [
+      "Atomicity",
+      "Consistency",
+      "Isolation",
+      "Durability — transaction guarantees"
+    ]
+  },
+  {
+    "role": "Database Administrator / SQL Developer",
+    "category": "technical",
+    "question": "How would you diagnose a slow-running query?",
+    "keyPoints": [
+      "EXPLAIN/query plan analysis",
+      "checking for missing indexes",
+      "N+1 query patterns"
+    ]
+  },
+  {
+    "role": "Database Administrator / SQL Developer",
+    "category": "technical",
+    "question": "What's the difference between a clustered and non-clustered index?",
+    "keyPoints": [
+      "clustered determines physical row order (one per table)",
+      "non-clustered is a separate lookup structure"
+    ]
+  },
+  {
+    "role": "Database Administrator / SQL Developer",
+    "category": "technical",
+    "question": "How do you approach database backup and disaster recovery planning?",
+    "keyPoints": [
+      "backup frequency/retention",
+      "point-in-time recovery",
+      "testing restores regularly"
+    ]
+  },
+  {
+    "role": "UI/UX Designer",
+    "category": "technical",
+    "question": "Walk through your design process from brief to final handoff.",
+    "keyPoints": [
+      "research",
+      "wireframes",
+      "prototyping",
+      "usability testing",
+      "design system alignment",
+      "dev handoff"
+    ]
+  },
+  {
+    "role": "UI/UX Designer",
+    "category": "technical",
+    "question": "How do you balance user needs with business goals?",
+    "keyPoints": [
+      "data-informed tradeoffs",
+      "framing decisions around both metrics and user pain points"
+    ]
+  },
+  {
+    "role": "UI/UX Designer",
+    "category": "technical",
+    "question": "What makes for good accessibility in design?",
+    "keyPoints": [
+      "color contrast",
+      "keyboard navigation",
+      "screen reader support",
+      "WCAG guidelines awareness"
+    ]
+  },
+  {
+    "role": "UI/UX Designer",
+    "category": "technical",
+    "question": "How do you handle feedback from stakeholders that conflicts with user research?",
+    "keyPoints": [
+      "presenting evidence",
+      "negotiating tradeoffs",
+      "not dismissing either side outright"
+    ]
+  },
+  {
+    "role": "UI/UX Designer",
+    "category": "technical",
+    "question": "Explain the difference between UX and UI.",
+    "keyPoints": [
+      "UX = overall experience/flow/usability",
+      "UI = visual/interactive surface layer"
+    ]
+  },
+  {
+    "role": "UI/UX Designer",
+    "category": "technical",
+    "question": "How do you validate a design decision before full implementation?",
+    "keyPoints": [
+      "prototyping",
+      "A/B testing",
+      "usability testing with real users"
+    ]
+  },
+  {
+    "role": "Technical Product Manager",
+    "category": "technical",
+    "question": "How do you prioritize a product backlog with limited engineering capacity?",
+    "keyPoints": [
+      "framework (RICE/impact-effort)",
+      "stakeholder alignment",
+      "saying no clearly"
+    ]
+  },
+  {
+    "role": "Technical Product Manager",
+    "category": "technical",
+    "question": "How do you write a good user story or spec?",
+    "keyPoints": [
+      "clear acceptance criteria",
+      "user-centered framing",
+      "avoiding prescribing implementation"
+    ]
+  },
+  {
+    "role": "Technical Product Manager",
+    "category": "technical",
+    "question": "How do you work with engineers to scope technical tradeoffs?",
+    "keyPoints": [
+      "understanding technical constraints",
+      "collaborative scoping",
+      "MVP vs full-scope framing"
+    ]
+  },
+  {
+    "role": "Technical Product Manager",
+    "category": "technical",
+    "question": "How do you measure whether a feature launch was successful?",
+    "keyPoints": [
+      "predefined success metrics before launch",
+      "post-launch analysis",
+      "iterating based on data"
+    ]
+  },
+  {
+    "role": "Technical Product Manager",
+    "category": "technical",
+    "question": "Describe a time you had to say no to a stakeholder's request.",
+    "keyPoints": [
+      "clear reasoning",
+      "alternative offered",
+      "maintaining relationship"
+    ]
+  },
+  {
+    "role": "Site Reliability Engineer (SRE)",
+    "category": "technical",
+    "question": "Explain SLIs, SLOs, and SLAs.",
+    "keyPoints": [
+      "indicator (measured metric)",
+      "objective (internal target)",
+      "agreement (external commitment with consequences)"
+    ]
+  },
+  {
+    "role": "Site Reliability Engineer (SRE)",
+    "category": "technical",
+    "question": "What is an error budget and how does it guide decisions?",
+    "keyPoints": [
+      "acceptable amount of unreliability before feature work pauses for stability work"
+    ]
+  },
+  {
+    "role": "Site Reliability Engineer (SRE)",
+    "category": "technical",
+    "question": "How would you approach an incident postmortem?",
+    "keyPoints": [
+      "blameless culture",
+      "timeline reconstruction",
+      "root cause",
+      "actionable follow-ups"
+    ]
+  },
+  {
+    "role": "Site Reliability Engineer (SRE)",
+    "category": "technical",
+    "question": "How do you design for graceful degradation?",
+    "keyPoints": [
+      "fallback behavior when a dependency fails",
+      "circuit breakers",
+      "feature flags to disable non-critical paths"
+    ]
+  },
+  {
+    "role": "Site Reliability Engineer (SRE)",
+    "category": "technical",
+    "question": "What's your approach to capacity planning?",
+    "keyPoints": [
+      "historical traffic trends",
+      "load testing",
+      "headroom for spikes"
+    ]
+  },
+  {
+    "role": "Generative AI / Prompt Engineer",
+    "category": "technical",
+    "question": "What is prompt engineering and why does it matter for LLM applications?",
+    "keyPoints": [
+      "crafting input to reliably steer model output",
+      "reduces need for fine-tuning",
+      "iterative refinement"
+    ]
+  },
+  {
+    "role": "Generative AI / Prompt Engineer",
+    "category": "technical",
+    "question": "Explain few-shot vs zero-shot prompting.",
+    "keyPoints": [
+      "few-shot provides examples in the prompt",
+      "zero-shot relies on instructions alone"
+    ]
+  },
+  {
+    "role": "Generative AI / Prompt Engineer",
+    "category": "technical",
+    "question": "How do you structure a prompt for consistent, parseable output (e.g., JSON)?",
+    "keyPoints": [
+      "explicit format instructions",
+      "examples",
+      "sometimes constrained decoding/function calling"
+    ]
+  },
+  {
+    "role": "Generative AI / Prompt Engineer",
+    "category": "technical",
+    "question": "What's the difference between temperature and top-p sampling?",
+    "keyPoints": [
+      "temperature scales randomness of token selection",
+      "top-p limits to a cumulative probability mass — both control creativity vs determinism"
+    ]
+  },
+  {
+    "role": "Generative AI / Prompt Engineer",
+    "category": "technical",
+    "question": "How would you test and iterate on a prompt systematically?",
+    "keyPoints": [
+      "eval set of representative inputs",
+      "scoring rubric",
+      "version tracking of prompt changes"
+    ]
+  },
+  {
+    "role": "Technical Support Engineer",
+    "category": "technical",
+    "question": "How do you handle a customer who is frustrated and technical issue is unclear?",
+    "keyPoints": [
+      "active listening",
+      "structured troubleshooting questions",
+      "calm de-escalation"
+    ]
+  },
+  {
+    "role": "Technical Support Engineer",
+    "category": "technical",
+    "question": "Walk through your approach to troubleshooting an unfamiliar bug report.",
+    "keyPoints": [
+      "reproduce first",
+      "check logs/error messages",
+      "isolate variables",
+      "escalate with clear context if needed"
+    ]
+  },
+  {
+    "role": "Technical Support Engineer",
+    "category": "technical",
+    "question": "How do you decide when to escalate an issue vs solve it yourself?",
+    "keyPoints": [
+      "complexity/scope assessment",
+      "SLA awareness",
+      "escalation with full context to avoid back-and-forth"
+    ]
+  },
+  {
+    "role": "Technical Support Engineer",
+    "category": "technical",
+    "question": "How do you document a resolved issue for future reference?",
+    "keyPoints": [
+      "clear reproduction steps",
+      "root cause",
+      "resolution steps",
+      "searchable KB formatting"
+    ]
+  },
+  {
+    "role": "Technical Support Engineer",
+    "category": "technical",
+    "question": "How do you manage multiple concurrent support tickets with different priorities?",
+    "keyPoints": [
+      "triage by severity/impact",
+      "clear communication of expected timelines to each customer"
+    ]
+  }
+]

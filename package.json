@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:questions": "npx tsx scripts/build-question-bank.ts",
     "start": "next start",
     "lint": "next lint"
   },

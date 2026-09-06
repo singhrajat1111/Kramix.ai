@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useId } from "react";
+import React, { useEffect, useState, useId, useRef } from "react";
 import {
   AuthoritativeAvatarState,
   AvatarMode,
@@ -80,6 +80,37 @@ export function InterviewerAvatarEngine({
   const [currentImageSrc, setCurrentImageSrc] = useState<string>(
     assetUrl || avatarImageUrl || "/avatar.png"
   );
+  // Seamless Photorealistic Video Assets (Google Flow / AI Generated)
+  const idleVideoRef = useRef<HTMLVideoElement>(null);
+  const speakingVideoRef = useRef<HTMLVideoElement>(null);
+  const [idleVideoLoaded, setIdleVideoLoaded] = useState(false);
+  const [speakingVideoLoaded, setSpeakingVideoLoaded] = useState(false);
+  const isVideoActive = idleVideoLoaded || speakingVideoLoaded;
+
+  // Coordinate seamless video playback based on authoritative state
+  useEffect(() => {
+    if (state === "SPEAKING") {
+      if (speakingVideoRef.current) {
+        speakingVideoRef.current.currentTime = 0;
+        speakingVideoRef.current.play().catch(() => {});
+      }
+    } else {
+      if (idleVideoRef.current) {
+        idleVideoRef.current.play().catch(() => {});
+      }
+    }
+  }, [state]);
+
+  // Initial auto-start for seamless looping
+  useEffect(() => {
+    if (idleVideoRef.current) {
+      idleVideoRef.current.play().catch(() => {});
+    }
+    if (speakingVideoRef.current) {
+      speakingVideoRef.current.play().catch(() => {});
+    }
+  }, []);
+
   const [speechCadenceStep, setSpeechCadenceStep] = useState(0);
 
   // Sync prop changes
@@ -224,7 +255,7 @@ export function InterviewerAvatarEngine({
 
   return (
     <div
-      className={`relative flex flex-col items-center justify-between w-full h-full min-h-[380px] rounded-2xl border border-slate-800/90 bg-gradient-to-b from-[#0e1422] via-[#0b0f19] to-[#080a11] p-5 overflow-hidden shadow-2xl ${className}`}
+      className={`relative flex flex-col items-center justify-between w-full h-full min-h-[260px] sm:min-h-[320px] lg:min-h-[380px] rounded-2xl border border-slate-800/90 bg-gradient-to-b from-[#0e1422] via-[#0b0f19] to-[#080a11] p-4 sm:p-5 overflow-hidden shadow-2xl ${className}`}
     >
       {/* Background Ambience & Lighting Glow */}
       <div
@@ -281,7 +312,7 @@ export function InterviewerAvatarEngine({
 
         {/* Central Circular Avatar Canvas / Viewport */}
         <div
-          className={`relative h-48 w-48 sm:h-56 sm:w-56 rounded-full border-2 overflow-hidden bg-slate-950 shadow-2xl transition-all duration-500 ${
+          className={`relative h-40 w-40 sm:h-52 sm:w-52 lg:h-56 lg:w-56 rounded-full border-2 overflow-hidden bg-slate-950 shadow-2xl transition-all duration-500 ${
             state === "SPEAKING"
               ? "border-brand-500 shadow-brand-500/25 scale-[1.03]"
               : state === "LISTENING"
@@ -293,29 +324,41 @@ export function InterviewerAvatarEngine({
               : "border-slate-700/80"
           }`}
           style={{
-            // Gentle breathing animation (scale + subtle vertical movement)
-            animation: "avatarBreathing 5s ease-in-out infinite",
+            // When photorealistic video is active, let the video render authentic human motion.
+            // When fallback static portrait is active, apply organic breathing / bobbing.
+            animation: isVideoActive
+              ? "none"
+              : state === "SPEAKING"
+              ? "avatarSpeechBob 1.2s ease-in-out infinite"
+              : state === "LISTENING"
+              ? isNodding
+                ? "avatarListeningNod 0.9s ease-in-out"
+                : "avatarBreathe 4.5s ease-in-out infinite"
+              : state === "THINKING"
+              ? "avatarThinkingSway 3.5s ease-in-out infinite"
+              : "avatarBreathe 4.5s ease-in-out infinite",
           }}
         >
-          {/* PRIMARY RENDER MODE: CUSTOM RAJAT AVATAR (avatar.png with template lip-sync & micro-cadence) */}
+          {/* PRIMARY RENDER MODE: PHOTOREALISTIC RAJAT AVATAR (Google Flow Dual Video + Image Fallback) */}
           {!imageLoadError ? (
             <div
               className="relative h-full w-full overflow-hidden"
               style={{
-                transform:
-                  state === "LISTENING"
-                    ? isNodding
-                      ? "translateY(2.5px) scale(1.025) rotate(0.6deg)"
-                      : "translateY(-1px) scale(1.02) rotate(0.8deg)"
-                    : state === "THINKING"
-                    ? "translateY(-1px) scale(1.01) rotate(-1.5deg)"
-                    : state === "SPEAKING"
-                    ? `translateY(${speakingYOffset}px) scale(${1.01 + (audioActivityLevel / 100) * 0.02}) rotate(${speakingRotate}deg)`
-                    : "translateY(0) scale(1)",
+                transform: isVideoActive
+                  ? "none"
+                  : state === "LISTENING"
+                  ? isNodding
+                    ? "translateY(2.5px) scale(1.02) rotate(0.5deg)"
+                    : "translateY(-1px) scale(1.015) rotate(0.6deg)"
+                  : state === "THINKING"
+                  ? "translateY(-1px) scale(1.01) rotate(-1.2deg)"
+                  : state === "SPEAKING"
+                  ? `translateY(${speakingYOffset}px) scale(${1.01 + (audioActivityLevel / 100) * 0.02}) rotate(${speakingRotate}deg)`
+                  : "translateY(0) scale(1)",
                 transition: isNodding ? "transform 0.45s ease-in-out" : "transform 0.2s ease-out",
               }}
             >
-              {/* High-Resolution Interviewer Portrait Asset */}
+              {/* Base Layer: High-Resolution Interviewer Portrait Asset (Immediate backdrop & fallback) */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={currentImageSrc}
@@ -325,34 +368,50 @@ export function InterviewerAvatarEngine({
                 className="h-full w-full object-cover select-none pointer-events-none"
               />
 
-              {/* Studio Lighting Vignette & Depth Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#080b12]/50 via-transparent to-black/20 pointer-events-none" />
+              {/* Photorealistic Video Layer 1: Idle / Listening Loop */}
+              <video
+                ref={idleVideoRef}
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="auto"
+                onCanPlay={() => setIdleVideoLoaded(true)}
+                onLoadedData={() => setIdleVideoLoaded(true)}
+                onError={() => setIdleVideoLoaded(false)}
+                className={`absolute inset-0 h-full w-full object-cover pointer-events-none transition-opacity duration-500 ${
+                  idleVideoLoaded && state !== "SPEAKING" ? "opacity-100 z-10" : "opacity-0 z-0"
+                }`}
+              >
+                <source src="/avatar/idle.mp4" type="video/mp4" />
+                <source src="/idle.mp4" type="video/mp4" />
+              </video>
 
-              {/* Dynamic Lower-Face Speech Aperture / Template Lip-Sync Overlay */}
-              {state === "SPEAKING" && (
-                <div
-                  className="absolute pointer-events-none rounded-full blur-[2px] transition-all duration-100 ease-out"
-                  style={{
-                    top: "68%",
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    width: `${20 + mouthOpenPhase * 2 + (audioActivityLevel / 100) * 8}px`,
-                    height: `${6 + mouthOpenPhase * 3 + (audioActivityLevel / 100) * 8}px`,
-                    background: `radial-gradient(ellipse at center, rgba(230, 130, 110, ${
-                      0.35 + (audioActivityLevel / 100) * 0.35
-                    }) 0%, rgba(150, 45, 30, ${
-                      0.25 + (audioActivityLevel / 100) * 0.3
-                    }) 60%, transparent 100%)`,
-                    boxShadow: `0 0 10px rgba(56, 189, 248, ${
-                      0.2 + (audioActivityLevel / 100) * 0.4
-                    })`,
-                  }}
-                />
-              )}
+              {/* Photorealistic Video Layer 2: Speaking Speech Loop */}
+              <video
+                ref={speakingVideoRef}
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="auto"
+                onCanPlay={() => setSpeakingVideoLoaded(true)}
+                onLoadedData={() => setSpeakingVideoLoaded(true)}
+                onError={() => setSpeakingVideoLoaded(false)}
+                className={`absolute inset-0 h-full w-full object-cover pointer-events-none transition-opacity duration-300 ${
+                  speakingVideoLoaded && state === "SPEAKING" ? "opacity-100 z-10" : "opacity-0 z-0"
+                }`}
+              >
+                <source src="/avatar/speaking.mp4" type="video/mp4" />
+                <source src="/speaking.mp4" type="video/mp4" />
+              </video>
+
+              {/* Studio Lighting Vignette & Depth Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#080b12]/40 via-transparent to-black/20 pointer-events-none z-15" />
 
               {/* Candidate Speech Active Reception Badge during LISTENING */}
               {state === "LISTENING" && (
-                <div className="absolute bottom-3 inset-x-0 flex items-center justify-center gap-1 pointer-events-none">
+                <div className="absolute bottom-3 inset-x-0 flex items-center justify-center gap-1 pointer-events-none z-20">
                   <div className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-950/75 border border-emerald-500/40 backdrop-blur-xs shadow-sm">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
                     <span className="text-[9px] font-mono text-emerald-300 font-medium tracking-wide">
@@ -634,24 +693,6 @@ export function InterviewerAvatarEngine({
         </div>
         <p className="text-xs text-slate-400 mt-0.5">{interviewerTitle}</p>
       </div>
-
-      <style jsx>{`
-        @keyframes avatarBreathing {
-          0%,
-          100% {
-            transform: translateY(0) scale(1);
-          }
-          50% {
-            transform: translateY(-2px) scale(1.012);
-          }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          * {
-            animation: none !important;
-            transition: none !important;
-          }
-        }
-      `}</style>
     </div>
   );
 }

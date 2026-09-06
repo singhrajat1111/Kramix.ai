@@ -80,7 +80,7 @@ export function CandidateVideo({
 
   return (
     <div
-      className={`relative flex flex-col items-center justify-center w-full h-full min-h-[380px] rounded-2xl border border-slate-800/90 bg-[#080b12] overflow-hidden shadow-2xl ${className}`}
+      className={`relative flex flex-col items-center justify-center w-full h-full min-h-[260px] sm:min-h-[320px] lg:min-h-[380px] rounded-2xl border border-slate-800/90 bg-[#080b12] overflow-hidden shadow-2xl ${className}`}
     >
       {/* Permanent Video Element: Kept mounted in DOM for instant stream attachment */}
       <video

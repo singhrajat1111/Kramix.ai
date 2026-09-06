@@ -12,6 +12,8 @@ import { ResearchProgress } from "@/components/research/ResearchProgress";
 import { RoundSelector } from "@/components/research/RoundSelector";
 import { RouteGuard } from "@/components/common/RouteGuard";
 import { RefreshCw } from "lucide-react";
+import { getQuestionsForRole } from "@/lib/demo/question-bank";
+import { DemoEndModal } from "@/components/demo/DemoEndModal";
 
 export default function ResearchPage() {
   const router = useRouter();
@@ -24,6 +26,7 @@ export default function ResearchPage() {
     percent: 0,
     statusMessage: "Initializing research pipeline...",
   });
+  const [uncoveredModalOpen, setUncoveredModalOpen] = useState(false);
 
   useEffect(() => {
     const loadedCandidate = StorageManager.getCandidateProfile();
@@ -67,6 +70,17 @@ export default function ResearchPage() {
 
   const handleSelectRound = (round: InterviewRoundInfo, mode: "FULL_SIMULATION" | "PRACTICE_ROUND") => {
     if (!plan) return;
+
+    // In Demo Mode: verify role is covered in question bank
+    const aiConfig = StorageManager.getAIConfig();
+    const isDemo = aiConfig.provider === "demo" || !aiConfig.apiKey;
+    if (isDemo) {
+      const covered = getQuestionsForRole(candidate.targetRole);
+      if (!covered) {
+        setUncoveredModalOpen(true);
+        return;
+      }
+    }
 
     const roundsSession: InterviewRoundSession[] = plan.rounds.map((r, i) => ({
       roundId: r.id,
@@ -155,6 +169,27 @@ export default function ResearchPage() {
         {!loading && plan && (
           <RoundSelector researchPlan={plan} onSelectRound={handleSelectRound} />
         )}
+
+        {/* Demo Mode Role Not Covered Upgrade CTA Modal */}
+        <DemoEndModal
+          isOpen={uncoveredModalOpen}
+          reason="role_not_covered"
+          role={candidate.targetRole || "Software Engineer"}
+          company={candidate.targetCompanies[0] || "Target Company"}
+          onClose={() => setUncoveredModalOpen(false)}
+          onBringOwnKey={() => {
+            setUncoveredModalOpen(false);
+            router.push("/setup");
+          }}
+          onContactAuthor={(role, company) => {
+            const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || "singh.rajat70880@gmail.com";
+            const subject = encodeURIComponent(`Kramix API Access Request — ${role} @ ${company}`);
+            const body = encodeURIComponent(
+              `Hi, I'd like access to Kramix live mode.\nRole: ${role}\nCompany: ${company}\n\nI want to practice interviews for this role!`
+            );
+            window.location.href = `mailto:${contactEmail}?subject=${subject}&body=${body}`;
+          }}
+        />
       </div>
     </RouteGuard>
   );

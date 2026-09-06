@@ -70,3 +70,76 @@ body {
 .glow-emerald {
   box-shadow: 0 0 35px -10px rgba(16, 185, 129, 0.4);
 }
+
+/* Living Avatar & Interviewer Speech Animations */
+@keyframes avatarBreathe {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-5px) scale(1.02);
+  }
+}
+
+@keyframes avatarSpeechBob {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg) scale(1.02);
+  }
+  20% {
+    transform: translateY(-3.5px) rotate(0.8deg) scale(1.028);
+  }
+  45% {
+    transform: translateY(2px) rotate(-0.6deg) scale(1.02);
+  }
+  70% {
+    transform: translateY(-2px) rotate(0.5deg) scale(1.025);
+  }
+}
+
+@keyframes avatarListeningNod {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(4px) rotate(1deg);
+  }
+}
+
+@keyframes avatarThinkingSway {
+  0%, 100% {
+    transform: rotate(-1.5deg) scale(1.01);
+  }
+  50% {
+    transform: rotate(1deg) scale(1.01);
+  }
+}
+
+@keyframes sonicPulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+@keyframes mouthFluctuate {
+  0%, 100% {
+    transform: translateX(-50%) scaleY(0.3) scaleX(0.85);
+  }
+  25% {
+    transform: translateX(-50%) scaleY(1.4) scaleX(1.15);
+  }
+  50% {
+    transform: translateX(-50%) scaleY(0.6) scaleX(0.95);
+  }
+  75% {
+    transform: translateX(-50%) scaleY(1.1) scaleX(1.05);
+  }
+}

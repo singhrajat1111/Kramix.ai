@@ -99,8 +99,8 @@ export function AuthModal() {
         <button
           type="button"
           disabled={loading}
-          onClick={() => signIn("google")}
-          className="w-full flex items-center justify-center gap-3 rounded-xl border border-slate-700 bg-surface-100 hover:bg-surface-200 px-4 py-2.5 text-xs font-semibold text-white transition-colors disabled:opacity-50 mb-4 shadow-sm"
+          onClick={() => signIn("google", { callbackUrl: typeof window !== "undefined" ? window.location.href : "/" })}
+          className="w-full flex items-center justify-center gap-3 rounded-xl border border-slate-700 bg-surface-100 hover:bg-surface-200 px-4 py-2.5 text-xs font-semibold text-white transition-colors disabled:opacity-50 mb-4 shadow-sm cursor-pointer"
         >
           <svg className="h-4 w-4" viewBox="0 0 24 24">
             <path

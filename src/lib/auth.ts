@@ -38,8 +38,24 @@ declare module "next-auth/jwt" {
   }
 }
 
+const isProduction = process.env.NODE_ENV === "production";
+const nextAuthSecret = process.env.NEXTAUTH_SECRET;
+
+if (isProduction) {
+  if (
+    !nextAuthSecret ||
+    nextAuthSecret === "kramix-super-secret-key-must-be-long-and-secure" ||
+    nextAuthSecret === "generate_a_secure_32_byte_secret_here" ||
+    nextAuthSecret.length < 32
+  ) {
+    throw new Error(
+      "FATAL CONFIGURATION ERROR: NEXTAUTH_SECRET must be set to a secure string of at least 32 characters in production."
+    );
+  }
+}
+
 export const authOptions: NextAuthOptions = {
-  secret: process.env.NEXTAUTH_SECRET || "kramix-super-secret-key-must-be-long-and-secure",
+  secret: nextAuthSecret || "kramix-super-secret-key-must-be-long-and-secure",
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
@@ -79,33 +95,40 @@ export const authOptions: NextAuthOptions = {
         ]
       : []),
 
-    // 3. Passwordless Direct Email Sign-In (no stored passwords, instant local & test availability)
-    CredentialsProvider({
-      id: "email-login",
-      name: "Passwordless Email",
-      credentials: {
-        email: { label: "Email", type: "email", placeholder: "you@example.com" },
-      },
-      async authorize(credentials) {
-        if (!credentials?.email) {
-          throw new Error("Please enter a valid email address");
-        }
-        const email = credentials.email.trim().toLowerCase();
-        if (!email.includes("@")) {
-          throw new Error("Invalid email format");
-        }
+    // 3. Passwordless Direct Email Sign-In (strictly non-production development/test only)
+    ...(!isProduction
+      ? [
+          CredentialsProvider({
+            id: "email-login",
+            name: "Passwordless Email (Development Only)",
+            credentials: {
+              email: { label: "Email", type: "email", placeholder: "you@example.com" },
+            },
+            async authorize(credentials) {
+              if (process.env.NODE_ENV === "production") {
+                throw new Error("Passwordless credentials login is disabled in production.");
+              }
+              if (!credentials?.email) {
+                throw new Error("Please enter a valid email address");
+              }
+              const email = credentials.email.trim().toLowerCase();
+              if (!email.includes("@")) {
+                throw new Error("Invalid email format");
+              }
 
-        // Upsert user into database (defaults to free tier with 0 credits)
-        const user = await upsertUser(email, "free", 0);
-        return {
-          id: user.id,
-          email: user.email,
-          plan: user.plan,
-          credits: user.credits,
-          hasBYOK: Boolean(user.api_key_encrypted),
-        };
-      },
-    }),
+              // Upsert user into database (defaults to free tier with 0 credits)
+              const user = await upsertUser(email, "free", 0);
+              return {
+                id: user.id,
+                email: user.email,
+                plan: user.plan,
+                credits: user.credits,
+                hasBYOK: Boolean(user.api_key_encrypted),
+              };
+            },
+          }),
+        ]
+      : []),
   ],
   callbacks: {
     async signIn({ user }) {

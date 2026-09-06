@@ -44,9 +44,10 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 1. BYOK Live Mode: User provided their own key, DO NOT touch credits!
-    if (fundingSource === "byok" || Boolean(user.api_key_encrypted)) {
-      console.log(`[Round Completed] User ${user.email} completed round #${roundIndex} using BYOK. Zero credits charged.`);
+    // Authoritative Server-Side Resolution of Funding Source:
+    // 1. User with verified BYOK stored at rest never consumes platform credits
+    if (Boolean(user.api_key_encrypted)) {
+      console.log(`[Round Completed] User ${user.email} completed round #${roundIndex} using verified BYOK. Zero credits charged.`);
       return NextResponse.json({
         decremented: false,
         reason: "byok",
@@ -55,8 +56,8 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 2. Active Subscriber: Included access, DO NOT touch credits
-    if (fundingSource === "subscriber" || user.plan === "subscriber") {
+    // 2. Active Subscriber: Unlimited included access
+    if (user.plan === "subscriber") {
       console.log(`[Round Completed] Subscriber ${user.email} completed round #${roundIndex}. Unlimited subscriber plan.`);
       return NextResponse.json({
         decremented: false,
@@ -66,25 +67,34 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 3. Credit-funded Live Round: Decrement exactly 1 credit for the completed round
-    if (user.credits > 0) {
-      const updated = await updateUserCredits(user.id, -1);
-      const remainingCredits = updated ? updated.credits : Math.max(0, user.credits - 1);
-      console.log(`[Round Completed] User ${user.email} consumed 1 credit. Remaining credits: ${remainingCredits}`);
-
+    // 3. Demo fallback if user has 0 credits
+    if (user.credits <= 0) {
       return NextResponse.json({
-        decremented: true,
-        reason: "credits",
-        credits: remainingCredits,
-        message: "1 credit consumed for completed live interview round.",
+        decremented: false,
+        reason: "insufficient_credits",
+        credits: user.credits,
+        message: "No credits charged.",
       });
     }
 
-    // If user has 0 credits
+    // 4. Credit-funded Live Round: Decrement exactly 1 credit atomically
+    const updated = await updateUserCredits(user.id, -1);
+    if (!updated) {
+      // Failed atomic check (e.g. concurrent race condition exhausted balance)
+      console.warn(`[Round Completed] Credit decrement failed for ${user.email} due to insufficient balance / race condition`);
+      return NextResponse.json({
+        decremented: false,
+        reason: "insufficient_credits",
+        credits: 0,
+      });
+    }
+
+    console.log(`[Round Completed] User ${user.email} consumed 1 credit. Remaining credits: ${updated.credits}`);
     return NextResponse.json({
-      decremented: false,
-      reason: "insufficient_credits",
-      credits: user.credits,
+      decremented: true,
+      reason: "credits",
+      credits: updated.credits,
+      message: "1 credit consumed for completed live interview round.",
     });
   } catch (err) {
     if (err instanceof ValidationError) {

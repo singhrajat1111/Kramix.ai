@@ -30,19 +30,11 @@ export async function POST(req: NextRequest) {
     const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
     const origin = req.headers.get("origin") || "http://localhost:3000";
 
-    // If Stripe key is unconfigured (e.g. dev testing), simulate success safely
     if (!stripeSecretKey) {
-      console.warn("STRIPE_SECRET_KEY not set in environment. Running in dev simulation mode.");
-      const user = await getUserByEmail(session.user.email);
-      if (user) {
-        await updateUserCredits(user.id, pack.credits);
-        await updateUserPlan(user.id, "payg");
-      }
-      return NextResponse.json({
-        simulatedSuccess: true,
-        credits: pack.credits,
-        message: "Development test: credits added successfully",
-      });
+      return NextResponse.json(
+        { error: "Stripe payment gateway is currently not configured" },
+        { status: 503 }
+      );
     }
 
     const stripe = new Stripe(stripeSecretKey, {

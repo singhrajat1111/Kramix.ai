@@ -8,6 +8,10 @@ const nextConfig = {
         source: "/:path*",
         headers: [
           {
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
+          },
+          {
             key: "X-Frame-Options",
             value: "SAMEORIGIN",
           },
@@ -34,6 +38,9 @@ const nextConfig = {
               "media-src 'self' blob: data:",
               "connect-src 'self' ws: wss: https://api.razorpay.com https://api.stripe.com https://generativelanguage.googleapis.com https://api.groq.com https://api.deepseek.com https://api.openai.com https://api.anthropic.com",
               "frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com https://js.stripe.com",
+              "frame-ancestors 'self'",
+              "base-uri 'self'",
+              "form-action 'self' https://checkout.razorpay.com https://api.razorpay.com https://*.stripe.com",
             ].join("; "),
           },
         ],

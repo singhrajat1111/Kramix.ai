@@ -6,11 +6,12 @@ interface RateLimitConfig {
 }
 
 const LIMITS: Record<string, RateLimitConfig> = {
-  ai: { maxRequests: 30, windowMs: 60 * 1000 },          // 30 req/min for AI completions
-  checkout: { maxRequests: 10, windowMs: 60 * 1000 },    // 10 req/min for checkouts
-  round: { maxRequests: 10, windowMs: 60 * 1000 },       // 10 req/min for round conclusion
-  byok: { maxRequests: 10, windowMs: 60 * 1000 },        // 10 req/min for API key updates
-  auth: { maxRequests: 20, windowMs: 60 * 1000 },        // 20 req/min for auth actions
+  ai: { maxRequests: 30, windowMs: 60 * 1000 },             // 30 req/min for AI completions
+  checkout: { maxRequests: 10, windowMs: 60 * 1000 },       // 10 req/min for checkouts
+  round: { maxRequests: 10, windowMs: 60 * 1000 },          // 10 req/min for round conclusion
+  byok: { maxRequests: 10, windowMs: 60 * 1000 },           // 10 req/min for API key updates
+  auth: { maxRequests: 20, windowMs: 60 * 1000 },           // 20 req/min for auth actions
+  testConnection: { maxRequests: 10, windowMs: 60 * 1000 }, // 10 req/min for provider health probes
 };
 
 interface WindowRecord {
@@ -21,7 +22,7 @@ const ipWindows = new Map<string, WindowRecord>();
 
 // Cleanup stale windows periodically (every 5 minutes)
 if (typeof setInterval !== "undefined") {
-  setInterval(() => {
+  const timer = setInterval(() => {
     const now = Date.now();
     ipWindows.forEach((record, key) => {
       record.timestamps = record.timestamps.filter((ts: number) => now - ts < 10 * 60 * 1000);
@@ -30,6 +31,9 @@ if (typeof setInterval !== "undefined") {
       }
     });
   }, 5 * 60 * 1000);
+  if (timer && typeof timer.unref === "function") {
+    timer.unref();
+  }
 }
 
 function getClientIdentifier(req: NextRequest | { headers?: { get: (k: string) => string | null } } | string): string {
@@ -46,7 +50,7 @@ function getClientIdentifier(req: NextRequest | { headers?: { get: (k: string) =
 
 export function checkRateLimit(
   req: NextRequest | { headers?: { get: (k: string) => string | null } } | string,
-  category: "ai" | "checkout" | "round" | "byok" | "auth" = "ai"
+  category: "ai" | "checkout" | "round" | "byok" | "auth" | "testConnection" = "ai"
 ): { success: boolean; limit: number; remaining: number; resetSeconds: number } {
   const config = LIMITS[category] || LIMITS.ai;
   const ip = getClientIdentifier(req);
@@ -89,7 +93,7 @@ export function checkRateLimit(
  */
 export function enforceRateLimit(
   req: NextRequest,
-  category: "ai" | "checkout" | "round" | "byok" | "auth" = "ai"
+  category: "ai" | "checkout" | "round" | "byok" | "auth" | "testConnection" = "ai"
 ): NextResponse | null {
   const check = checkRateLimit(req, category);
   if (!check.success) {

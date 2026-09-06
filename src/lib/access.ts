@@ -108,16 +108,36 @@ export async function getEffectiveServerAIConfig(
 
       // 2. Check subscriber status
       if (dbUser.plan === "subscriber") {
+        const serverKey =
+          clientConfig?.provider === "openai"
+            ? process.env.OPENAI_API_KEY
+            : process.env.GEMINI_API_KEY;
         return {
-          config: clientConfig || { provider: "demo" },
+          config: serverKey
+            ? {
+                provider: clientConfig?.provider || "gemini",
+                apiKey: serverKey,
+                model: clientConfig?.model,
+              }
+            : clientConfig || { provider: "demo" },
           fundingSource: "subscriber",
         };
       }
 
       // 3. Check credits balance
       if (dbUser.credits > 0) {
+        const serverKey =
+          clientConfig?.provider === "openai"
+            ? process.env.OPENAI_API_KEY
+            : process.env.GEMINI_API_KEY;
         return {
-          config: clientConfig || { provider: "demo" },
+          config: serverKey
+            ? {
+                provider: clientConfig?.provider || "gemini",
+                apiKey: serverKey,
+                model: clientConfig?.model,
+              }
+            : clientConfig || { provider: "demo" },
           fundingSource: "credits",
         };
       }

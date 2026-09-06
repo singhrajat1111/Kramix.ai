@@ -16,6 +16,14 @@ export interface UserRecord {
 // ---------------------------------------------------------------------------
 const databaseUrl = process.env.DATABASE_URL;
 
+function assertDatabaseConfigured(): void {
+  if (process.env.NODE_ENV === "production" && !databaseUrl) {
+    throw new Error(
+      "FATAL CONFIGURATION ERROR: DATABASE_URL must be configured in production environment. Kramix disallows local file-based database fallback in production."
+    );
+  }
+}
+
 let pool: Pool | null = null;
 if (databaseUrl) {
   pool = new Pool({
@@ -28,7 +36,7 @@ if (databaseUrl) {
 }
 
 // ---------------------------------------------------------------------------
-// In-Memory / File-based Dev Fallback Store (when DATABASE_URL is not set)
+// In-Memory / File-based Dev Fallback Store (when DATABASE_URL is not set in dev/test)
 // ---------------------------------------------------------------------------
 interface DevStoreData {
   users: Record<string, UserRecord>;
@@ -38,6 +46,9 @@ interface DevStoreData {
 const DEV_DB_FILE = path.join(process.cwd(), ".dev_kramix_db.json");
 
 function loadDevStore(): DevStoreData {
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("Local dev database cannot be used in production.");
+  }
   try {
     if (fs.existsSync(DEV_DB_FILE)) {
       const raw = fs.readFileSync(DEV_DB_FILE, "utf8");
@@ -50,6 +61,9 @@ function loadDevStore(): DevStoreData {
 }
 
 function saveDevStore(store: DevStoreData): void {
+  if (process.env.NODE_ENV === "production") {
+    return;
+  }
   try {
     fs.writeFileSync(DEV_DB_FILE, JSON.stringify(store, null, 2), "utf8");
   } catch {
@@ -197,13 +211,20 @@ export async function updateUserCredits(
 ): Promise<UserRecord | null> {
   if (pool) {
     await ensureTablesExist();
-    const res = await pool.query(
-      `UPDATE users
-       SET credits = GREATEST(0, credits + $1)
-       WHERE id = $2
-       RETURNING id, email, plan, credits, api_key_encrypted, created_at`,
-      [delta, userId]
-    );
+    // For decrements (delta < 0), require that current credits >= -delta to prevent race condition / double-spending
+    const query =
+      delta < 0
+        ? `UPDATE users
+           SET credits = credits + $1
+           WHERE id = $2 AND credits >= $3
+           RETURNING id, email, plan, credits, api_key_encrypted, created_at`
+        : `UPDATE users
+           SET credits = credits + $1
+           WHERE id = $2
+           RETURNING id, email, plan, credits, api_key_encrypted, created_at`;
+
+    const params = delta < 0 ? [delta, userId, Math.abs(delta)] : [delta, userId];
+    const res = await pool.query(query, params);
     if (res.rows.length === 0) return null;
     const row = res.rows[0];
     return {
@@ -220,6 +241,10 @@ export async function updateUserCredits(
   const store = loadDevStore();
   const user = store.users[userId];
   if (!user) return null;
+  // Guard against overdrafting in dev store as well
+  if (delta < 0 && (user.credits || 0) + delta < 0) {
+    return null;
+  }
   user.credits = Math.max(0, (user.credits || 0) + delta);
   saveDevStore(store);
   return user;

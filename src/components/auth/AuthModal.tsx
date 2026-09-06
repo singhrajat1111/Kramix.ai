@@ -167,26 +167,28 @@ export function AuthModal() {
           </button>
         </form>
 
-        {/* Quick Testing helper */}
-        <div className="mt-5 border-t border-slate-800/80 pt-4 text-center">
-          <p className="text-[11px] text-slate-500 mb-2">Instant Development Sign-In:</p>
-          <div className="flex items-center justify-center gap-2">
-            <button
-              type="button"
-              onClick={() => handleQuickDemoLogin("candidate@kramix.ai")}
-              className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[11px] font-mono text-slate-300 transition-colors"
-            >
-              candidate@kramix.ai
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickDemoLogin("engineer@kramix.ai")}
-              className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[11px] font-mono text-slate-300 transition-colors"
-            >
-              engineer@kramix.ai
-            </button>
+        {/* Quick Testing helper (Development Only) */}
+        {process.env.NODE_ENV !== "production" && (
+          <div className="mt-5 border-t border-slate-800/80 pt-4 text-center">
+            <p className="text-[11px] text-slate-500 mb-2">Instant Development Sign-In:</p>
+            <div className="flex items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => handleQuickDemoLogin("candidate@kramix.ai")}
+                className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[11px] font-mono text-slate-300 transition-colors"
+              >
+                candidate@kramix.ai
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickDemoLogin("engineer@kramix.ai")}
+                className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[11px] font-mono text-slate-300 transition-colors"
+              >
+                engineer@kramix.ai
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { getCreditPackById } from "@/lib/credits";
-import { updateUserCredits, updateUserPlan, getUserByEmail } from "@/lib/db";
 import { enforceRateLimit } from "@/lib/security/rate-limit";
 import { parseSafeJSON, ValidationError } from "@/lib/security/validation";
 import Razorpay from "razorpay";
@@ -30,19 +29,11 @@ export async function POST(req: NextRequest) {
     const keyId = process.env.RAZORPAY_KEY_ID;
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
-    // If Razorpay keys are unconfigured (e.g. dev testing), simulate success safely
     if (!keyId || !keySecret) {
-      console.warn("RAZORPAY_KEY_ID / SECRET not set in environment. Running in dev simulation mode.");
-      const user = await getUserByEmail(session.user.email);
-      if (user) {
-        await updateUserCredits(user.id, pack.credits);
-        await updateUserPlan(user.id, "payg");
-      }
-      return NextResponse.json({
-        simulatedSuccess: true,
-        credits: pack.credits,
-        message: "Development test: credits added successfully",
-      });
+      return NextResponse.json(
+        { error: "Razorpay payment gateway is currently not configured" },
+        { status: 503 }
+      );
     }
 
     const razorpay = new Razorpay({

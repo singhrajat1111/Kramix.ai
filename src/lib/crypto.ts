@@ -1,16 +1,31 @@
 import crypto from "crypto";
 
-// 32-byte key derived from process.env.ENCRYPTION_SECRET, with fallback for dev/testing
+const DEFAULT_INSECURE_TEST_KEY =
+  "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+
+// 32-byte key derived from process.env.ENCRYPTION_SECRET
 function getEncryptionKey(): Buffer {
   const secret = process.env.ENCRYPTION_SECRET;
-  if (!secret) {
-    // 32-byte deterministic fallback for development if unconfigured
-    return Buffer.from("0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef", "hex");
+  const isProduction = process.env.NODE_ENV === "production";
+
+  if (isProduction) {
+    if (!secret || secret === DEFAULT_INSECURE_TEST_KEY || secret.length < 32) {
+      throw new Error(
+        "FATAL CONFIGURATION ERROR: ENCRYPTION_SECRET must be set to a secure unique 32-byte secret in production."
+      );
+    }
   }
-  if (secret.length === 64) {
+
+  if (!secret) {
+    // Non-production fallback for local development and test automation only
+    return Buffer.from(DEFAULT_INSECURE_TEST_KEY, "hex");
+  }
+
+  if (secret.length === 64 && /^[0-9a-fA-F]+$/.test(secret)) {
     return Buffer.from(secret, "hex");
   }
-  // If provided as a string passphrase, hash to 32 bytes
+
+  // If provided as a string passphrase, derive a 32-byte key via SHA-256
   return crypto.createHash("sha256").update(secret).digest();
 }
 
@@ -49,8 +64,8 @@ export function decryptApiKey(encryptedBase64: string): string {
     decipher.setAuthTag(authTag);
     const decrypted = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
     return decrypted.toString("utf8");
-  } catch (err) {
-    console.error("Failed to decrypt API key:", err instanceof Error ? err.message : err);
+  } catch {
+    console.error("Failed to decrypt API key: authentication tag mismatch or corrupted payload");
     return "";
   }
 }

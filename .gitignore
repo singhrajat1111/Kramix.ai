@@ -29,6 +29,9 @@ yarn-error.log*
 .env*.local
 .env
 
+# local database dev store
+.dev_kramix_db.json
+
 # vercel
 .vercel
 

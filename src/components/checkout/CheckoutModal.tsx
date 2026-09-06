@@ -62,11 +62,8 @@ export function CheckoutModal() {
 
       if (data.url) {
         window.location.href = data.url;
-      } else if (data.simulatedSuccess) {
-        // Dev fallback mode if stripe key not yet in .env
-        await refreshUser();
-        closeCheckoutModal();
-        alert(`Dev simulation: ${selectedPack.credits} credits credited successfully to ${user.email}!`);
+      } else {
+        throw new Error(data.error || "Failed to initialize checkout session");
       }
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : "Checkout failed");
@@ -95,16 +92,8 @@ export function CheckoutModal() {
       });
 
       const data = await res.json();
-      if (!res.ok || data.error) {
+      if (!res.ok || data.error || !data.orderId) {
         throw new Error(data.error || "Failed to create Razorpay order");
-      }
-
-      if (data.simulatedSuccess) {
-        // Dev fallback mode if razorpay key not yet in .env
-        await refreshUser();
-        closeCheckoutModal();
-        alert(`Dev simulation: ${selectedPack.credits} credits credited successfully to ${user.email}!`);
-        return;
       }
 
       // Dynamically ensure Razorpay checkout script is loaded
@@ -139,17 +128,24 @@ export function CheckoutModal() {
           description: selectedPack.title,
           order_id: data.orderId,
           handler: async (response) => {
-            const verifyRes = await fetch("/api/webhooks/razorpay", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                ...response,
-                packId: selectedPack.id,
-              }),
-            });
-            if (verifyRes.ok) {
-              await refreshUser();
-              closeCheckoutModal();
+            try {
+              const verifyRes = await fetch("/api/webhooks/razorpay", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  ...response,
+                  packId: selectedPack.id,
+                }),
+              });
+              if (verifyRes.ok) {
+                await refreshUser();
+                closeCheckoutModal();
+              } else {
+                const verifyData = await verifyRes.json().catch(() => ({}));
+                setErrorMessage(verifyData.error || "Payment verification failed. Please contact support.");
+              }
+            } catch {
+              setErrorMessage("Network error verifying payment. Please refresh the page.");
             }
           },
           prefill: {
@@ -159,10 +155,7 @@ export function CheckoutModal() {
         });
         rzp.open();
       } else {
-        // Direct simulation for dev/testing
-        await refreshUser();
-        closeCheckoutModal();
-        alert(`Test mode: ${selectedPack.credits} credits activated!`);
+        throw new Error("Unable to load Razorpay payment SDK. Please check your network connection.");
       }
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : "Payment failed");

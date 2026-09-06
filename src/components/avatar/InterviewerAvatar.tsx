@@ -31,10 +31,10 @@ export interface InterviewerAvatarProps {
 export function InterviewerAvatar({
   state,
   mode = "PHOTOREALISTIC",
-  interviewerName = "Alex Vance",
-  interviewerTitle = "Senior Engineering Lead",
+  interviewerName = "Rajat",
+  interviewerTitle = "Lead AI Interviewer · Kramix.ai",
   avatarImageUrl = null,
-  assetUrl = null,
+  assetUrl = "/avatar.png",
   audioActivityLevel = 0,
   onModeChange,
   className = "",

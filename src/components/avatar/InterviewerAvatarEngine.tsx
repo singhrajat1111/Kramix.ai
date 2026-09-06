@@ -30,10 +30,10 @@ interface InterviewerAvatarEngineProps {
 export function InterviewerAvatarEngine({
   state,
   mode = "PHOTOREALISTIC",
-  interviewerName = "Alex Vance",
-  interviewerTitle = "Senior Engineering Lead",
+  interviewerName = "Rajat",
+  interviewerTitle = "Lead AI Interviewer · Kramix.ai",
   avatarImageUrl = null,
-  assetUrl = "/avatars/interviewer.png",
+  assetUrl = "/avatar.png",
   audioActivityLevel = 0,
   onModeChange,
   className = "",
@@ -45,12 +45,7 @@ export function InterviewerAvatarEngine({
   // Natural speech articulation state
   const [mouthOpenPhase, setMouthOpenPhase] = useState<number>(0);
   const [isBlinking, setIsBlinking] = useState(false);
-  const [activeMode, setActiveMode] = useState<AvatarMode>(mode);
-
-  // Sync prop changes
-  useEffect(() => {
-    setActiveMode(mode);
-  }, [mode]);
+  const [activeMode, setActiveMode] = useState<AvatarMode>("PHOTOREALISTIC");
 
   // Natural human blink cycle (every ~3.8 seconds for 140ms)
   useEffect(() => {
@@ -74,7 +69,7 @@ export function InterviewerAvatarEngine({
     const mouthInterval = setInterval(() => {
       // 4 natural mouth vowel/consonant shapes
       setMouthOpenPhase((prev) => (prev + 1) % 4);
-    }, 140);
+    }, 130);
 
     return () => clearInterval(mouthInterval);
   }, [state]);
@@ -82,7 +77,17 @@ export function InterviewerAvatarEngine({
   // Natural human interviewer comprehension nod cycle during LISTENING state
   const [isNodding, setIsNodding] = useState(false);
   const [imageLoadError, setImageLoadError] = useState(false);
+  const [currentImageSrc, setCurrentImageSrc] = useState<string>(
+    assetUrl || avatarImageUrl || "/avatar.png"
+  );
   const [speechCadenceStep, setSpeechCadenceStep] = useState(0);
+
+  // Sync prop changes
+  useEffect(() => {
+    const nextUrl = assetUrl || avatarImageUrl || "/avatar.png";
+    setCurrentImageSrc(nextUrl);
+    setImageLoadError(false);
+  }, [assetUrl, avatarImageUrl]);
 
   // Comprehension nodding while candidate answers
   useEffect(() => {
@@ -125,19 +130,16 @@ export function InterviewerAvatarEngine({
   ];
   const speakingYOffset = state === "SPEAKING" ? cadenceOffsets[speechCadenceStep].y : 0;
   const speakingRotate = state === "SPEAKING" ? cadenceOffsets[speechCadenceStep].r : 0;
-  const effectiveImageUrl = assetUrl || avatarImageUrl || "/avatars/interviewer.png";
 
-  const handleToggleMode = () => {
-    let nextMode: AvatarMode;
-    if (activeMode === "PHOTOREALISTIC") {
-      nextMode = "CUSTOM_ASSET";
-    } else if (activeMode === "CUSTOM_ASSET") {
-      nextMode = "MINIMAL";
+  const handleImageError = () => {
+    // Gracefully fallback to alternative path before showing emergency SVG
+    if (currentImageSrc === "/avatar.png") {
+      setCurrentImageSrc("/avatars/interviewer.png");
+    } else if (currentImageSrc === "/avatars/interviewer.png") {
+      setCurrentImageSrc("/avatars/avatar.png");
     } else {
-      nextMode = "PHOTOREALISTIC";
+      setImageLoadError(true);
     }
-    setActiveMode(nextMode);
-    onModeChange?.(nextMode);
   };
 
   const getStateBadge = () => {
@@ -239,22 +241,18 @@ export function InterviewerAvatarEngine({
         }`}
       />
 
-      {/* Top Header: Authoritative State Pill + Avatar Mode Switcher */}
+      {/* Top Header: Authoritative State Pill + Interviewer Mode Indicator */}
       <div className="w-full flex items-center justify-between z-10">
         <div>{getStateBadge()}</div>
 
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleToggleMode}
-            title={`Current mode: ${activeMode}. Click to toggle avatar style.`}
-            className="flex items-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-900/80 backdrop-blur px-2.5 py-1 text-[10px] font-mono text-slate-400 hover:text-slate-200 hover:border-slate-600 transition-colors"
+          <div
+            title="Custom Interviewer Persona Active"
+            className="flex items-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-900/80 backdrop-blur px-2.5 py-1 text-[10px] font-mono text-slate-300"
           >
-            <Layers className="h-3 w-3 text-brand-400" />
-            <span className="uppercase">
-              {activeMode === "PHOTOREALISTIC" ? "Photo" : activeMode === "CUSTOM_ASSET" ? "Vector" : "Minimal"}
-            </span>
-          </button>
+            <Sparkles className="h-3 w-3 text-brand-400" />
+            <span className="uppercase tracking-wider">AI Host</span>
+          </div>
         </div>
       </div>
 
@@ -299,8 +297,8 @@ export function InterviewerAvatarEngine({
             animation: "avatarBreathing 5s ease-in-out infinite",
           }}
         >
-          {/* RENDER MODE A: PHOTOREALISTIC ANIMATED PORTRAIT (interviewer.png with lifelike articulation) */}
-          {activeMode === "PHOTOREALISTIC" && !imageLoadError ? (
+          {/* PRIMARY RENDER MODE: CUSTOM RAJAT AVATAR (avatar.png with template lip-sync & micro-cadence) */}
+          {!imageLoadError ? (
             <div
               className="relative h-full w-full overflow-hidden"
               style={{
@@ -320,17 +318,17 @@ export function InterviewerAvatarEngine({
               {/* High-Resolution Interviewer Portrait Asset */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={effectiveImageUrl}
+                src={currentImageSrc}
                 alt={interviewerName}
                 loading="eager"
-                onError={() => setImageLoadError(true)}
+                onError={handleImageError}
                 className="h-full w-full object-cover select-none pointer-events-none"
               />
 
               {/* Studio Lighting Vignette & Depth Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-[#080b12]/50 via-transparent to-black/20 pointer-events-none" />
 
-              {/* Dynamic Lower-Face Speech Aperture / Vocal Resonance Overlay */}
+              {/* Dynamic Lower-Face Speech Aperture / Template Lip-Sync Overlay */}
               {state === "SPEAKING" && (
                 <div
                   className="absolute pointer-events-none rounded-full blur-[2px] transition-all duration-100 ease-out"
@@ -372,8 +370,8 @@ export function InterviewerAvatarEngine({
                 />
               )}
             </div>
-          ) : activeMode === "CUSTOM_ASSET" || (activeMode === "PHOTOREALISTIC" && imageLoadError) ? (
-            /* RENDER MODE B: PHOTOREALISTIC VECTOR AVATAR (High-depth studio portrait with micro-articulation) */
+          ) : (
+            /* EMERGENCY FALLBACK ONLY: High-depth studio vector portrait if image asset fails to load */
             <svg
               viewBox="0 0 200 200"
               className="h-full w-full select-none"
@@ -589,33 +587,6 @@ export function InterviewerAvatarEngine({
                 )}
               </g>
             </svg>
-          ) : (
-            /* RENDER MODE C: MINIMALIST MODERN AVATAR */
-            <div className="relative h-full w-full flex flex-col items-center justify-center bg-gradient-to-tr from-slate-950 via-[#121829] to-[#1c243a]">
-              <div className="relative flex flex-col items-center">
-                {/* Head */}
-                <div className="h-20 w-20 rounded-full bg-gradient-to-b from-slate-200 to-slate-400 relative shadow-md">
-                  <div className="absolute top-8 left-4 h-2 w-2 rounded-full bg-slate-800" />
-                  <div className="absolute top-8 right-4 h-2 w-2 rounded-full bg-slate-800" />
-                  <div className="absolute top-7 left-3 h-4 w-5 rounded border border-slate-700" />
-                  <div className="absolute top-7 right-3 h-4 w-5 rounded border border-slate-700" />
-                  <div className="absolute top-8 left-8 right-8 h-[1px] bg-slate-700" />
-
-                  {/* Mouth */}
-                  <div
-                    className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-slate-900 transition-all duration-100"
-                    style={{
-                      height: `${state === "SPEAKING" ? getMouthHeight() : 2}px`,
-                      width: `${state === "SPEAKING" ? 14 : 10}px`,
-                    }}
-                  />
-                </div>
-                {/* Shoulders */}
-                <div className="mt-1 h-16 w-32 rounded-t-3xl bg-gradient-to-b from-slate-700 to-slate-900 border-t border-slate-600 flex justify-center">
-                  <div className="h-6 w-8 bg-slate-800 rounded-b-md border-x border-b border-slate-600" />
-                </div>
-              </div>
-            </div>
           )}
         </div>
 

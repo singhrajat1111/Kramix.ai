@@ -68,9 +68,15 @@ export function DeviceDiagnostic() {
 
     // 1. Try acquiring Video Track
     try {
-      const videoStream = await navigator.mediaDevices.getUserMedia({
-        video: { width: { ideal: 640 }, height: { ideal: 480 } },
-      });
+      let videoStream: MediaStream;
+      try {
+        videoStream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: "user" },
+        });
+      } catch {
+        // Fallback to relaxed video: true constraint for browsers that reject specific constraints
+        videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
+      }
       videoStream.getVideoTracks().forEach((t) => combinedStream.addTrack(t));
       videoTrackOk = true;
       setCameraStatus("granted");
@@ -138,6 +144,9 @@ export function DeviceDiagnostic() {
     // Attach video stream if available
     if (videoTrackOk && videoRef.current) {
       videoRef.current.srcObject = combinedStream;
+      videoRef.current.setAttribute("playsinline", "true");
+      videoRef.current.setAttribute("webkit-playsinline", "true");
+      videoRef.current.muted = true;
       videoRef.current.play().catch(() => {});
     }
 

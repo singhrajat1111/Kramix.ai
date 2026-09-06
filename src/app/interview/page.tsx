@@ -77,12 +77,19 @@ export default function InterviewRoomPage() {
   const [isLoadingEvaluation, setIsLoadingEvaluation] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // Speech turn session tracking to prevent duplicate or interrupted speech races
+  const speechSessionIdRef = useRef<number>(0);
+
   // Authoritative Speech Helper
   const speakText = useCallback(
-    (text: string, onEnd?: () => void) => {
+    (
+      text: string,
+      onEnd?: () => void,
+      avatarNextState: AuthoritativeAvatarState = "LISTENING"
+    ) => {
       if (!ttsEngineRef.current) return;
       if (isVoiceMuted) {
-        setAuthoritativeAvatarState("LISTENING");
+        setAuthoritativeAvatarState(avatarNextState);
         onEnd?.();
         return;
       }
@@ -90,23 +97,29 @@ export default function InterviewRoomPage() {
       setAuthoritativeAvatarState("SPEAKING");
       setAvatarActivity(45);
 
+      const sessionToken = ++speechSessionIdRef.current;
+
       ttsEngineRef.current.speak(text, {
         onStart: () => {
+          if (speechSessionIdRef.current !== sessionToken) return;
           setAuthoritativeAvatarState("SPEAKING");
           setAvatarActivity(70);
         },
         onBoundary: () => {
+          if (speechSessionIdRef.current !== sessionToken) return;
           // Dynamic vocal frequency fluctuation synced to spoken words
           setAvatarActivity(Math.floor(Math.random() * 35) + 65);
         },
         onEnd: () => {
+          if (speechSessionIdRef.current !== sessionToken) return;
           setAvatarActivity(0);
-          setAuthoritativeAvatarState("LISTENING");
+          setAuthoritativeAvatarState(avatarNextState);
           onEnd?.();
         },
         onError: () => {
+          if (speechSessionIdRef.current !== sessionToken) return;
           setAvatarActivity(0);
-          setAuthoritativeAvatarState("LISTENING");
+          setAuthoritativeAvatarState(avatarNextState);
           onEnd?.();
         },
       });
@@ -397,10 +410,9 @@ export default function InterviewRoomPage() {
     submitAnswerRef.current = submitAnswer;
   }, [submitAnswer]);
 
-  // Advance to Q1 immediately
+  // Advance to Q1 after greeting audio finishes completely
   const advanceToQuestionOne = useCallback(() => {
     if (!directorRef.current) return;
-    if (ttsEngineRef.current) ttsEngineRef.current.stop();
 
     const q1 = directorRef.current.getNextQuestion();
     setDirectorState(q1.state);
@@ -408,9 +420,13 @@ export default function InterviewRoomPage() {
     setCurrentPrompt(q1.turn.text);
     setInterviewState("QUESTION");
 
-    speakText(q1.turn.text, () => {
-      startListeningForCandidate();
-    });
+    speakText(
+      q1.turn.text,
+      () => {
+        startListeningForCandidate();
+      },
+      "LISTENING"
+    );
   }, [speakText, startListeningForCandidate]);
 
   // Repeat current prompt
@@ -422,6 +438,7 @@ export default function InterviewRoomPage() {
 
   // Immediate Interruption / Barge-in (Stop AI)
   const handleStopInterviewer = useCallback(() => {
+    speechSessionIdRef.current++;
     if (ttsEngineRef.current) {
       ttsEngineRef.current.stop();
     }
@@ -434,7 +451,7 @@ export default function InterviewRoomPage() {
     }, 150);
   }, [startListeningForCandidate]);
 
-  // Start round after orientation
+  // Start round after orientation: Greeting audio must finish COMPLETELY before Question 1 starts
   const startRoundAfterOrientation = useCallback(() => {
     setShowOrientation(false);
     if (!directorRef.current) return;
@@ -454,9 +471,24 @@ export default function InterviewRoomPage() {
     setCurrentPrompt(turn.text);
     setInterviewState("INTRO");
 
-    speakText(turn.text, () => {
-      advanceToQuestionOne();
-    });
+    const currentSession = speechSessionIdRef.current + 1;
+
+    // Play complete greeting audio. Only when audio finishes does Question 1 begin.
+    speakText(
+      turn.text,
+      () => {
+        // Guard against race conditions if interrupted
+        if (speechSessionIdRef.current !== currentSession) return;
+        setAuthoritativeAvatarState("IDLE");
+        setAvatarActivity(0);
+
+        setTimeout(() => {
+          if (speechSessionIdRef.current !== currentSession) return;
+          advanceToQuestionOne();
+        }, 250);
+      },
+      "IDLE"
+    );
   }, [advanceToQuestionOne, speakText]);
 
   // Initialize Interview Room
@@ -710,6 +742,7 @@ export default function InterviewRoomPage() {
           <CandidateVideo
             isMuted={isMuted}
             isVideoOff={isVideoOff}
+            onToggleVideo={handleToggleVideo}
             audioLevel={interviewState === "LISTENING" ? 50 : 0}
             candidateName="Candidate (You)"
           />
@@ -721,8 +754,8 @@ export default function InterviewRoomPage() {
             state={authoritativeAvatarState}
             mode={avatarMode}
             onModeChange={(m) => setAvatarMode(m)}
-            interviewerName="Alex Vance"
-            interviewerTitle={`Senior Engineering Lead · ${candidate.targetCompanies[0] || "Interview Committee"}`}
+            interviewerName="Rajat"
+            interviewerTitle={`Lead AI Interviewer · ${candidate.targetCompanies[0] || "Interview Committee"}`}
             audioActivityLevel={avatarActivity}
           />
         </div>

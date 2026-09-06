@@ -9,9 +9,13 @@ import { ScoreCard } from "@/components/results/ScoreCard";
 import { QuestionReview } from "@/components/results/QuestionReview";
 import { PreparationRoadmap } from "@/components/results/PreparationRoadmap";
 import { HiringCommitteeDossierView } from "@/components/results/HiringCommitteeDossierView";
+import { UpgradeBanner } from "@/components/UpgradeBanner";
+import { useUserAccount } from "@/components/auth/AuthProvider";
+import { RouteGuard } from "@/components/common/RouteGuard";
 import { Sparkles, ArrowRight, HelpCircle, Layers, Award, RotateCcw } from "lucide-react";
 
 export default function ResultsPage() {
+  const { openCheckoutModal } = useUserAccount();
   const [report, setReport] = useState<InterviewReport | null>(null);
   const [dossier, setDossier] = useState<HiringCommitteeDossier | null>(null);
   const [session, setSession] = useState<InterviewSession | null>(null);
@@ -70,7 +74,8 @@ export default function ResultsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8 space-y-8">
+    <RouteGuard>
+      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8 space-y-8">
       {/* Top Header & View Tabs */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -169,6 +174,14 @@ export default function ResultsPage() {
           />
         </div>
       ) : null}
-    </div>
+
+      {/* Conversion CTA: Placed at the end of the demo report/dossier screen */}
+      {isDemoMode && (
+        <div className="pt-4">
+          <UpgradeBanner onUnlock={openCheckoutModal} />
+        </div>
+      )}
+      </div>
+    </RouteGuard>
   );
 }

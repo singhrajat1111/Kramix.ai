@@ -18,6 +18,9 @@ import { InterviewRoundInfo, ResearchPlan } from "@/types/research";
 import { InterviewSession } from "@/types/session";
 import { InterviewReport } from "@/types/evaluation";
 import { HiringCommitteeEngine } from "@/lib/committee/hiring-committee-engine";
+import { UpgradeBanner } from "@/components/UpgradeBanner";
+import { useUserAccount } from "@/components/auth/AuthProvider";
+import { RouteGuard } from "@/components/common/RouteGuard";
 import {
   AlertTriangle,
   Loader2,
@@ -35,6 +38,8 @@ import {
 
 export default function InterviewRoomPage() {
   const router = useRouter();
+  const { user, openCheckoutModal, refreshUser } = useUserAccount();
+  const [dismissedMidwayBanner, setDismissedMidwayBanner] = useState(false);
 
   // Entities & Engines
   const directorRef = useRef<InterviewDirector | null>(null);
@@ -181,6 +186,30 @@ export default function InterviewRoomPage() {
         setMultiRoundSession({ ...session });
         StorageManager.saveInterviewSession(session);
 
+        // Deduct 1 credit strictly upon round completion (BYOK rounds never consume credits)
+        try {
+          const aiConfig = StorageManager.getAIConfig();
+          const fundingSource = isDemoMode
+            ? "demo"
+            : aiConfig.apiKey || user?.hasBYOK
+            ? "byok"
+            : user?.plan === "subscriber"
+            ? "subscriber"
+            : "credits";
+
+          await fetch("/api/interview/complete-round", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              roundIndex: curIdx,
+              fundingSource,
+            }),
+          });
+          refreshUser();
+        } catch (decrementErr) {
+          console.warn("Round completion credit decrement notice:", decrementErr);
+        }
+
         // If Full Simulation and there are subsequent rounds, show intermediate completion screen
         if (session.simulationMode === "FULL_SIMULATION" && curIdx < session.rounds.length - 1) {
           setIsLoadingEvaluation(false);
@@ -211,7 +240,7 @@ export default function InterviewRoomPage() {
       StorageManager.clearActiveSession();
       router.push("/results");
     }
-  }, [router]);
+  }, [router, isDemoMode, refreshUser, user?.hasBYOK, user?.plan]);
 
   const handleConcludeFinalDossier = useCallback(async () => {
     setIsLoadingEvaluation(true);
@@ -557,17 +586,20 @@ export default function InterviewRoomPage() {
 
   if (!selectedRound) {
     return (
-      <div className="flex-1 flex items-center justify-center p-8 text-center text-slate-400">
-        <Loader2 className="h-6 w-6 animate-spin text-brand-500 mb-2" />
-        <p className="text-xs font-medium">Preparing interview room...</p>
-      </div>
+      <RouteGuard>
+        <div className="flex-1 flex items-center justify-center p-8 text-center text-slate-400">
+          <Loader2 className="h-6 w-6 animate-spin text-brand-500 mb-2" />
+          <p className="text-xs font-medium">Preparing interview room...</p>
+        </div>
+      </RouteGuard>
     );
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6 flex-1 flex flex-col justify-between">
-      {/* Top Bar: Company | Role | Round | Question X/Y | Timer | Demo/Live Badge */}
-      <header
+    <RouteGuard>
+      <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6 flex-1 flex flex-col justify-between">
+        {/* Top Bar: Company | Role | Round | Question X/Y | Timer | Demo/Live Badge */}
+        <header
         aria-label="Interview Room Header"
         className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-3"
       >
@@ -645,6 +677,15 @@ export default function InterviewRoomPage() {
             Retry Answer
           </button>
         </div>
+      )}
+
+      {/* Subtle Inline Nudge: Mid-way through a demo round (non-modal, does not interrupt flow) */}
+      {isDemoMode && !dismissedMidwayBanner && directorState && directorState.currentQuestionIndex >= 2 && (
+        <UpgradeBanner
+          compact
+          onUnlock={openCheckoutModal}
+          onDismiss={() => setDismissedMidwayBanner(true)}
+        />
       )}
 
       {/* Remote Interview Split Stage: Candidate Feed (Left) + AI Interviewer Avatar (Right) */}
@@ -906,6 +947,7 @@ export default function InterviewRoomPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </RouteGuard>
   );
 }

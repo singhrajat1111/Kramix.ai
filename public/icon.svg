@@ -1,0 +1,46 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="kramix-bg-i" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1e1b4b" />
+      <stop offset="0.5" stop-color="#0f172a" />
+      <stop offset="1" stop-color="#090d16" />
+    </linearGradient>
+
+    <linearGradient id="kramix-spine-i" x1="12" y1="12" x2="24" y2="52" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#818cf8" />
+      <stop offset="0.6" stop-color="#6366f1" />
+      <stop offset="1" stop-color="#4338ca" />
+    </linearGradient>
+
+    <linearGradient id="kramix-arm-up-i" x1="24" y1="32" x2="52" y2="12" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#06b6d4" />
+      <stop offset="0.5" stop-color="#3b82f6" />
+      <stop offset="1" stop-color="#6366f1" />
+    </linearGradient>
+
+    <linearGradient id="kramix-arm-down-i" x1="24" y1="32" x2="52" y2="52" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6366f1" />
+      <stop offset="0.6" stop-color="#8b5cf6" />
+      <stop offset="1" stop-color="#d946ef" />
+    </linearGradient>
+
+    <radialGradient id="kramix-pulse-glow-i" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="40%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#6366f1" stop-opacity="0" />
+    </radialGradient>
+
+    <linearGradient id="kramix-stroke-i" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#818cf8" stop-opacity="0.8" />
+      <stop offset="0.5" stop-color="#38bdf8" stop-opacity="0.3" />
+      <stop offset="1" stop-color="#6366f1" stop-opacity="0.6" />
+    </linearGradient>
+  </defs>
+
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#kramix-bg-i)" stroke="url(#kramix-stroke-i)" stroke-width="2" />
+  <rect x="14" y="14" width="9" height="36" rx="4.5" fill="url(#kramix-spine-i)" />
+  <path d="M26 31C27.5 29.5 29 27.5 31 25L43.5 15.5C45.2 14.2 47.7 15.4 47.7 17.5C47.7 18.6 47.1 19.6 46.2 20.3L34.5 29.5C33 30.7 33 33 34.5 34.2L46.5 43.8C47.4 44.5 47.8 45.6 47.6 46.7C47.4 48.6 45 49.6 43.3 48.2L31 38.5C29 36.8 27.5 34.5 26 33" fill="url(#kramix-arm-up-i)" />
+  <path d="M33 33L44.5 43C45.8 44.1 46 46.1 44.9 47.4C43.8 48.7 41.8 48.9 40.5 47.8L28.5 37.5C27 36.2 26 34.5 25.5 32.8" fill="url(#kramix-arm-down-i)" />
+  <circle cx="28" cy="32" r="4.5" fill="url(#kramix-pulse-glow-i)" />
+  <circle cx="28" cy="32" r="2" fill="#ffffff" />
+</svg>

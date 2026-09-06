@@ -10,6 +10,7 @@ import { InterviewRoundInfo, ResearchFlag, ResearchPlan, ResearchProgressState }
 import { InterviewSession, InterviewRoundSession } from "@/types/session";
 import { ResearchProgress } from "@/components/research/ResearchProgress";
 import { RoundSelector } from "@/components/research/RoundSelector";
+import { RouteGuard } from "@/components/common/RouteGuard";
 import { RefreshCw } from "lucide-react";
 
 export default function ResearchPage() {
@@ -113,46 +114,48 @@ export default function ResearchPage() {
   };
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8 space-y-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <span className="text-xs uppercase font-mono font-semibold text-brand-400">Step 2 of 4</span>
-          <h1 className="text-2xl font-bold text-white mt-1">
-            Research & Interview Structure
-          </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Flag-based company intelligence and interview round identification.
-          </p>
+    <RouteGuard>
+      <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8 space-y-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+          <div>
+            <span className="text-xs uppercase font-mono font-semibold text-brand-400">Step 2 of 4</span>
+            <h1 className="text-2xl font-bold text-white mt-1">
+              Research & Interview Structure
+            </h1>
+            <p className="text-xs text-slate-400 mt-1">
+              Flag-based company intelligence and interview round identification.
+            </p>
+          </div>
+
+          {!loading && plan && (
+            <button
+              type="button"
+              onClick={() => executeResearch(candidate)}
+              className="self-start sm:self-auto inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-surface-100 hover:bg-surface-200 px-3 py-1.5 text-xs font-medium text-slate-300 transition-colors"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              <span>Re-run Research</span>
+            </button>
+          )}
         </div>
+
+        {loading && (
+          <div className="py-8">
+            <ResearchProgress
+              currentFlag={progress.currentFlag}
+              completedFlags={progress.completedFlags as ResearchFlag[]}
+              percent={progress.percent}
+              statusMessage={progress.statusMessage}
+              currentQuery={progress.currentQuery}
+              sourcesFoundCount={progress.sourcesFoundCount}
+            />
+          </div>
+        )}
 
         {!loading && plan && (
-          <button
-            type="button"
-            onClick={() => executeResearch(candidate)}
-            className="self-start sm:self-auto inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-surface-100 hover:bg-surface-200 px-3 py-1.5 text-xs font-medium text-slate-300 transition-colors"
-          >
-            <RefreshCw className="h-3.5 w-3.5" />
-            <span>Re-run Research</span>
-          </button>
+          <RoundSelector researchPlan={plan} onSelectRound={handleSelectRound} />
         )}
       </div>
-
-      {loading && (
-        <div className="py-8">
-          <ResearchProgress
-            currentFlag={progress.currentFlag}
-            completedFlags={progress.completedFlags as ResearchFlag[]}
-            percent={progress.percent}
-            statusMessage={progress.statusMessage}
-            currentQuery={progress.currentQuery}
-            sourcesFoundCount={progress.sourcesFoundCount}
-          />
-        </div>
-      )}
-
-      {!loading && plan && (
-        <RoundSelector researchPlan={plan} onSelectRound={handleSelectRound} />
-      )}
-    </div>
+    </RouteGuard>
   );
 }

@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { Mail, Shield, Sparkles, AlertCircle, X } from "lucide-react";
 
+import { KramixLogo } from "@/components/brand/KramixLogo";
+
 export function Footer() {
   const [showConfigAlert, setShowConfigAlert] = useState(false);
   const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim();
@@ -25,10 +27,9 @@ export function Footer() {
     <>
       <footer className="w-full border-t border-slate-800/80 bg-[#070a0f] py-8 text-xs text-slate-400">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-4 sm:flex-row sm:px-6 lg:px-8">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-brand-400" />
-            <span className="font-semibold text-slate-300">Kramix.ai</span>
-            <span className="text-slate-500">— Realistic AI Interview Preparation Platform</span>
+          <div className="flex items-center gap-3">
+            <KramixLogo size="sm" glow={false} />
+            <span className="text-slate-500 hidden md:inline">— Realistic AI Interview Preparation Platform</span>
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-6">

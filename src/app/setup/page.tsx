@@ -1,15 +1,21 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useEffect, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { StorageManager } from "@/lib/storage/storage-manager";
 import { AIConfig } from "@/types/ai";
 import { CandidateProfile, DEFAULT_CANDIDATE_PROFILE } from "@/types/candidate";
 import { ProviderSelector } from "@/components/setup/ProviderSelector";
 import { CandidateForm } from "@/components/setup/CandidateForm";
+import { useUserAccount } from "@/components/auth/AuthProvider";
+import { CheckCircle2 } from "lucide-react";
 
-export default function SetupPage() {
+function SetupPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { refreshUser } = useUserAccount();
+  const checkoutStatus = searchParams.get("checkout");
+  const purchasedCredits = searchParams.get("credits");
   const [aiConfig, setAiConfig] = useState<AIConfig>({ provider: "demo" });
   const [candidateProfile, setCandidateProfile] = useState<CandidateProfile>(DEFAULT_CANDIDATE_PROFILE);
   const [activeSession, setActiveSession] = useState<import("@/types/session").InterviewSession | null>(null);
@@ -23,8 +29,11 @@ export default function SetupPage() {
     if (session && !session.sessionCompletedAt && session.overallProgress < 100) {
       setActiveSession(session);
     }
+    if (checkoutStatus === "success") {
+      refreshUser();
+    }
     setIsLoaded(true);
-  }, []);
+  }, [checkoutStatus, refreshUser]);
 
   const handleAIConfigChange = (newConfig: AIConfig) => {
     setAiConfig(newConfig);
@@ -72,6 +81,18 @@ export default function SetupPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8 space-y-8">
+      {checkoutStatus === "success" && (
+        <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-4 flex items-center gap-3 text-xs text-emerald-300 shadow-sm animate-fadeIn">
+          <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0" />
+          <div>
+            <p className="font-semibold text-white">Payment successful!</p>
+            <p className="text-emerald-300/90">
+              {purchasedCredits ? `${purchasedCredits} credits have been added to your balance.` : "Your credits have been updated."} You now have full access to Live Interview Mode.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div>
         <span className="text-xs uppercase font-mono font-semibold text-brand-400">Step 1 of 4</span>
         <h1 className="text-2xl font-bold text-white mt-1">Configure Interview & Candidate</h1>
@@ -120,5 +141,19 @@ export default function SetupPage() {
       {/* Candidate Profile Form */}
       <CandidateForm initialProfile={candidateProfile} onSubmit={handleProfileSubmit} />
     </div>
+  );
+}
+
+export default function SetupPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex-1 flex items-center justify-center p-8">
+          <div className="h-6 w-6 rounded-full border-2 border-brand-500 border-t-transparent animate-spin" />
+        </div>
+      }
+    >
+      <SetupPageContent />
+    </Suspense>
   );
 }

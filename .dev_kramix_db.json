@@ -1,0 +1,42 @@
+{
+  "users": {
+    "dev-user-1788678463927-ytuiim9": {
+      "id": "dev-user-1788678463927-ytuiim9",
+      "email": "candidate_e2e_1788678463926@kramix.ai",
+      "plan": "free",
+      "credits": 4,
+      "api_key_encrypted": null,
+      "created_at": "2026-09-06T07:07:43.927Z"
+    },
+    "dev-user-1788682110731-5u04s72": {
+      "id": "dev-user-1788682110731-5u04s72",
+      "email": "engineer@kramix.ai",
+      "plan": "free",
+      "credits": 0,
+      "api_key_encrypted": null,
+      "created_at": "2026-09-06T08:08:30.731Z"
+    },
+    "dev-user-1788684392507-gvp3khd": {
+      "id": "dev-user-1788684392507-gvp3khd",
+      "email": "singh.rajat70880@gmail.com",
+      "plan": "free",
+      "credits": 0,
+      "api_key_encrypted": null,
+      "created_at": "2026-09-06T08:46:32.507Z"
+    }
+  },
+  "processedEvents": {
+    "evt_test_1788678463899": {
+      "provider": "stripe",
+      "processedAt": "2026-09-06T07:07:43.902Z"
+    },
+    "pay_test_1788678463912": {
+      "provider": "razorpay",
+      "processedAt": "2026-09-06T07:07:43.914Z"
+    },
+    "evt_purchase_1788678463938": {
+      "provider": "stripe",
+      "processedAt": "2026-09-06T07:07:43.939Z"
+    }
+  }
+}

@@ -4,6 +4,8 @@ import React from "react";
 import Link from "next/link";
 import { Sparkles, ArrowRight, ShieldCheck, Cpu, CheckCircle2, Video, Search, BrainCircuit } from "lucide-react";
 
+import { KramixLogo } from "@/components/brand/KramixLogo";
+
 export default function HomePage() {
   const steps = [
     {
@@ -34,7 +36,11 @@ export default function HomePage() {
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-gradient-to-tr from-brand-600/20 via-accent-purple/15 to-transparent blur-[120px] pointer-events-none" />
 
       {/* Hero Section */}
-      <div className="relative mx-auto max-w-5xl px-4 pt-16 pb-12 sm:px-6 lg:px-8 text-center space-y-6 my-auto">
+      <div className="relative mx-auto max-w-5xl px-4 pt-12 pb-12 sm:px-6 lg:px-8 text-center space-y-6 my-auto">
+        <div className="flex justify-center">
+          <KramixLogo size="lg" glow={true} className="drop-shadow-2xl" />
+        </div>
+
         <div className="inline-flex items-center gap-2 rounded-full border border-brand-500/30 bg-brand-500/10 px-4 py-1.5 text-xs font-semibold text-brand-300">
           <Sparkles className="h-3.5 w-3.5 text-brand-400" />
           <span>Next-Generation Realistic Interview Simulator</span>

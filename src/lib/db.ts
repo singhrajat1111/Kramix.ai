@@ -26,12 +26,16 @@ function assertDatabaseConfigured(): void {
 
 let pool: Pool | null = null;
 if (databaseUrl) {
+  const requiresSsl =
+    process.env.NODE_ENV === "production" ||
+    databaseUrl.includes("supabase.co") ||
+    databaseUrl.includes("supabase.com") ||
+    databaseUrl.includes("pooler.supabase.com") ||
+    databaseUrl.includes("sslmode=require");
+
   pool = new Pool({
     connectionString: databaseUrl,
-    ssl:
-      process.env.NODE_ENV === "production"
-        ? { rejectUnauthorized: false }
-        : undefined,
+    ssl: requiresSsl ? { rejectUnauthorized: false } : undefined,
   });
 }
 

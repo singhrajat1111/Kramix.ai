@@ -36,6 +36,7 @@ export class SpeechToTextEngine {
   // Non-aggressive 4.5 second pause detection allows natural candidate thought pauses
   private silenceThresholdMs = 4500;
   private currentTranscript = "";
+  private latestFullTranscript = "";
 
   constructor() {
     if (typeof window !== "undefined") {
@@ -69,6 +70,7 @@ export class SpeechToTextEngine {
     }
 
     this.currentTranscript = "";
+    this.latestFullTranscript = "";
     this.isListening = true;
     callbacks.onListeningStateChange?.(true);
 
@@ -90,6 +92,7 @@ export class SpeechToTextEngine {
       }
 
       const activeText = (this.currentTranscript + interimTranscript).trim();
+      this.latestFullTranscript = activeText;
       callbacks.onTranscriptChange(activeText, false);
 
       // Non-aggressive silence detection reset
@@ -105,11 +108,15 @@ export class SpeechToTextEngine {
 
     this.recognition.onerror = (event: { error: string }) => {
       if (event.error === "no-speech") return;
-      callbacks.onError(`Microphone recognition issue: ${event.error || "Please speak clearly or use text input"}`);
+      callbacks.onError(`Microphone recognition notice: ${event.error || "Please speak clearly or use text input"}`);
     };
 
     this.recognition.onend = () => {
       if (this.isListening) {
+        // Commit any pending unfinalized speech so no words are dropped on browser recognition restart
+        if (this.latestFullTranscript && !this.currentTranscript.includes(this.latestFullTranscript)) {
+          this.currentTranscript = this.latestFullTranscript + " ";
+        }
         try {
           this.recognition?.start();
         } catch {
@@ -129,6 +136,10 @@ export class SpeechToTextEngine {
     }
   }
 
+  getLatestTranscript(): string {
+    return (this.latestFullTranscript || this.currentTranscript).trim();
+  }
+
   stopListening(): string {
     this.isListening = false;
     if (this.silenceTimer) {
@@ -144,6 +155,8 @@ export class SpeechToTextEngine {
       }
     }
 
-    return this.currentTranscript.trim();
+    const finalResult = (this.latestFullTranscript || this.currentTranscript).trim();
+    this.latestFullTranscript = "";
+    return finalResult;
   }
 }

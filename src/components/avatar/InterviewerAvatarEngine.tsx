@@ -79,6 +79,54 @@ export function InterviewerAvatarEngine({
     return () => clearInterval(mouthInterval);
   }, [state]);
 
+  // Natural human interviewer comprehension nod cycle during LISTENING state
+  const [isNodding, setIsNodding] = useState(false);
+  const [imageLoadError, setImageLoadError] = useState(false);
+  const [speechCadenceStep, setSpeechCadenceStep] = useState(0);
+
+  // Comprehension nodding while candidate answers
+  useEffect(() => {
+    if (state !== "LISTENING") {
+      setIsNodding(false);
+      return;
+    }
+
+    const nodInterval = setInterval(() => {
+      setIsNodding(true);
+      setTimeout(() => {
+        setIsNodding(false);
+      }, 950);
+    }, 5400);
+
+    return () => clearInterval(nodInterval);
+  }, [state]);
+
+  // Speaking micro-gesture cadence
+  useEffect(() => {
+    if (state !== "SPEAKING") {
+      setSpeechCadenceStep(0);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setSpeechCadenceStep((prev) => (prev + 1) % 6);
+    }, 180);
+
+    return () => clearInterval(interval);
+  }, [state]);
+
+  const cadenceOffsets = [
+    { y: 0, r: 0 },
+    { y: -1.2, r: 0.4 },
+    { y: 1.0, r: -0.3 },
+    { y: -0.6, r: -0.5 },
+    { y: 0.8, r: 0.4 },
+    { y: 0, r: 0 },
+  ];
+  const speakingYOffset = state === "SPEAKING" ? cadenceOffsets[speechCadenceStep].y : 0;
+  const speakingRotate = state === "SPEAKING" ? cadenceOffsets[speechCadenceStep].r : 0;
+  const effectiveImageUrl = assetUrl || avatarImageUrl || "/avatars/interviewer.png";
+
   const handleToggleMode = () => {
     let nextMode: AvatarMode;
     if (activeMode === "PHOTOREALISTIC") {
@@ -199,11 +247,13 @@ export function InterviewerAvatarEngine({
           <button
             type="button"
             onClick={handleToggleMode}
-            title={`Switch to ${activeMode === "PHOTOREALISTIC" ? "Minimal" : "Photorealistic"} Avatar mode`}
+            title={`Current mode: ${activeMode}. Click to toggle avatar style.`}
             className="flex items-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-900/80 backdrop-blur px-2.5 py-1 text-[10px] font-mono text-slate-400 hover:text-slate-200 hover:border-slate-600 transition-colors"
           >
             <Layers className="h-3 w-3 text-brand-400" />
-            <span className="uppercase">{activeMode}</span>
+            <span className="uppercase">
+              {activeMode === "PHOTOREALISTIC" ? "Photo" : activeMode === "CUSTOM_ASSET" ? "Vector" : "Minimal"}
+            </span>
           </button>
         </div>
       </div>
@@ -213,14 +263,27 @@ export function InterviewerAvatarEngine({
         {/* Pulsing Aura Rings when Interviewer is Speaking */}
         {state === "SPEAKING" && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="h-56 w-56 rounded-full border border-brand-500/25 animate-ping opacity-60" />
-            <div className="h-64 w-64 rounded-full border border-brand-500/15 animate-pulse" />
+            <div
+              className="rounded-full border border-brand-500/30 animate-ping opacity-60"
+              style={{
+                width: `${210 + (audioActivityLevel * 0.4)}px`,
+                height: `${210 + (audioActivityLevel * 0.4)}px`,
+                animationDuration: "1.8s",
+              }}
+            />
+            <div
+              className="rounded-full border border-brand-400/20 animate-pulse"
+              style={{
+                width: `${240 + (audioActivityLevel * 0.5)}px`,
+                height: `${240 + (audioActivityLevel * 0.5)}px`,
+              }}
+            />
           </div>
         )}
 
         {/* Central Circular Avatar Canvas / Viewport */}
         <div
-          className={`relative h-48 w-48 sm:h-52 sm:w-52 rounded-full border-2 overflow-hidden bg-slate-950 shadow-2xl transition-all duration-500 ${
+          className={`relative h-48 w-48 sm:h-56 sm:w-56 rounded-full border-2 overflow-hidden bg-slate-950 shadow-2xl transition-all duration-500 ${
             state === "SPEAKING"
               ? "border-brand-500 shadow-brand-500/25 scale-[1.03]"
               : state === "LISTENING"
@@ -236,17 +299,80 @@ export function InterviewerAvatarEngine({
             animation: "avatarBreathing 5s ease-in-out infinite",
           }}
         >
-          {/* RENDER MODE A: CUSTOM_ASSET (Image or Video) */}
-          {activeMode === "CUSTOM_ASSET" && (assetUrl || avatarImageUrl) ? (
-            <div className="relative h-full w-full">
+          {/* RENDER MODE A: PHOTOREALISTIC ANIMATED PORTRAIT (interviewer.png with lifelike articulation) */}
+          {activeMode === "PHOTOREALISTIC" && !imageLoadError ? (
+            <div
+              className="relative h-full w-full overflow-hidden"
+              style={{
+                transform:
+                  state === "LISTENING"
+                    ? isNodding
+                      ? "translateY(2.5px) scale(1.025) rotate(0.6deg)"
+                      : "translateY(-1px) scale(1.02) rotate(0.8deg)"
+                    : state === "THINKING"
+                    ? "translateY(-1px) scale(1.01) rotate(-1.5deg)"
+                    : state === "SPEAKING"
+                    ? `translateY(${speakingYOffset}px) scale(${1.01 + (audioActivityLevel / 100) * 0.02}) rotate(${speakingRotate}deg)`
+                    : "translateY(0) scale(1)",
+                transition: isNodding ? "transform 0.45s ease-in-out" : "transform 0.2s ease-out",
+              }}
+            >
+              {/* High-Resolution Interviewer Portrait Asset */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={assetUrl || avatarImageUrl || ""}
+                src={effectiveImageUrl}
                 alt={interviewerName}
-                className="h-full w-full object-cover"
+                loading="eager"
+                onError={() => setImageLoadError(true)}
+                className="h-full w-full object-cover select-none pointer-events-none"
               />
+
+              {/* Studio Lighting Vignette & Depth Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#080b12]/50 via-transparent to-black/20 pointer-events-none" />
+
+              {/* Dynamic Lower-Face Speech Aperture / Vocal Resonance Overlay */}
+              {state === "SPEAKING" && (
+                <div
+                  className="absolute pointer-events-none rounded-full blur-[2px] transition-all duration-100 ease-out"
+                  style={{
+                    top: "68%",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    width: `${20 + mouthOpenPhase * 2 + (audioActivityLevel / 100) * 8}px`,
+                    height: `${6 + mouthOpenPhase * 3 + (audioActivityLevel / 100) * 8}px`,
+                    background: `radial-gradient(ellipse at center, rgba(230, 130, 110, ${
+                      0.35 + (audioActivityLevel / 100) * 0.35
+                    }) 0%, rgba(150, 45, 30, ${
+                      0.25 + (audioActivityLevel / 100) * 0.3
+                    }) 60%, transparent 100%)`,
+                    boxShadow: `0 0 10px rgba(56, 189, 248, ${
+                      0.2 + (audioActivityLevel / 100) * 0.4
+                    })`,
+                  }}
+                />
+              )}
+
+              {/* Candidate Speech Active Reception Badge during LISTENING */}
+              {state === "LISTENING" && (
+                <div className="absolute bottom-3 inset-x-0 flex items-center justify-center gap-1 pointer-events-none">
+                  <div className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-950/75 border border-emerald-500/40 backdrop-blur-xs shadow-sm">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
+                    <span className="text-[9px] font-mono text-emerald-300 font-medium tracking-wide">
+                      Listening to you
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Neural Analyzing Ring during THINKING */}
+              {state === "THINKING" && (
+                <div
+                  className="absolute inset-0 border-2 border-amber-400/40 rounded-full animate-spin pointer-events-none"
+                  style={{ animationDuration: "7s" }}
+                />
+              )}
             </div>
-          ) : activeMode === "PHOTOREALISTIC" ? (
+          ) : activeMode === "CUSTOM_ASSET" || (activeMode === "PHOTOREALISTIC" && imageLoadError) ? (
             /* RENDER MODE B: PHOTOREALISTIC VECTOR AVATAR (High-depth studio portrait with micro-articulation) */
             <svg
               viewBox="0 0 200 200"

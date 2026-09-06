@@ -95,6 +95,10 @@ export default function InterviewRoomPage() {
           setAuthoritativeAvatarState("SPEAKING");
           setAvatarActivity(70);
         },
+        onBoundary: () => {
+          // Dynamic vocal frequency fluctuation synced to spoken words
+          setAvatarActivity(Math.floor(Math.random() * 35) + 65);
+        },
         onEnd: () => {
           setAvatarActivity(0);
           setAuthoritativeAvatarState("LISTENING");
@@ -132,8 +136,12 @@ export default function InterviewRoomPage() {
         },
         onSilenceTimeout: () => {
           // 4.5s natural silence timeout
-          if (liveSpeechRef.current.trim().length > 15) {
-            submitAnswerRef.current(liveSpeechRef.current);
+          const candidateSpeech = (
+            liveSpeechRef.current ||
+            (sttEngineRef.current ? sttEngineRef.current.getLatestTranscript() : "")
+          ).trim();
+          if (candidateSpeech.length > 15) {
+            submitAnswerRef.current(candidateSpeech);
           }
         },
         onListeningStateChange: (listening) => {
@@ -572,7 +580,11 @@ export default function InterviewRoomPage() {
   };
 
   const handleFinishAnswerManually = () => {
-    const textToSubmit = (liveSpeechRef.current || liveSpeech).trim();
+    const textToSubmit = (
+      liveSpeechRef.current ||
+      liveSpeech ||
+      (sttEngineRef.current ? sttEngineRef.current.getLatestTranscript() : "")
+    ).trim();
     if (textToSubmit) {
       submitAnswer(textToSubmit);
     } else {

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
-import { SessionProvider, useSession } from "next-auth/react";
+import { SessionProvider, useSession, signOut as nextAuthSignOut } from "next-auth/react";
 import { InterviewModeResolution } from "@/lib/access";
 
 interface UserAccountState {
@@ -17,6 +17,7 @@ interface UserAccountContextType {
   resolvedAccess: InterviewModeResolution;
   isLoading: boolean;
   refreshUser: () => Promise<void>;
+  signOut: () => Promise<void>;
   isAuthModalOpen: boolean;
   openAuthModal: () => void;
   closeAuthModal: () => void;
@@ -30,6 +31,7 @@ const UserAccountContext = createContext<UserAccountContextType>({
   resolvedAccess: { mode: "demo", reason: "unauthenticated" },
   isLoading: true,
   refreshUser: async () => {},
+  signOut: async () => {},
   isAuthModalOpen: false,
   openAuthModal: () => {},
   closeAuthModal: () => {},
@@ -55,7 +57,13 @@ function UserAccountInternalProvider({ children }: { children: React.ReactNode }
 
   const fetchLiveUser = useCallback(async () => {
     try {
-      const res = await fetch("/api/user/me", { cache: "no-store" });
+      const res = await fetch(`/api/user/me?t=${Date.now()}`, {
+        cache: "no-store",
+        headers: {
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          Pragma: "no-cache",
+        },
+      });
       if (res.ok) {
         const data = await res.json();
         if (data.authenticated && data.user) {
@@ -74,8 +82,28 @@ function UserAccountInternalProvider({ children }: { children: React.ReactNode }
     }
   }, []);
 
+  const handleSignOut = useCallback(async () => {
+    setUser(null);
+    setResolvedAccess({ mode: "demo", reason: "unauthenticated" });
+    try {
+      await nextAuthSignOut({ redirect: false });
+    } catch (err) {
+      console.warn("Sign-out error:", err);
+    }
+    // Hard refresh to root to ensure all caches and volatile states are scrubbed
+    window.location.href = "/";
+  }, []);
+
   useEffect(() => {
     if (status === "loading") return;
+
+    if (status === "unauthenticated" || !session) {
+      setUser(null);
+      setResolvedAccess({ mode: "demo", reason: "unauthenticated" });
+      setIsLoading(false);
+      return;
+    }
+
     fetchLiveUser();
   }, [session, status, fetchLiveUser]);
 
@@ -86,6 +114,7 @@ function UserAccountInternalProvider({ children }: { children: React.ReactNode }
         resolvedAccess,
         isLoading: status === "loading" || isLoading,
         refreshUser: fetchLiveUser,
+        signOut: handleSignOut,
         isAuthModalOpen,
         openAuthModal: () => setIsAuthModalOpen(true),
         closeAuthModal: () => setIsAuthModalOpen(false),

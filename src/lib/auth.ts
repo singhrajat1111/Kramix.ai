@@ -38,6 +38,17 @@ declare module "next-auth/jwt" {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Netlify & Cloud Deployment URL Normalization
+// ---------------------------------------------------------------------------
+if (!process.env.NEXTAUTH_URL || process.env.NEXTAUTH_URL.includes("localhost")) {
+  if (process.env.URL) {
+    process.env.NEXTAUTH_URL = process.env.URL;
+  } else if (process.env.DEPLOY_PRIME_URL) {
+    process.env.NEXTAUTH_URL = process.env.DEPLOY_PRIME_URL;
+  }
+}
+
 const isProduction = process.env.NODE_ENV === "production";
 const nextAuthSecret = process.env.NEXTAUTH_SECRET;
 
@@ -54,14 +65,21 @@ if (isProduction) {
   }
 }
 
+const isHttps = Boolean(
+  process.env.NEXTAUTH_URL?.startsWith("https://") ||
+  process.env.URL?.startsWith("https://") ||
+  isProduction
+);
+
 export const authOptions: NextAuthOptions = {
   secret: nextAuthSecret || "kramix-super-secret-key-must-be-long-and-secure",
+  useSecureCookies: isHttps,
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   providers: [
-    // 1. Google OAuth Provider (configured with select_account prompt to show all Google accounts)
+    // 1. Google OAuth Provider (configured with select_account consent to always display account picker)
     ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
       ? [
           GoogleProvider({
@@ -69,7 +87,7 @@ export const authOptions: NextAuthOptions = {
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
             authorization: {
               params: {
-                prompt: "select_account",
+                prompt: "select_account consent",
                 access_type: "offline",
                 response_type: "code",
               },
@@ -102,40 +120,33 @@ export const authOptions: NextAuthOptions = {
         ]
       : []),
 
-    // 3. Passwordless Direct Email Sign-In (strictly non-production development/test only)
-    ...(!isProduction
-      ? [
-          CredentialsProvider({
-            id: "email-login",
-            name: "Passwordless Email (Development Only)",
-            credentials: {
-              email: { label: "Email", type: "email", placeholder: "you@example.com" },
-            },
-            async authorize(credentials) {
-              if (process.env.NODE_ENV === "production") {
-                throw new Error("Passwordless credentials login is disabled in production.");
-              }
-              if (!credentials?.email) {
-                throw new Error("Please enter a valid email address");
-              }
-              const email = credentials.email.trim().toLowerCase();
-              if (!email.includes("@")) {
-                throw new Error("Invalid email format");
-              }
+    // 3. Candidate Email Access (persists candidate account, credits & BYOK without external SMTP requirements)
+    CredentialsProvider({
+      id: "email-login",
+      name: "Candidate Email Access",
+      credentials: {
+        email: { label: "Email", type: "email", placeholder: "you@example.com" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email) {
+          throw new Error("Please enter a valid email address");
+        }
+        const email = credentials.email.trim().toLowerCase();
+        if (!email.includes("@") || !email.includes(".")) {
+          throw new Error("Invalid email format");
+        }
 
-              // Upsert user into database (defaults to free tier with 0 credits)
-              const user = await upsertUser(email, "free", 0);
-              return {
-                id: user.id,
-                email: user.email,
-                plan: user.plan,
-                credits: user.credits,
-                hasBYOK: Boolean(user.api_key_encrypted),
-              };
-            },
-          }),
-        ]
-      : []),
+        // Upsert user into database (defaults to free tier with 0 credits)
+        const user = await upsertUser(email, "free", 0);
+        return {
+          id: user.id,
+          email: user.email,
+          plan: user.plan,
+          credits: user.credits,
+          hasBYOK: Boolean(user.api_key_encrypted),
+        };
+      },
+    }),
   ],
   callbacks: {
     async signIn({ user }) {
@@ -182,8 +193,5 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
-  },
-  pages: {
-    signIn: "/setup",
   },
 };

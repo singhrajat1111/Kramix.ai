@@ -7,7 +7,6 @@ import { StorageManager } from "@/lib/storage/storage-manager";
 import { AIConfig } from "@/types/ai";
 import { useUserAccount } from "@/components/auth/AuthProvider";
 import { getUnlockedSteps } from "@/lib/guards";
-import { signOut } from "next-auth/react";
 import {
   Sparkles,
   Cpu,
@@ -26,7 +25,7 @@ export function Navbar() {
   const pathname = usePathname();
   const [aiConfig, setAiConfig] = useState<AIConfig>({ provider: "demo" });
   const [unlockedSteps, setUnlockedSteps] = useState<Record<string, boolean>>({ "/setup": true });
-  const { user, resolvedAccess, openAuthModal, openCheckoutModal } = useUserAccount();
+  const { user, resolvedAccess, openAuthModal, openCheckoutModal, signOut } = useUserAccount();
 
   useEffect(() => {
     setAiConfig(StorageManager.getAIConfig());

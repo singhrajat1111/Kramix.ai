@@ -432,6 +432,16 @@ Format: `Role → Category → Question → Key points`
    Key points: Circuit breakers, adaptive rate limiting, client-side load balancing with power-of-two choices, bulkheading.
 5. **How would you architect a distributed rate limiter scaling to 500,000 QPS with sub-5ms latency?**
    Key points: Sliding window counter in Redis cluster, local token bucket caching, asynchronous batch synchronization.
+6. **How do you implement distributed transaction recovery using 2PC (Two-Phase Commit) vs Saga orchestrator pattern?**
+   Key points: Prepare and Commit phases, coordinator blocking vulnerabilities, Saga compensating transactions, forward/backward recovery strategies.
+7. **How do you design an idempotent event processing pipeline in Kafka under at-least-once delivery semantics?**
+   Key points: Unique transaction IDs, deduplication store with Redis/DynamoDB, atomic consumer offsets, idempotent database upserts.
+8. **Explain how consistent hashing with virtual nodes minimizes data movement during cluster scaling.**
+   Key points: Hash ring partitioning, virtual node distribution preventing hot spots, minimal key reassignment on node join/leave.
+9. **How do you prevent split-brain scenarios and manage quorum consensus in multi-datacenter etcd clusters?**
+   Key points: Odd node counts (3, 5, 7), majority quorum requirements (N/2 + 1), leader election timeouts, network partition isolation.
+10. **Walk through designing a high-throughput distributed tracing collector for microservice observability.**
+    Key points: OpenTelemetry protocol (OTLP), head-based vs tail-based sampling, batching collector buffering, Jaeger/Zipkin backend storage.
 
 ## AI Infrastructure Architect
 
@@ -445,6 +455,16 @@ Format: `Role → Category → Question → Key points`
    Key points: Dual-LLM validation architecture, regex and embedding guardrails, canary token tracking, untrusted XML sandboxing.
 5. **How would you build a real-time feature store for sub-20ms model inference?**
    Key points: Low-latency key-value store (Redis/RocksDB), streaming ingestion via Kafka, point-in-time correctness, feature drift detection.
+6. **How do you optimize inference throughput for LLM serving using speculative decoding and Medusa heads?**
+   Key points: Small draft model draft token generation, target LLM parallel verification step, acceptance rate metrics, reduced latency per token.
+7. **Explain how FlashAttention-3 leverages GPU Tensor Cores and asynchronous memory copy for long-context windows.**
+   Key points: Tiling attention computation in SRAM, FP8 precision GEMM execution, overlapping memory transfers with Tensor Core math, linear memory complexity.
+8. **How do you design an automated model validation and canary deployment pipeline for real-time safety guardrails?**
+   Key points: Shadow traffic mirroring, automated regression benchmarks (MMLU, GSM8K, toxicity filters), automated rollback triggers, traffic shifting.
+9. **How do you approach quantization-aware training (QAT) vs post-training quantization (PTQ) for edge LLM deployment?**
+   Key points: Simulated quantization during backprop, weight vs activation clipping, AWQ/GPTQ algorithms, latency and accuracy retention trade-offs.
+10. **Walk through building an automated dataset deduplication pipeline using MinHash LSH and semantic embedding clustering.**
+    Key points: Document N-gram extraction, MinHash signature generation, Locality-Sensitive Hashing (LSH) bucket candidate generation, cosine similarity verification.
 
 ---
 

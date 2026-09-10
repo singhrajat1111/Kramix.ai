@@ -420,6 +420,32 @@ Format: `Role → Category → Question → Key points`
 5. **How do you manage multiple concurrent support tickets with different priorities?**
    Key points: triage by severity/impact, clear communication of expected timelines to each customer.
 
+## Distributed Systems Engineer
+
+1. **How do you design a consensus-based distributed lock service?**
+   Key points: Raft or Paxos consensus algorithm, lease renewal mechanisms, fencing tokens to prevent split-brain writes.
+2. **Explain the CAP theorem and PACELC extension in modern distributed databases.**
+   Key points: Consistency vs Availability during Partition; Else Latency vs Consistency trade-offs during normal operation.
+3. **How do you manage vector clock drift and causality in multi-region active-active clusters?**
+   Key points: Vector clocks, hybrid logical clocks (HLC), conflict-free replicated data types (CRDTs), last-write-wins resolution.
+4. **What strategies mitigate cascading failures and thread starvation in microservices?**
+   Key points: Circuit breakers, adaptive rate limiting, client-side load balancing with power-of-two choices, bulkheading.
+5. **How would you architect a distributed rate limiter scaling to 500,000 QPS with sub-5ms latency?**
+   Key points: Sliding window counter in Redis cluster, local token bucket caching, asynchronous batch synchronization.
+
+## AI Infrastructure Architect
+
+1. **How do you optimize GPU cluster utilization for multi-node LLM distributed training?**
+   Key points: Megatron-LM tensor and pipeline parallelism, Zero Redundancy Optimizer (ZeRO-3), FlashAttention-2 memory reduction.
+2. **Explain KV-cache optimization techniques in high-throughput LLM inference.**
+   Key points: PagedAttention (vLLM) memory allocation, continuous batching, speculative decoding, quantized KV-cache (FP8/INT4).
+3. **How do you architect a vector database cluster for billion-scale hybrid semantic search?**
+   Key points: HNSW index graph partitioning, product quantization (PQ), disk-ANN storage, hybrid lexical-dense re-ranking.
+4. **How do you prevent data leakage and ensure prompt injection resilience in enterprise LLM gateways?**
+   Key points: Dual-LLM validation architecture, regex and embedding guardrails, canary token tracking, untrusted XML sandboxing.
+5. **How would you build a real-time feature store for sub-20ms model inference?**
+   Key points: Low-latency key-value store (Redis/RocksDB), streaming ingestion via Kafka, point-in-time correctness, feature drift detection.
+
 ---
 
 ## Usage Notes for Integration

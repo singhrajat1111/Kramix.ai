@@ -91,6 +91,10 @@ if (fs.existsSync(actualMdPath)) {
   const parsed = parseQuestionBankMarkdown(content);
   const outPath = path.join(rootDir, "src", "lib", "demo", "question-bank-data.json");
 
+  const dataMdPath = path.join(rootDir, "data", "kramix-question-bank.md");
+  fs.mkdirSync(path.dirname(dataMdPath), { recursive: true });
+  fs.writeFileSync(dataMdPath, content, "utf-8");
+
   fs.mkdirSync(path.dirname(outPath), { recursive: true });
   fs.writeFileSync(outPath, JSON.stringify(parsed, null, 2), "utf-8");
   console.log(`[build-question-bank] Successfully parsed ${parsed.length} questions into ${outPath}`);

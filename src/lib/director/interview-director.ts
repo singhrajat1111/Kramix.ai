@@ -33,8 +33,8 @@ export class InterviewDirector {
 
     this.config = {
       maxDurationMinutes: customConfig?.maxDurationMinutes || selectedRound.typicalDurationMinutes || 25,
-      maxQuestions: blueprint?.questionBudget || customConfig?.maxQuestions || 5,
-      maxFollowUpsPerQuestion: blueprint?.followUpPolicy?.maxFollowUps ?? customConfig?.maxFollowUpsPerQuestion ?? 2,
+      maxQuestions: customConfig?.maxQuestions ?? blueprint?.questionBudget ?? 5,
+      maxFollowUpsPerQuestion: customConfig?.maxFollowUpsPerQuestion ?? blueprint?.followUpPolicy?.maxFollowUps ?? 2,
       targetRound: selectedRound,
       allowCoachingHints: customConfig?.allowCoachingHints || false,
       blueprint,

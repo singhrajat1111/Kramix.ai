@@ -8,7 +8,7 @@
 
 **Kramix.AI** is an advanced AI interview preparation and simulation platform designed to mirror realistic corporate and technical hiring loops. 
 
-Unlike conventional conversational chatbots that ask superficial, disconnected questions, Kramix:
+Unlike conventional conversational chatbots that ask superficial, disconnected questions, Kramix provides:
 1. **Researches the Target Opportunity**: Investigates the target company, role nuances, and historical interview structures across authoritative public sources and search providers.
 2. **Builds an Evidence-Grounded Blueprint**: Classifies sources by credibility tier and evidence veracity (`VERIFIED`, `SUPPORTED`, `INFERRED`, `UNKNOWN`) to generate an intentional question plan with clear provenance and rationale.
 3. **Conducts Adaptive Multi-Round Interviews**: Driven by a deterministic state machine, an audio-reactive AI interviewer conducts live, voice-interactive interview rounds with dynamic pacing, follow-up probes, and barge-in support.

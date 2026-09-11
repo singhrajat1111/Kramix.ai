@@ -26,6 +26,16 @@ function assertDatabaseConfigured(): void {
 
 let pool: Pool | null = null;
 if (databaseUrl) {
+  // Warn developers if connecting directly to a Supabase direct host (which may lack IPv4 routes on serverless hosts like Netlify)
+  if (
+    databaseUrl.includes(".supabase.co") &&
+    !databaseUrl.includes("pooler.supabase.com")
+  ) {
+    console.warn(
+      "NOTICE: DATABASE_URL uses direct Supabase host. On IPv4-only serverless runtimes (e.g. Netlify), consider using the Supabase connection pooler URL (pooler.supabase.com) to avoid IPv6 connectivity errors."
+    );
+  }
+
   const requiresSsl =
     process.env.NODE_ENV === "production" ||
     databaseUrl.includes("supabase.co") ||
@@ -36,6 +46,7 @@ if (databaseUrl) {
   pool = new Pool({
     connectionString: databaseUrl,
     ssl: requiresSsl ? { rejectUnauthorized: false } : undefined,
+    connectionTimeoutMillis: 5000, // 5s connection timeout for serverless environments
   });
 }
 
@@ -111,21 +122,33 @@ export async function getUserByEmail(email: string): Promise<UserRecord | null> 
   const cleanEmail = email.trim().toLowerCase();
 
   if (pool) {
-    await ensureTablesExist();
-    const res = await pool.query(
-      "SELECT id, email, plan, credits, api_key_encrypted, created_at FROM users WHERE LOWER(email) = $1 LIMIT 1",
-      [cleanEmail]
-    );
-    if (res.rows.length === 0) return null;
-    const row = res.rows[0];
-    return {
-      id: row.id,
-      email: row.email,
-      plan: row.plan,
-      credits: Number(row.credits || 0),
-      api_key_encrypted: row.api_key_encrypted,
-      created_at: new Date(row.created_at),
-    };
+    try {
+      await ensureTablesExist();
+      const res = await pool.query(
+        "SELECT id, email, plan, credits, api_key_encrypted, created_at FROM users WHERE LOWER(email) = $1 LIMIT 1",
+        [cleanEmail]
+      );
+      if (res.rows.length === 0) return null;
+      const row = res.rows[0];
+      return {
+        id: row.id,
+        email: row.email,
+        plan: row.plan,
+        credits: Number(row.credits || 0),
+        api_key_encrypted: row.api_key_encrypted,
+        created_at: new Date(row.created_at),
+      };
+    } catch (err) {
+      console.error("Database query error in getUserByEmail:", err);
+      if (process.env.NODE_ENV !== "production") {
+        const store = loadDevStore();
+        const found = Object.values(store.users).find(
+          (u) => u.email.toLowerCase() === cleanEmail
+        );
+        return found || null;
+      }
+      throw err;
+    }
   }
 
   // Dev fallback
@@ -138,21 +161,30 @@ export async function getUserByEmail(email: string): Promise<UserRecord | null> 
 
 export async function getUserById(id: string): Promise<UserRecord | null> {
   if (pool) {
-    await ensureTablesExist();
-    const res = await pool.query(
-      "SELECT id, email, plan, credits, api_key_encrypted, created_at FROM users WHERE id = $1 LIMIT 1",
-      [id]
-    );
-    if (res.rows.length === 0) return null;
-    const row = res.rows[0];
-    return {
-      id: row.id,
-      email: row.email,
-      plan: row.plan,
-      credits: Number(row.credits || 0),
-      api_key_encrypted: row.api_key_encrypted,
-      created_at: new Date(row.created_at),
-    };
+    try {
+      await ensureTablesExist();
+      const res = await pool.query(
+        "SELECT id, email, plan, credits, api_key_encrypted, created_at FROM users WHERE id = $1 LIMIT 1",
+        [id]
+      );
+      if (res.rows.length === 0) return null;
+      const row = res.rows[0];
+      return {
+        id: row.id,
+        email: row.email,
+        plan: row.plan,
+        credits: Number(row.credits || 0),
+        api_key_encrypted: row.api_key_encrypted,
+        created_at: new Date(row.created_at),
+      };
+    } catch (err) {
+      console.error("Database query error in getUserById:", err);
+      if (process.env.NODE_ENV !== "production") {
+        const store = loadDevStore();
+        return store.users[id] || null;
+      }
+      throw err;
+    }
   }
 
   // Dev fallback
@@ -168,24 +200,49 @@ export async function upsertUser(
   const cleanEmail = email.trim().toLowerCase();
 
   if (pool) {
-    await ensureTablesExist();
-    const res = await pool.query(
-      `INSERT INTO users (email, plan, credits)
-       VALUES ($1, $2, $3)
-       ON CONFLICT (email) DO UPDATE
-       SET email = EXCLUDED.email
-       RETURNING id, email, plan, credits, api_key_encrypted, created_at`,
-      [cleanEmail, initialPlan, initialCredits]
-    );
-    const row = res.rows[0];
-    return {
-      id: row.id,
-      email: row.email,
-      plan: row.plan,
-      credits: Number(row.credits || 0),
-      api_key_encrypted: row.api_key_encrypted,
-      created_at: new Date(row.created_at),
-    };
+    try {
+      await ensureTablesExist();
+      const res = await pool.query(
+        `INSERT INTO users (email, plan, credits)
+         VALUES ($1, $2, $3)
+         ON CONFLICT (email) DO UPDATE
+         SET email = EXCLUDED.email
+         RETURNING id, email, plan, credits, api_key_encrypted, created_at`,
+        [cleanEmail, initialPlan, initialCredits]
+      );
+      const row = res.rows[0];
+      return {
+        id: row.id,
+        email: row.email,
+        plan: row.plan,
+        credits: Number(row.credits || 0),
+        api_key_encrypted: row.api_key_encrypted,
+        created_at: new Date(row.created_at),
+      };
+    } catch (err) {
+      console.error("Database query error in upsertUser:", err);
+      if (process.env.NODE_ENV !== "production") {
+        const store = loadDevStore();
+        let existing = Object.values(store.users).find(
+          (u) => u.email.toLowerCase() === cleanEmail
+        );
+        if (!existing) {
+          const id = `dev-user-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+          existing = {
+            id,
+            email: cleanEmail,
+            plan: initialPlan,
+            credits: initialCredits,
+            api_key_encrypted: null,
+            created_at: new Date(),
+          };
+          store.users[id] = existing;
+          saveDevStore(store);
+        }
+        return existing;
+      }
+      throw err;
+    }
   }
 
   // Dev fallback

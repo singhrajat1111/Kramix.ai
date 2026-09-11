@@ -1,6 +1,7 @@
 import { AIConfig } from "@/types/ai";
 import { getUserByEmail, getUserById } from "./db";
 import { decryptApiKey } from "./crypto";
+import { detectProviderFromKey } from "./ai/factory";
 
 export type InterviewModeResolution =
   | { mode: "live"; reason: "byok" }
@@ -78,8 +79,15 @@ export async function getEffectiveServerAIConfig(
 }> {
   // Case A: Client supplied a valid in-memory API key directly
   if (clientConfig && clientConfig.apiKey && clientConfig.provider !== "demo") {
+    const resolvedProvider =
+      clientConfig.provider === "universal"
+        ? detectProviderFromKey(clientConfig.apiKey)
+        : clientConfig.provider;
     return {
-      config: clientConfig,
+      config: {
+        ...clientConfig,
+        provider: resolvedProvider,
+      },
       fundingSource: "byok",
     };
   }
@@ -95,9 +103,16 @@ export async function getEffectiveServerAIConfig(
       if (dbUser.api_key_encrypted) {
         const decryptedKey = decryptApiKey(dbUser.api_key_encrypted);
         if (decryptedKey) {
+          const detected = detectProviderFromKey(decryptedKey);
+          const resolvedProvider =
+            clientConfig?.provider &&
+            clientConfig.provider !== "demo" &&
+            clientConfig.provider !== "universal"
+              ? clientConfig.provider
+              : detected;
           return {
             config: {
-              provider: clientConfig?.provider || "gemini",
+              provider: resolvedProvider,
               apiKey: decryptedKey,
               model: clientConfig?.model,
             },

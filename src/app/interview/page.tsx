@@ -24,6 +24,8 @@ import { useUserAccount } from "@/components/auth/AuthProvider";
 import { RouteGuard } from "@/components/common/RouteGuard";
 import { getDemoQuestionsForRole } from "@/lib/demo/question-bank";
 import { shouldShowUpgradeGate, DEMO_QUESTION_LIMIT } from "@/lib/demo/session-limit";
+import { INTERVIEW_CONFIG, FULL_INTERVIEW_DURATION_MINUTES } from "@/lib/config/interview-config";
+import { isCoreJavaDomain } from "@/lib/demo/core-java";
 import { DemoEndModal } from "@/components/demo/DemoEndModal";
 import {
   AlertTriangle,
@@ -354,10 +356,11 @@ export default function InterviewRoomPage() {
       r.answers.map((a) => a.questionText)
     );
 
+    const isAi = mode === "ai";
     const director = new InterviewDirector(cand, plan, nextRoundInfo, provider, {
       interviewMode: mode,
-      maxDurationMinutes: nextRoundInfo.typicalDurationMinutes || 25,
-      maxQuestions: mode === "demo" ? DEMO_QUESTION_LIMIT : plan.blueprint?.questionBudget || 4,
+      maxDurationMinutes: isAi ? FULL_INTERVIEW_DURATION_MINUTES : (nextRoundInfo.typicalDurationMinutes || INTERVIEW_CONFIG.demo.typicalDurationMinutes),
+      maxQuestions: isAi ? INTERVIEW_CONFIG.full.maxQuestions : DEMO_QUESTION_LIMIT,
       maxFollowUpsPerQuestion: plan.blueprint?.followUpPolicy?.maxFollowUps ?? 2,
       blueprint: plan.blueprint,
       previousRoundContext,
@@ -421,13 +424,13 @@ export default function InterviewRoomPage() {
         setCurrentPrompt(interviewerResponse);
         setLiveSpeech("");
 
-        // In Demo Mode: Enforce DEMO_QUESTION_LIMIT (4 questions)
+        // In Demo Mode: Enforce DEMO_QUESTION_LIMIT (5 questions)
         const questionsAnsweredSoFar = newState.candidateResponses.length;
         if (isDemoMode && shouldShowUpgradeGate(questionsAnsweredSoFar)) {
           setInterviewState("ROUND_COMPLETE");
           setAuthoritativeAvatarState("IDLE");
           speakText(
-            "That concludes your 4-question demo interview. Thank you for participating!",
+            `That concludes your ${DEMO_QUESTION_LIMIT}-question demo interview. Thank you for participating!`,
             () => {
               setDemoModalState({
                 isOpen: true,
@@ -590,7 +593,15 @@ export default function InterviewRoomPage() {
       const prevAsked = (session?.rounds || []).flatMap((r) =>
         r.answers.map((a) => a.questionText)
       );
-      const demoResult = getDemoQuestionsForRole(loadedCandidate.targetRole, DEMO_QUESTION_LIMIT, prevAsked);
+      // Domain detection for Core Java across candidate's role, skills, job description, resume
+      const isCoreJava = isCoreJavaDomain({
+        targetRole: loadedCandidate.targetRole,
+        skills: loadedCandidate.skills,
+        jobDescription: loadedCandidate.jobDescription,
+        resumeText: loadedCandidate.resumeText,
+      });
+      const queryRole = isCoreJava ? "Core Java" : loadedCandidate.targetRole;
+      const demoResult = getDemoQuestionsForRole(queryRole, DEMO_QUESTION_LIMIT, prevAsked);
       if (!demoResult.roleCovered) {
         setDemoModalState({
           isOpen: true,
@@ -635,8 +646,10 @@ export default function InterviewRoomPage() {
     const provider = getLLMProvider(aiConfig);
     const director = new InterviewDirector(loadedCandidate, loadedPlan, loadedRound, provider, {
       interviewMode: mode,
-      maxDurationMinutes: loadedRound.typicalDurationMinutes || 25,
-      maxQuestions: isDemo ? DEMO_QUESTION_LIMIT : loadedPlan.blueprint?.questionBudget || 4,
+      maxDurationMinutes: isDemo
+        ? (loadedRound.typicalDurationMinutes || INTERVIEW_CONFIG.demo.typicalDurationMinutes)
+        : FULL_INTERVIEW_DURATION_MINUTES,
+      maxQuestions: isDemo ? DEMO_QUESTION_LIMIT : INTERVIEW_CONFIG.full.maxQuestions,
       maxFollowUpsPerQuestion: loadedPlan.blueprint?.followUpPolicy?.maxFollowUps ?? 2,
       blueprint: loadedPlan.blueprint,
       previousRoundContext,
@@ -863,7 +876,14 @@ export default function InterviewRoomPage() {
                   const loadedPlan = StorageManager.getResearchPlan();
                   const loadedCandidate = StorageManager.getCandidateProfile();
                   if (loadedRound && loadedPlan) {
-                    const demoResult = getDemoQuestionsForRole(loadedCandidate.targetRole, DEMO_QUESTION_LIMIT);
+                    const isCoreJava = isCoreJavaDomain({
+                      targetRole: loadedCandidate.targetRole,
+                      skills: loadedCandidate.skills,
+                      jobDescription: loadedCandidate.jobDescription,
+                      resumeText: loadedCandidate.resumeText,
+                    });
+                    const queryRole = isCoreJava ? "Core Java" : loadedCandidate.targetRole;
+                    const demoResult = getDemoQuestionsForRole(queryRole, DEMO_QUESTION_LIMIT);
                     if (demoResult.roleCovered) {
                       loadedRound.sampleQuestions = demoResult.questions.map((q) => q.question);
                       loadedPlan.questionBank = demoResult.questions.map((q, idx) => ({
@@ -880,7 +900,7 @@ export default function InterviewRoomPage() {
                     const provider = getLLMProvider(aiConfig);
                     const director = new InterviewDirector(loadedCandidate, loadedPlan, loadedRound, provider, {
                       interviewMode: "demo",
-                      maxDurationMinutes: loadedRound.typicalDurationMinutes || 25,
+                      maxDurationMinutes: loadedRound.typicalDurationMinutes || INTERVIEW_CONFIG.demo.typicalDurationMinutes,
                       maxQuestions: DEMO_QUESTION_LIMIT,
                       maxFollowUpsPerQuestion: loadedPlan.blueprint?.followUpPolicy?.maxFollowUps ?? 2,
                       blueprint: loadedPlan.blueprint,
@@ -954,7 +974,8 @@ export default function InterviewRoomPage() {
                 Round {multiRoundSession ? `${multiRoundSession.currentRoundIndex + 1} of ${multiRoundSession.rounds.length}` : "1 of 1"}
               </span>
               <span className="px-2.5 py-1 rounded-lg bg-surface-100 border border-slate-800 text-slate-300">
-                Question {directorState?.currentQuestionIndex ?? 1} / {directorState?.totalQuestionsPlanned ?? 4}
+                Question {directorState?.currentQuestionIndex ?? 1}
+                {isDemoMode ? ` / ${DEMO_QUESTION_LIMIT}` : " (Live · 40m)"}
               </span>
             </div>
           )}
@@ -1084,14 +1105,18 @@ export default function InterviewRoomPage() {
                   <Clock className="h-3.5 w-3.5 text-brand-400" />
                   Estimated Duration
                 </span>
-                <span className="font-semibold text-white">~{selectedRound.typicalDurationMinutes || 25} minutes</span>
+                <span className="font-semibold text-white">
+                  ~{isDemoMode ? (selectedRound.typicalDurationMinutes || INTERVIEW_CONFIG.demo.typicalDurationMinutes) : FULL_INTERVIEW_DURATION_MINUTES} minutes
+                </span>
               </div>
               <div className="p-3 rounded-xl bg-surface-100/60 border border-slate-800">
                 <span className="text-slate-400 flex items-center gap-1.5 mb-1 font-medium">
                   <Layers className="h-3.5 w-3.5 text-emerald-400" />
                   Target Budget
                 </span>
-                <span className="font-semibold text-white">~{researchPlan?.blueprint?.questionBudget || 4} questions</span>
+                <span className="font-semibold text-white">
+                  {isDemoMode ? `${DEMO_QUESTION_LIMIT} questions` : "Full 40m session (Time-based)"}
+                </span>
               </div>
             </div>
 

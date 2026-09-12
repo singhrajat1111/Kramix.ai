@@ -2926,5 +2926,113 @@
       "customer tier consideration",
       "communication of expected wait times"
     ]
+  },
+  {
+    "role": "Core Java",
+    "category": "technical",
+    "question": "What is Java?",
+    "keyPoints": [
+      "High-level, object-oriented, and class-based language",
+      "Platform independence through compilation to bytecode",
+      "Runs on any system with a compatible JVM (Write Once, Run Anywhere)"
+    ]
+  },
+  {
+    "role": "Core Java",
+    "category": "technical",
+    "question": "What is the difference between JDK, JRE, and JVM?",
+    "keyPoints": [
+      "JVM executes Java bytecode",
+      "JRE contains JVM plus core libraries needed for runtime execution",
+      "JDK contains JRE plus development tools like javac",
+      "Hierarchy: JDK -> JRE -> JVM"
+    ]
+  },
+  {
+    "role": "Core Java",
+    "category": "technical",
+    "question": "What are the main features of Java?",
+    "keyPoints": [
+      "Object-oriented and platform independent",
+      "Portable and robust architecture",
+      "Secure and multithreaded",
+      "Automatic garbage collection",
+      "High performance with JIT (Just-In-Time) compiler"
+    ]
+  },
+  {
+    "role": "Core Java",
+    "category": "technical",
+    "question": "What is a class and what is an object in Java?",
+    "keyPoints": [
+      "Class serves as a blueprint or template defining fields and methods",
+      "Object is a concrete instance of a class allocated in memory",
+      "Objects are instantiated using the 'new' keyword"
+    ]
+  },
+  {
+    "role": "Core Java",
+    "category": "technical",
+    "question": "What are the four pillars of OOP in Java?",
+    "keyPoints": [
+      "Encapsulation: Bundling data and methods, data hiding with private fields",
+      "Inheritance: Code reusability via superclasses and subclasses",
+      "Polymorphism: Method overloading and method overriding",
+      "Abstraction: Exposing interface while hiding internal implementation details"
+    ]
+  },
+  {
+    "role": "Core Java",
+    "category": "technical",
+    "question": "What is the difference between == and .equals() in Java?",
+    "keyPoints": [
+      "== compares memory reference addresses for objects (identity)",
+      ".equals() evaluates logical equivalence or content of objects",
+      "Classes like String, Integer, and custom classes override .equals() for value equality"
+    ]
+  },
+  {
+    "role": "Core Java",
+    "category": "technical",
+    "question": "What is method overloading in Java?",
+    "keyPoints": [
+      "Multiple methods with identical name in the same class",
+      "Must have different parameter lists (type, count, or order)",
+      "Resolved at compile-time (static polymorphism)",
+      "Return type alone cannot differentiate overloaded methods"
+    ]
+  },
+  {
+    "role": "Core Java",
+    "category": "technical",
+    "question": "What is method overriding in Java?",
+    "keyPoints": [
+      "Child class redefines a method declared in its superclass",
+      "Method signature and return type must match parent method",
+      "Resolved dynamically at runtime (dynamic method dispatch)",
+      "Uses @Override annotation for compile-time verification"
+    ]
+  },
+  {
+    "role": "Core Java",
+    "category": "technical",
+    "question": "What is the difference between an interface and an abstract class?",
+    "keyPoints": [
+      "Abstract class can have constructors and instance fields; interfaces have public static final constants",
+      "A class can extend only one abstract class but implement multiple interfaces",
+      "Interfaces declare contracts and support default/static methods in Java 8+",
+      "Abstract classes represent 'is-a' relationships; interfaces represent capabilities"
+    ]
+  },
+  {
+    "role": "Core Java",
+    "category": "technical",
+    "question": "What is garbage collection in Java?",
+    "keyPoints": [
+      "Automatic heap memory deallocation managed by JVM",
+      "Reclaims memory occupied by unreachable objects with no active references",
+      "Eliminates manual memory management and dangling pointers",
+      "Uses algorithms such as mark-and-sweep, generational GC"
+    ]
   }
 ]

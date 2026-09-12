@@ -21,6 +21,7 @@ import {
 } from "@/types/ai-question";
 import { InterviewRoundInfo, ResearchPlan } from "@/types/research";
 import { sanitizeUntrustedText } from "./prompt-defense";
+import { isCoreJavaDomain, getCoreJavaAIQuestions } from "../demo/core-java";
 
 // ---------------------------------------------------------------------------
 // 1. CONTEXT BUILDER
@@ -249,8 +250,27 @@ export async function generateInterviewQuestions(
   selectedRound: InterviewRoundInfo,
   options: QuestionGenerationOptions = {}
 ): Promise<AIGeneratedQuestion[]> {
-  const questionCount = options.questionCount || 4;
   const previousQuestions = options.previousQuestions || [];
+
+  // CORE JAVA DOMAIN ROUTING RULE:
+  // If target role, skills, job description, or resume contains "Core Java" (case-insensitive),
+  // strictly source questions from the vetted 10 Core Java questions bank without framework questions.
+  if (
+    isCoreJavaDomain({
+      targetRole: candidate.targetRole,
+      skills: candidate.skills,
+      jobDescription: candidate.jobDescription,
+      resumeText: candidate.resumeText,
+      additionalContext: candidate.additionalContext,
+    }) ||
+    isCoreJavaDomain(selectedRound.name) ||
+    isCoreJavaDomain(selectedRound.focusAreas?.join(" "))
+  ) {
+    const count = options.questionCount || 5;
+    return getCoreJavaAIQuestions(count, previousQuestions);
+  }
+
+  const questionCount = options.questionCount || 5;
   const maxRetries = options.maxRetries ?? 1;
 
   // 1. Build context

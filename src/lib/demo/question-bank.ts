@@ -1,5 +1,7 @@
 import { resolveCanonicalRole } from "./role-aliases";
 import questionBankJson from "./question-bank-data.json";
+import { DEMO_QUESTION_LIMIT } from "@/lib/config/interview-config";
+import { isCoreJavaDomain, getCoreJavaDemoQuestions } from "./core-java";
 
 export interface DemoQuestion {
   role: string;
@@ -90,34 +92,38 @@ function fisherYatesShuffle<T>(arr: T[]): T[] {
 }
 
 /**
- * Curates a demo session question sequence (default 4 questions):
- * - 3 technical questions randomly selected from the role's question bank
- * - 1 behavioral question randomly selected from the shared set
+ * Curates a demo session question sequence (default DEMO_QUESTION_LIMIT = 5 questions):
+ * - For Core Java: selects exactly 5 unique questions from the 10 Core Java questions without framework substitutions.
+ * - For other roles: 4 technical questions randomly selected from the role's question bank + 1 behavioral question.
  *
  * RANDOMIZATION POLICY:
- * - Technical questions are shuffled using Fisher-Yates before selection
- * - Behavioral questions are also shuffled before selection
+ * - Shuffled using Fisher-Yates before selection
  * - Every session produces a different random combination and order
- * - From 10 available questions, 4 unique questions are selected
- *
- * Graceful Underfill Policy:
- * If a role has fewer than 3 technical questions, it uses all available technical questions
- * and pads the remainder with distinct questions from the Shared Behavioral bank up to limit
- * (guaranteeing exactly 4 unique questions with no crashes or repeats).
+ * - Deduplicated against excludeQuestions
  *
  * @param role - The target role string (will be resolved to canonical)
- * @param limit - Total questions to select (default 4)
+ * @param limit - Total questions to select (default DEMO_QUESTION_LIMIT = 5)
  * @param excludeQuestions - Question texts to exclude (for cross-round deduplication)
  */
 export function getDemoQuestionsForRole(
   role: string,
-  limit = 4,
+  limit = DEMO_QUESTION_LIMIT,
   excludeQuestions?: string[]
 ): {
   questions: DemoQuestion[];
   roleCovered: boolean;
   canonicalRole: string | null;
 } {
+  // Check for Core Java domain first (case-insensitive boundary match)
+  if (isCoreJavaDomain(role)) {
+    const coreJavaQuestions = getCoreJavaDemoQuestions(limit, excludeQuestions);
+    return {
+      questions: coreJavaQuestions,
+      roleCovered: true,
+      canonicalRole: "Core Java",
+    };
+  }
+
   const availableRoles = getAvailableCanonicalRoles();
   const canonicalRole = resolveCanonicalRole(role, availableRoles);
 
@@ -126,6 +132,16 @@ export function getDemoQuestionsForRole(
       questions: [],
       roleCovered: false,
       canonicalRole: null,
+    };
+  }
+
+  // Double check canonical role in case alias mapped to Core Java
+  if (canonicalRole === "Core Java") {
+    const coreJavaQuestions = getCoreJavaDemoQuestions(limit, excludeQuestions);
+    return {
+      questions: coreJavaQuestions,
+      roleCovered: true,
+      canonicalRole: "Core Java",
     };
   }
 
@@ -157,7 +173,6 @@ export function getDemoQuestionsForRole(
   }
 
   // Final shuffle of the combined selection so question ordering is also randomized
-  // (prevents technical questions always appearing before behavioral)
   const finalQuestions = fisherYatesShuffle(selectedQuestions);
 
   return {

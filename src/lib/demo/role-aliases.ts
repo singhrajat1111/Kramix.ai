@@ -80,15 +80,24 @@ export const ROLE_ALIAS_REGISTRY: RoleAliasEntry[] = [
     ],
   },
   {
+    canonicalRole: "Core Java",
+    aliases: [
+      "core java",
+      "core java developer",
+      "core java engineer",
+      "core java programmer",
+      "core-java",
+      "core-java developer",
+      "corejava",
+    ],
+    excludeTokens: ["javascript", "js"],
+  },
+  {
     canonicalRole: "Java Developer",
     aliases: [
       "java",
       "java developer",
       "java engineer",
-      "core java",
-      "core java developer",
-      "core java engineer",
-      "core java programmer",
       "j2ee",
       "enterprise java",
     ],

@@ -11,6 +11,8 @@ import {
 import { InterviewMode } from "@/types/interview-mode";
 import { AIGeneratedQuestion } from "@/types/ai-question";
 import { InterviewRoundInfo, ResearchPlan } from "@/types/research";
+import { INTERVIEW_CONFIG } from "../config/interview-config";
+import { isCoreJavaDomain, getCoreJavaAIQuestions, getRandomCoreJavaQuestions } from "../demo/core-java";
 import { constructGuardedSystemPrompt, sanitizeUntrustedText } from "../ai/prompt-defense";
 import {
   generateInterviewQuestions,
@@ -38,11 +40,19 @@ export class InterviewDirector {
 
     const blueprint = customConfig?.blueprint || researchPlan.blueprint;
     const interviewMode: InterviewMode = customConfig?.interviewMode || "demo";
+    const isAiMode = interviewMode === "ai";
+
+    const defaultDuration = isAiMode
+      ? INTERVIEW_CONFIG.full.durationMinutes
+      : (selectedRound.typicalDurationMinutes || INTERVIEW_CONFIG.demo.typicalDurationMinutes);
+    const defaultMaxQuestions = isAiMode
+      ? INTERVIEW_CONFIG.full.maxQuestions
+      : INTERVIEW_CONFIG.demo.maxQuestions;
 
     this.config = {
       interviewMode,
-      maxDurationMinutes: customConfig?.maxDurationMinutes || selectedRound.typicalDurationMinutes || 25,
-      maxQuestions: customConfig?.maxQuestions ?? blueprint?.questionBudget ?? 5,
+      maxDurationMinutes: customConfig?.maxDurationMinutes || defaultDuration,
+      maxQuestions: customConfig?.maxQuestions ?? defaultMaxQuestions,
       maxFollowUpsPerQuestion: customConfig?.maxFollowUpsPerQuestion ?? blueprint?.followUpPolicy?.maxFollowUps ?? 2,
       targetRound: selectedRound,
       allowCoachingHints: customConfig?.allowCoachingHints || false,
@@ -61,7 +71,9 @@ export class InterviewDirector {
       interviewMode,
       currentState: "IDLE",
       currentQuestionIndex: 0,
-      totalQuestionsPlanned: Math.min(initialQuestions.length, this.config.maxQuestions),
+      totalQuestionsPlanned: isAiMode
+        ? INTERVIEW_CONFIG.full.maxQuestions
+        : Math.min(initialQuestions.length, this.config.maxQuestions),
       currentFollowUpCount: 0,
       activeQuestionId: null,
       activeQuestionText: "",
@@ -144,6 +156,25 @@ export class InterviewDirector {
       return this.aiQuestionQueue.map((q) => q.question);
     }
 
+    // CORE JAVA DOMAIN CHECK:
+    // If target role, skills, job description, or resume contains Core Java,
+    // questions must strictly come from the 10 Core Java questions bank.
+    if (
+      isCoreJavaDomain({
+        targetRole: this.candidate.targetRole,
+        skills: this.candidate.skills,
+        jobDescription: this.candidate.jobDescription,
+        resumeText: this.candidate.resumeText,
+      })
+    ) {
+      const previouslyAsked = this.config.previouslyAskedQuestions || [];
+      const coreJavaQuestions = getRandomCoreJavaQuestions(
+        this.config.maxQuestions || 5,
+        previouslyAsked
+      );
+      return coreJavaQuestions.map((q) => q.question);
+    }
+
     // DEMO MODE: Return questions from the research plan question bank
     const roundCategory = this.config.targetRound?.category?.toLowerCase() || "";
     const previouslyAsked = new Set(this.config.previouslyAskedQuestions || []);
@@ -216,14 +247,47 @@ export class InterviewDirector {
   }
 
   getNextQuestion(): { turn: ConversationTurn; state: InterviewDirectorState } {
-    const planned = this.getPlannedQuestions();
+    let planned = this.getPlannedQuestions();
 
-    if (
-      this.state.currentQuestionIndex >= this.state.totalQuestionsPlanned ||
-      this.state.currentQuestionIndex >= planned.length ||
-      this.state.completionReason === "TIME_EXPIRED"
-    ) {
+    const isAiMode = this.config.interviewMode === "ai";
+    const isTimeExpired =
+      this.state.elapsedSeconds >= this.config.maxDurationMinutes * 60 ||
+      this.state.completionReason === "TIME_EXPIRED";
+
+    if (isTimeExpired) {
+      return this.concludeInterview("TIME_EXPIRED");
+    }
+
+    if (!isAiMode && (this.state.currentQuestionIndex >= this.state.totalQuestionsPlanned || this.state.currentQuestionIndex >= planned.length)) {
       return this.concludeInterview("ROUND_GOALS_MET");
+    }
+
+    // In Full/AI mode: if questions in queue run out before 40 minutes expire,
+    // continue providing unasked Core Java questions if domain is active.
+    if (isAiMode && this.state.currentQuestionIndex >= planned.length) {
+      if (
+        isCoreJavaDomain({
+          targetRole: this.candidate.targetRole,
+          skills: this.candidate.skills,
+          jobDescription: this.candidate.jobDescription,
+          resumeText: this.candidate.resumeText,
+        })
+      ) {
+        const askedSet = new Set(
+          this.state.conversationHistory
+            .filter((t) => t.state === "QUESTION")
+            .map((t) => t.text.trim().toLowerCase())
+        );
+        const remaining = getCoreJavaAIQuestions(10, Array.from(askedSet));
+        if (remaining.length > 0) {
+          this.aiQuestionQueue.push(...remaining);
+          planned = this.getPlannedQuestions();
+        } else {
+          return this.concludeInterview("ROUND_GOALS_MET");
+        }
+      } else {
+        return this.concludeInterview("ROUND_GOALS_MET");
+      }
     }
 
     const questionText = planned[this.state.currentQuestionIndex];
@@ -375,12 +439,18 @@ ${crossRoundGuidance}
       this.state.currentQuestionIndex += 1;
       this.state.currentFollowUpCount = 0;
 
-      if (
-        this.state.currentQuestionIndex >= this.state.totalQuestionsPlanned ||
-        this.state.completionReason === "TIME_EXPIRED"
-      ) {
+      const isAiMode = this.config.interviewMode === "ai";
+      const isTimeExpired =
+        this.state.elapsedSeconds >= this.config.maxDurationMinutes * 60 ||
+        this.state.completionReason === "TIME_EXPIRED";
+
+      if (isTimeExpired) {
+        nextAction = "CONCLUDE";
+      } else if (!isAiMode && this.state.currentQuestionIndex >= this.state.totalQuestionsPlanned) {
+        // DEMO MODE: hard stop at exactly totalQuestionsPlanned (5 questions)
         nextAction = "CONCLUDE";
       } else {
+        // FULL/AI MODE: continue to next question while session time remains
         nextAction = "NEXT_QUESTION";
       }
     }

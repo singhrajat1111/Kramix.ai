@@ -2,9 +2,12 @@
  * Kramix.AI — Demo Session Question Limit & Gating
  *
  * Controls question budget and upgrade gating for demo mode interviews.
+ * Centralized from INTERVIEW_CONFIG.
  */
 
-export const DEMO_QUESTION_LIMIT = 4;
+import { DEMO_QUESTION_LIMIT } from "@/lib/config/interview-config";
+
+export { DEMO_QUESTION_LIMIT };
 
 /**
  * Returns true if the candidate has reached or exceeded the demo session limit.

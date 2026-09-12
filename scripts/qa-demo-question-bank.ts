@@ -151,20 +151,20 @@ assert(
 
 const techCount = demoFrontend.questions.filter((q) => q.category === "technical").length;
 const behCount = demoFrontend.questions.filter((q) => q.category === "behavioral").length;
-assert(techCount === 3, `Demo technical count: expected 3, got ${techCount}`);
+assert(techCount === 4, `Demo technical count: expected 4, got ${techCount}`);
 assert(behCount === 1, `Demo behavioral count: expected 1, got ${behCount}`);
 
 const uniqueTexts = new Set(demoFrontend.questions.map((q) => q.question));
-assert(uniqueTexts.size === 4, "All 4 questions in demo session are unique (no duplicates)");
+assert(uniqueTexts.size === 5, "All 5 questions in demo session are unique (no duplicates)");
 
 // --- SUITE 7: Session Limit & Gating Logic ---
 console.log("\n--- SUITE 7: Session Limit & Gating Logic ---");
-assert(DEMO_QUESTION_LIMIT === 4, "DEMO_QUESTION_LIMIT is 4");
+assert(DEMO_QUESTION_LIMIT === 5, "DEMO_QUESTION_LIMIT is 5");
 assert(shouldShowUpgradeGate(0) === false, "0 questions answered: gate closed (false)");
 assert(shouldShowUpgradeGate(1) === false, "1 question answered: gate closed (false)");
-assert(shouldShowUpgradeGate(3) === false, "3 questions answered: gate closed (false)");
-assert(shouldShowUpgradeGate(4) === true, "4 questions answered: gate engaged (true)");
+assert(shouldShowUpgradeGate(4) === false, "4 questions answered: gate closed (false)");
 assert(shouldShowUpgradeGate(5) === true, "5 questions answered: gate engaged (true)");
+assert(shouldShowUpgradeGate(6) === true, "6 questions answered: gate engaged (true)");
 
 // --- SUITE 8: Contact Author Mailto Link Generation ---
 console.log("\n--- SUITE 8: Contact Author Mailto Link Generation ---");

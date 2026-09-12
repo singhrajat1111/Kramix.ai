@@ -350,18 +350,19 @@
     ]
   },
   {
-    "role": "Java Developer",
+    "role": "Core Java Developer",
     "category": "technical",
     "question": "Explain the Java Memory Model (JMM) and JVM runtime memory areas (Heap, Stack, Metaspace, PC Registers). How does generational garbage collection (G1, ZGC) work?",
     "keyPoints": [
-      "Stack stores local variables and frame calls per thread, Heap stores all allocated objects",
+      "Stack stores local variables and frame calls per thread",
+      "Heap stores all allocated objects",
       "Metaspace holds class metadata in native off-heap memory replacing PermGen",
-      "Generational hypothesis: Young Gen (Eden, Survivor spaces S0/S1) and Old/Tenured Gen",
-      "GC algorithms: G1 partitions heap into regions, ZGC performs concurrent low-latency cycles"
+      "GC algorithms: G1 partitions heap into regions",
+      "ZGC performs concurrent low-latency cycles"
     ]
   },
   {
-    "role": "Java Developer",
+    "role": "Core Java Developer",
     "category": "technical",
     "question": "How does Java HashMap work internally under the hood? Explain bucket indexing, hash collision handling, and the Java 8+ treeification threshold to Red-Black trees.",
     "keyPoints": [
@@ -372,91 +373,268 @@
     ]
   },
   {
-    "role": "Java Developer",
+    "role": "Core Java Developer",
     "category": "technical",
     "question": "Why is String immutable in Java, and how does the String Constant Pool operate? Contrast String, StringBuilder, and StringBuffer with regard to performance and synchronization.",
     "keyPoints": [
-      "Immutability enables String Pool caching, thread safety, secure class loading, and hashCode caching",
+      "Immutability enables String Pool caching",
+      "thread safety",
+      "secure class loading",
+      "and hashCode caching",
       "String Constant Pool lives in Heap and reuses string literals via interning",
       "StringBuilder is mutable and un-synchronized (fastest for single-threaded string manipulation)",
-      "StringBuffer is thread-safe with synchronized methods, adding locking overhead"
+      "StringBuffer is thread-safe with synchronized methods",
+      "adding locking overhead"
     ]
   },
   {
-    "role": "Java Developer",
+    "role": "Core Java Developer",
     "category": "technical",
     "question": "Explain the nuances of Polymorphism in Java. What are the exact rules for method overriding regarding access modifiers, return types (covariant), and checked exceptions?",
     "keyPoints": [
-      "Compile-time polymorphism via method overloading; Runtime polymorphism via method overriding",
+      "Compile-time polymorphism via method overloading",
+      "Runtime polymorphism via method overriding",
       "Overridden method cannot have more restrictive access (e.g. public cannot become protected)",
       "Covariant return types allow overriding method to return a subtype of the superclass method return type",
       "Overridden method cannot throw new or broader checked exceptions than declared in superclass"
     ]
   },
   {
-    "role": "Java Developer",
+    "role": "Core Java Developer",
     "category": "technical",
     "question": "Compare abstract classes and interfaces in modern Java (Java 8/17/21). When should you choose one over the other, and how do default and private interface methods affect design?",
     "keyPoints": [
-      "Abstract classes can define state (instance fields), constructors, and partial implementations",
+      "Abstract classes can define state (instance fields)",
+      "constructors",
+      "and partial implementations",
       "Interfaces define behavior contracts and support multiple interface inheritance",
       "Java 8 added default and static methods in interfaces for backward-compatible API evolution",
       "Java 9 added private interface methods for code sharing between default methods"
     ]
   },
   {
-    "role": "Java Developer",
+    "role": "Core Java Developer",
     "category": "technical",
     "question": "How does Java guarantee thread safety? Explain the difference between synchronized methods/blocks, the volatile keyword, and Atomic classes in the context of the Java Memory Model.",
     "keyPoints": [
       "synchronized provides mutual exclusion and memory visibility via intrinsic monitor locks",
-      "volatile prevents instruction reordering and guarantees immediate visibility from CPU caches, but lacks atomicity",
-      "Atomic classes (e.g., AtomicInteger) rely on hardware-level Compare-And-Swap (CAS) lock-free operations",
+      "volatile prevents instruction reordering and guarantees immediate visibility from CPU caches",
+      "but lacks atomicity",
+      "Atomic classes (e.g",
+      "AtomicInteger) rely on hardware-level Compare-And-Swap (CAS) lock-free operations",
       "Happens-before guarantee establishes deterministic memory ordering between threads"
     ]
   },
   {
-    "role": "Java Developer",
+    "role": "Core Java Developer",
     "category": "technical",
     "question": "Explain the Java Executor Framework and how ThreadPoolExecutor manages task lifecycles. What are core pool size, max pool size, work queue types, and saturation/rejection policies?",
     "keyPoints": [
       "Decouples task submission (Runnable/Callable) from execution mechanics and thread management",
-      "Tasks first populate core threads, then queue in BlockingQueue, then expand to maxPoolSize, then trigger rejection",
-      "RejectedExecutionHandler policies: AbortPolicy, CallerRunsPolicy, DiscardPolicy, and DiscardOldestPolicy",
+      "Tasks first populate core threads",
+      "then queue in BlockingQueue",
+      "then expand to maxPoolSize",
+      "then trigger rejection",
+      "RejectedExecutionHandler policies: AbortPolicy",
+      "CallerRunsPolicy",
+      "DiscardPolicy",
+      "and DiscardOldestPolicy",
       "Future and CompletableFuture allow non-blocking asynchronous composition and callback chaining"
     ]
   },
   {
-    "role": "Java Developer",
+    "role": "Core Java Developer",
     "category": "technical",
     "question": "How do Java Streams process data? Explain lazy evaluation, intermediate versus terminal operations, and the performance trade-offs of using parallel streams.",
     "keyPoints": [
       "Streams are declarative computational pipelines that do not store data or modify underlying sources",
-      "Intermediate operations (filter, map) are lazy and assemble a pipeline; terminal operations (collect, reduce) execute it",
-      "Short-circuiting operations (findFirst, anyMatch) terminate computation early",
-      "Parallel streams leverage Spliterator and the Common ForkJoinPool; can degrade performance with small or un-splittable data"
+      "Intermediate operations (filter",
+      "map) are lazy and assemble a pipeline",
+      "terminal operations (collect",
+      "reduce) execute it",
+      "Short-circuiting operations (findFirst",
+      "anyMatch) terminate computation early",
+      "Parallel streams leverage Spliterator and the Common ForkJoinPool",
+      "can degrade performance with small or un-splittable data"
     ]
   },
   {
-    "role": "Java Developer",
+    "role": "Core Java Developer",
     "category": "technical",
     "question": "Explain the Java exception hierarchy from Throwable. How does try-with-resources work with the AutoCloseable interface, and how are suppressed exceptions handled?",
     "keyPoints": [
       "Throwable splits into Error (JVM/system fatal issues) and Exception (application level)",
-      "Checked exceptions extend Exception and require handling; Unchecked extend RuntimeException",
+      "Checked exceptions extend Exception and require handling",
+      "Unchecked extend RuntimeException",
       "try-with-resources guarantees close() invocation in reverse order of resource declaration",
       "Suppressed exceptions are attached to the primary exception via Throwable.addSuppressed()"
     ]
   },
   {
-    "role": "Java Developer",
+    "role": "Core Java Developer",
     "category": "technical",
     "question": "Explain how Java implements Generics. What is type erasure, and how do you apply the Producer Extends, Consumer Super (PECS) principle with wildcards?",
     "keyPoints": [
       "Generics provide compile-time type safety and eliminate explicit casting",
-      "Type erasure removes generic type parameters at runtime, replacing them with bounds or Object",
+      "Type erasure removes generic type parameters at runtime",
+      "replacing them with bounds or Object",
       "Cannot instantiate generic types (new T()) or create generic arrays (new T[]) due to erasure",
-      "PECS rule: use ? extends T when reading data from a producer, ? super T when writing data into a consumer"
+      "PECS rule: use ? extends T when reading data from a producer",
+      "? super T when writing data into a consumer"
+    ]
+  },
+  {
+    "role": "Java Developer",
+    "category": "technical",
+    "question": "Explain JVM architecture, memory layout (Heap, Metaspace, Stack), and Garbage Collection algorithms (G1, ZGC) for production applications.",
+    "keyPoints": [
+      "JVM memory zones (Young/Eden/Survivor",
+      "Tenured Heap",
+      "Metaspace for metadata)",
+      "G1GC regional partitioning and pause-time goals",
+      "ZGC low-latency concurrent garbage collection (<1ms pause times)",
+      "Heap dump analysis and profiling tools (JConsole",
+      "VisualVM",
+      "JProfiler) for memory leaks"
+    ]
+  },
+  {
+    "role": "Java Developer",
+    "category": "technical",
+    "question": "How does Java manage Concurrency and Multithreading? Compare traditional Threads/Executors with Virtual Threads (Project Loom in Java 21) and CompletableFuture.",
+    "keyPoints": [
+      "Platform threads mapped 1:1 to OS kernel threads vs lightweight Virtual Threads managed by JVM carrier threads",
+      "ThreadPoolExecutor parameters and BlockingQueue backpressure strategies",
+      "CompletableFuture asynchronous composition (thenApply",
+      "supplyAsync",
+      "allOf)",
+      "Synchronized",
+      "ReentrantLock",
+      "volatile memory barriers",
+      "and lock-free CAS atomics"
+    ]
+  },
+  {
+    "role": "Java Developer",
+    "category": "technical",
+    "question": "Explain the Spring Framework Core architecture, Dependency Injection (IoC Container), and Spring Bean Lifecycle phases.",
+    "keyPoints": [
+      "Inversion of Control (IoC) container decouples component instantiation and lifecycle management",
+      "Bean creation steps (Instantiation -> Dependency Injection -> BeanPostProcessor -> @PostConstruct -> Usage -> @PreDestroy)",
+      "Bean scopes (Singleton",
+      "Prototype",
+      "Request",
+      "Session)",
+      "Constructor injection vs Field injection best practices"
+    ]
+  },
+  {
+    "role": "Java Developer",
+    "category": "technical",
+    "question": "How does Spring Boot Auto-Configuration work under the hood? Explain @EnableAutoConfiguration, spring.factories/AutoConfiguration.imports, and custom Actuators.",
+    "keyPoints": [
+      "@EnableAutoConfiguration scans classpath for libraries and conditionally configures Beans",
+      "Uses @ConditionalOnClass",
+      "@ConditionalOnMissingBean",
+      "and @ConditionalOnProperty annotations",
+      "Spring Boot 3 uses META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports",
+      "Actuators expose metrics",
+      "health checks",
+      "and thread dumps for observability"
+    ]
+  },
+  {
+    "role": "Java Developer",
+    "category": "technical",
+    "question": "Explain Object-Relational Mapping (ORM) with Spring Data JPA and Hibernate. How do you resolve lazy loading exceptions and the N+1 SELECT query problem?",
+    "keyPoints": [
+      "JPA specification implemented by Hibernate ORM engine",
+      "Entity states (Transient",
+      "Persistent",
+      "Detached",
+      "Removed)",
+      "N+1 query problem solved via JOIN FETCH",
+      "EntityGraphs",
+      "or DTO projections",
+      "First-level session cache vs Second-level shared cache (Ehcache",
+      "Redis)",
+      "Transactional boundary management (@Transactional propagation and isolation levels)"
+    ]
+  },
+  {
+    "role": "Java Developer",
+    "category": "technical",
+    "question": "How do you secure Enterprise Java REST APIs using Spring Security and OAuth2 / JWT stateless token authentication?",
+    "keyPoints": [
+      "SecurityFilterChain delegate chain processing incoming requests",
+      "AuthenticationManager and UserDetailsService for identity validation",
+      "JWT issuance",
+      "signing",
+      "and stateless filter verification per request",
+      "Role-Based Access Control (RBAC) via @PreAuthorize and @Secured annotations",
+      "Protection against CSRF",
+      "CORS misconfigurations",
+      "and SQL injection"
+    ]
+  },
+  {
+    "role": "Java Developer",
+    "category": "technical",
+    "question": "How do you architect resilient Spring Cloud Microservices? Explain API Gateway, Service Discovery (Eureka), and Circuit Breakers (Resilience4j).",
+    "keyPoints": [
+      "API Gateway for routing",
+      "rate limiting",
+      "and cross-cutting security",
+      "Service Discovery (Eureka/Consul) for dynamic IP/port registration",
+      "Resilience4j Circuit Breaker states (CLOSED",
+      "OPEN",
+      "HALF_OPEN) preventing cascading failures",
+      "Distributed configuration management and fault-tolerant fallbacks"
+    ]
+  },
+  {
+    "role": "Java Developer",
+    "category": "technical",
+    "question": "Explain Event-Driven Architecture with Spring Kafka and Apache Kafka. How do you ensure idempotent message processing and at-least-once delivery?",
+    "keyPoints": [
+      "Kafka topics",
+      "partitions",
+      "consumer groups",
+      "and offset management",
+      "Producer acknowledgement modes (acks=all",
+      "min.insync.replicas)",
+      "Idempotent producers and unique message IDs for deduplication in consumer services",
+      "Dead Letter Topics (DLT) for unprocessable message recovery and error handling"
+    ]
+  },
+  {
+    "role": "Java Developer",
+    "category": "technical",
+    "question": "How do you optimize High-Performance Enterprise Java systems? Discuss HikariCP database connection pooling and Reactive Programming with Spring WebFlux.",
+    "keyPoints": [
+      "HikariCP fast connection pool initialization",
+      "sizing",
+      "and leak detection timeouts",
+      "Non-blocking reactive I/O using Project Reactor (Flux/Mono) over Netty engine",
+      "Backpressure handling strategies in reactive streams",
+      "When to choose WebFlux (high concurrency I/O) vs Spring MVC (imperative blocking thread-per-request)"
+    ]
+  },
+  {
+    "role": "Java Developer",
+    "category": "technical",
+    "question": "Describe key Enterprise Java Design Patterns (Factory, Singleton, Builder, Observer, Strategy) and how they promote Clean Architecture.",
+    "keyPoints": [
+      "Creational patterns (Factory",
+      "Builder",
+      "Thread-safe Singleton via Enum or Double-Checked Locking)",
+      "Behavioral patterns (Observer",
+      "Strategy",
+      "Template Method)",
+      "Structural patterns (Adapter",
+      "Decorator",
+      "Proxy for Spring AOP)",
+      "Clean/Hexagonal Architecture separating domain core logic from external adapters and frameworks"
     ]
   },
   {
@@ -1696,1235 +1874,221 @@
     ]
   },
   {
-    "role": "Frontend Developer (React)",
+    "role": "Distributed Systems Engineer",
     "category": "technical",
-    "question": "Explain React's Context API and when you'd use it over prop drilling or a state management library.",
+    "question": "How do you design a consensus-based distributed lock service?",
     "keyPoints": [
-      "createContext/useContext",
-      "avoids prop drilling",
-      "not ideal for high-frequency updates",
-      "comparison with Redux/Zustand"
+      "Raft or Paxos consensus algorithm",
+      "lease renewal mechanisms",
+      "fencing tokens to prevent split-brain writes"
     ]
   },
   {
-    "role": "Frontend Developer (React)",
+    "role": "Distributed Systems Engineer",
     "category": "technical",
-    "question": "What are React Server Components and how do they differ from Client Components?",
+    "question": "Explain the CAP theorem and PACELC extension in modern distributed databases.",
     "keyPoints": [
-      "server-side rendering without hydration cost",
-      "zero bundle size for server components",
-      "cannot use hooks/state",
-      "use client directive"
+      "Consistency vs Availability during Partition",
+      "Else Latency vs Consistency trade-offs during normal operation"
     ]
   },
   {
-    "role": "Frontend Developer (React)",
+    "role": "Distributed Systems Engineer",
     "category": "technical",
-    "question": "How does React's Suspense work and what problems does it solve?",
+    "question": "How do you manage vector clock drift and causality in multi-region active-active clusters?",
     "keyPoints": [
-      "declarative loading states",
-      "lazy loading with React.lazy",
-      "concurrent features",
-      "data fetching integration"
+      "Vector clocks",
+      "hybrid logical clocks (HLC)",
+      "conflict-free replicated data types (CRDTs)",
+      "last-write-wins resolution"
     ]
   },
   {
-    "role": "Frontend Developer (React)",
+    "role": "Distributed Systems Engineer",
     "category": "technical",
-    "question": "Explain the difference between useMemo and useCallback. When would you use each?",
+    "question": "What strategies mitigate cascading failures and thread starvation in microservices?",
     "keyPoints": [
-      "useMemo caches computed values",
-      "useCallback caches function references",
-      "prevent unnecessary re-renders",
-      "dependency array governs recalculation"
+      "Circuit breakers",
+      "adaptive rate limiting",
+      "client-side load balancing with power-of-two choices",
+      "bulkheading"
     ]
   },
   {
-    "role": "Backend Developer (Node.js / Express)",
+    "role": "Distributed Systems Engineer",
     "category": "technical",
-    "question": "How would you implement rate limiting in a Node.js API?",
+    "question": "How would you architect a distributed rate limiter scaling to 500,000 QPS with sub-5ms latency?",
     "keyPoints": [
-      "token bucket or sliding window",
-      "in-memory vs Redis-backed",
-      "middleware pattern",
-      "response headers (X-RateLimit-*)"
+      "Sliding window counter in Redis cluster",
+      "local token bucket caching",
+      "asynchronous batch synchronization"
     ]
   },
   {
-    "role": "Backend Developer (Node.js / Express)",
+    "role": "Distributed Systems Engineer",
     "category": "technical",
-    "question": "Explain the difference between process.nextTick() and setImmediate() in Node.js.",
+    "question": "How do you implement distributed transaction recovery using 2PC (Two-Phase Commit) vs Saga orchestrator pattern?",
     "keyPoints": [
-      "nextTick fires before I/O callbacks",
-      "setImmediate fires in check phase",
-      "nextTick can starve I/O if recursive",
-      "event loop phase ordering"
+      "Prepare and Commit phases",
+      "coordinator blocking vulnerabilities",
+      "Saga compensating transactions",
+      "forward/backward recovery strategies"
     ]
   },
   {
-    "role": "Backend Developer (Node.js / Express)",
+    "role": "Distributed Systems Engineer",
     "category": "technical",
-    "question": "How do you handle database connection pooling in a Node.js application?",
+    "question": "How do you design an idempotent event processing pipeline in Kafka under at-least-once delivery semantics?",
     "keyPoints": [
-      "pool vs single connection",
-      "connection limits and timeouts",
-      "pool exhaustion handling",
-      "libraries like pg-pool or mongoose"
+      "Unique transaction IDs",
+      "deduplication store with Redis/DynamoDB",
+      "atomic consumer offsets",
+      "idempotent database upserts"
     ]
   },
   {
-    "role": "Backend Developer (Node.js / Express)",
+    "role": "Distributed Systems Engineer",
     "category": "technical",
-    "question": "What strategies would you use to scale a Node.js application horizontally?",
+    "question": "Explain how consistent hashing with virtual nodes minimizes data movement during cluster scaling.",
     "keyPoints": [
-      "cluster module for multi-core",
-      "stateless architecture",
-      "session store externalization",
-      "load balancer configuration"
+      "Hash ring partitioning",
+      "virtual node distribution preventing hot spots",
+      "minimal key reassignment on node join/leave"
     ]
   },
   {
-    "role": "Full Stack Developer (MERN)",
+    "role": "Distributed Systems Engineer",
     "category": "technical",
-    "question": "How would you implement authentication and authorization across a full MERN stack application?",
+    "question": "How do you prevent split-brain scenarios and manage quorum consensus in multi-datacenter etcd clusters?",
     "keyPoints": [
-      "JWT vs session-based auth",
-      "middleware for route protection",
-      "refresh token rotation",
-      "RBAC or ABAC patterns"
+      "Odd node counts (3",
+      "5",
+      "7)",
+      "majority quorum requirements (N/2 + 1)",
+      "leader election timeouts",
+      "network partition isolation"
     ]
   },
   {
-    "role": "Full Stack Developer (MERN)",
+    "role": "Distributed Systems Engineer",
     "category": "technical",
-    "question": "Explain how you'd handle real-time features (like chat or notifications) in a MERN application.",
+    "question": "Walk through designing a high-throughput distributed tracing collector for microservice observability.",
     "keyPoints": [
-      "WebSockets via Socket.io",
-      "event-driven architecture",
-      "scaling with Redis pub/sub",
-      "fallback to polling"
+      "OpenTelemetry protocol (OTLP)",
+      "head-based vs tail-based sampling",
+      "batching collector buffering",
+      "Jaeger/Zipkin backend storage"
     ]
   },
   {
-    "role": "Full Stack Developer (MERN)",
+    "role": "AI Infrastructure Architect",
     "category": "technical",
-    "question": "How do you manage environment-specific configurations across development, staging, and production?",
+    "question": "How do you optimize GPU cluster utilization for multi-node LLM distributed training?",
     "keyPoints": [
-      ".env files with dotenv",
-      "environment-specific config objects",
-      "secrets management",
-      "CI/CD variable injection"
+      "Megatron-LM tensor and pipeline parallelism",
+      "Zero Redundancy Optimizer (ZeRO-3)",
+      "FlashAttention-2 memory reduction"
     ]
   },
   {
-    "role": "Full Stack Developer (MERN)",
+    "role": "AI Infrastructure Architect",
     "category": "technical",
-    "question": "Describe your approach to error handling across the full stack — from React UI to Express API to MongoDB.",
+    "question": "Explain KV-cache optimization techniques in high-throughput LLM inference.",
     "keyPoints": [
-      "error boundaries in React",
-      "centralized Express error middleware",
-      "MongoDB error codes handling",
-      "user-friendly error messages vs internal logging"
+      "PagedAttention (vLLM) memory allocation",
+      "continuous batching",
+      "speculative decoding",
+      "quantized KV-cache (FP8/INT4)"
     ]
   },
   {
-    "role": "Python Developer",
+    "role": "AI Infrastructure Architect",
     "category": "technical",
-    "question": "Explain Python's Global Interpreter Lock (GIL) and its implications for multi-threaded applications.",
+    "question": "How do you architect a vector database cluster for billion-scale hybrid semantic search?",
     "keyPoints": [
-      "only one thread executes Python bytecode at a time",
-      "affects CPU-bound tasks",
-      "multiprocessing as alternative",
-      "asyncio for I/O-bound tasks"
+      "HNSW index graph partitioning",
+      "product quantization (PQ)",
+      "disk-ANN storage",
+      "hybrid lexical-dense re-ranking"
     ]
   },
   {
-    "role": "Python Developer",
+    "role": "AI Infrastructure Architect",
     "category": "technical",
-    "question": "What are Python decorators and how do they work under the hood?",
+    "question": "How do you prevent data leakage and ensure prompt injection resilience in enterprise LLM gateways?",
     "keyPoints": [
-      "functions that wrap other functions",
-      "syntactic sugar with @ syntax",
-      "closure-based implementation",
-      "functools.wraps for metadata preservation"
+      "Dual-LLM validation architecture",
+      "regex and embedding guardrails",
+      "canary token tracking",
+      "untrusted XML sandboxing"
     ]
   },
   {
-    "role": "Python Developer",
+    "role": "AI Infrastructure Architect",
     "category": "technical",
-    "question": "How would you design a Python REST API with FastAPI vs Flask? What are the trade-offs?",
+    "question": "How would you build a real-time feature store for sub-20ms model inference?",
     "keyPoints": [
-      "FastAPI async support and automatic docs",
-      "Flask maturity and ecosystem",
-      "type hints and Pydantic validation",
-      "performance differences"
+      "Low-latency key-value store (Redis/RocksDB)",
+      "streaming ingestion via Kafka",
+      "point-in-time correctness",
+      "feature drift detection"
     ]
   },
   {
-    "role": "Python Developer",
+    "role": "AI Infrastructure Architect",
     "category": "technical",
-    "question": "Explain Python's memory management and garbage collection strategy.",
+    "question": "How do you optimize inference throughput for LLM serving using speculative decoding and Medusa heads?",
     "keyPoints": [
-      "reference counting primary mechanism",
-      "generational GC for cyclic references",
-      "memory pools for small objects",
-      "__del__ and weak references"
+      "Small draft model draft token generation",
+      "target LLM parallel verification step",
+      "acceptance rate metrics",
+      "reduced latency per token"
     ]
   },
   {
-    "role": "Spring Boot Developer",
+    "role": "AI Infrastructure Architect",
     "category": "technical",
-    "question": "Explain Spring Boot's auto-configuration mechanism and how @Conditional annotations work.",
+    "question": "Explain how FlashAttention-3 leverages GPU Tensor Cores and asynchronous memory copy for long-context windows.",
     "keyPoints": [
-      "@EnableAutoConfiguration scanning",
-      "spring.factories/META-INF",
-      "@ConditionalOnClass/OnProperty",
-      "custom auto-configuration creation"
+      "Tiling attention computation in SRAM",
+      "FP8 precision GEMM execution",
+      "overlapping memory transfers with Tensor Core math",
+      "linear memory complexity"
     ]
   },
   {
-    "role": "Spring Boot Developer",
+    "role": "AI Infrastructure Architect",
     "category": "technical",
-    "question": "How would you implement API versioning in a Spring Boot application?",
+    "question": "How do you design an automated model validation and canary deployment pipeline for real-time safety guardrails?",
     "keyPoints": [
-      "URL path versioning",
-      "header-based versioning",
-      "content negotiation",
-      "backward compatibility strategies"
+      "Shadow traffic mirroring",
+      "automated regression benchmarks (MMLU",
+      "GSM8K",
+      "toxicity filters)",
+      "automated rollback triggers",
+      "traffic shifting"
     ]
   },
   {
-    "role": "Spring Boot Developer",
+    "role": "AI Infrastructure Architect",
     "category": "technical",
-    "question": "Describe how Spring Security's filter chain works for JWT-based authentication.",
+    "question": "How do you approach quantization-aware training (QAT) vs post-training quantization (PTQ) for edge LLM deployment?",
     "keyPoints": [
-      "SecurityFilterChain configuration",
-      "custom JWT filter",
-      "authentication manager and provider",
-      "stateless session management"
+      "Simulated quantization during backprop",
+      "weight vs activation clipping",
+      "AWQ/GPTQ algorithms",
+      "latency and accuracy retention trade-offs"
     ]
   },
   {
-    "role": "Spring Boot Developer",
+    "role": "AI Infrastructure Architect",
     "category": "technical",
-    "question": "How do you handle distributed transactions in a Spring Boot microservices architecture?",
+    "question": "Walk through building an automated dataset deduplication pipeline using MinHash LSH and semantic embedding clustering.",
     "keyPoints": [
-      "Saga pattern (choreography vs orchestration)",
-      "eventual consistency",
-      "outbox pattern",
-      "Spring Cloud support"
-    ]
-  },
-  {
-    "role": "AI Engineer / LLM Engineer",
-    "category": "technical",
-    "question": "Explain the RAG (Retrieval-Augmented Generation) architecture and when you'd use it over fine-tuning.",
-    "keyPoints": [
-      "retrieval + generation pipeline",
-      "vector databases for embeddings",
-      "chunk strategies",
-      "RAG for dynamic knowledge vs fine-tuning for behavior"
-    ]
-  },
-  {
-    "role": "AI Engineer / LLM Engineer",
-    "category": "technical",
-    "question": "How do you evaluate the quality of an LLM's outputs in production?",
-    "keyPoints": [
-      "automated metrics (BLEU, ROUGE, BERTScore)",
-      "human evaluation frameworks",
-      "LLM-as-judge patterns",
-      "A/B testing and user feedback loops"
-    ]
-  },
-  {
-    "role": "AI Engineer / LLM Engineer",
-    "category": "technical",
-    "question": "What are the key strategies for reducing hallucination in LLM applications?",
-    "keyPoints": [
-      "grounding with retrieval",
-      "structured output constraints",
-      "chain-of-thought prompting",
-      "fact verification layers"
-    ]
-  },
-  {
-    "role": "AI Engineer / LLM Engineer",
-    "category": "technical",
-    "question": "Describe the transformer architecture. What are self-attention and multi-head attention?",
-    "keyPoints": [
-      "query/key/value mechanism",
-      "scaled dot-product attention",
-      "parallel attention heads",
-      "positional encoding necessity"
-    ]
-  },
-  {
-    "role": "Machine Learning Engineer",
-    "category": "technical",
-    "question": "How do you handle class imbalance in a classification problem?",
-    "keyPoints": [
-      "oversampling (SMOTE)",
-      "undersampling",
-      "class weights in loss function",
-      "evaluation with F1/AUC-PR instead of accuracy"
-    ]
-  },
-  {
-    "role": "Machine Learning Engineer",
-    "category": "technical",
-    "question": "Explain the bias-variance tradeoff and how it affects model selection.",
-    "keyPoints": [
-      "high bias = underfitting",
-      "high variance = overfitting",
-      "regularization controls tradeoff",
-      "cross-validation for estimation"
-    ]
-  },
-  {
-    "role": "Machine Learning Engineer",
-    "category": "technical",
-    "question": "How would you deploy an ML model to production? Describe the end-to-end pipeline.",
-    "keyPoints": [
-      "model serialization (ONNX, pickle)",
-      "containerization with Docker",
-      "serving (TensorFlow Serving, TorchServe)",
-      "monitoring for data/model drift"
-    ]
-  },
-  {
-    "role": "Machine Learning Engineer",
-    "category": "technical",
-    "question": "What is feature engineering and how do you decide which features to include in a model?",
-    "keyPoints": [
-      "domain knowledge driven",
-      "correlation analysis and mutual information",
-      "feature importance from tree models",
-      "dimensionality reduction (PCA)"
-    ]
-  },
-  {
-    "role": "Data Scientist",
-    "category": "technical",
-    "question": "How do you design and analyze an A/B test? What are common pitfalls?",
-    "keyPoints": [
-      "hypothesis formulation",
-      "sample size calculation",
-      "statistical significance vs practical significance",
-      "multiple comparison correction"
-    ]
-  },
-  {
-    "role": "Data Scientist",
-    "category": "technical",
-    "question": "Explain the difference between supervised, unsupervised, and reinforcement learning with examples.",
-    "keyPoints": [
-      "labeled vs unlabeled data",
-      "classification/regression vs clustering/dimensionality reduction",
-      "reward-based learning",
-      "practical use cases for each"
-    ]
-  },
-  {
-    "role": "Data Scientist",
-    "category": "technical",
-    "question": "How do you handle missing data in a dataset?",
-    "keyPoints": [
-      "understand missingness mechanism (MCAR, MAR, MNAR)",
-      "imputation strategies",
-      "deletion approaches",
-      "impact on model performance"
-    ]
-  },
-  {
-    "role": "Data Scientist",
-    "category": "technical",
-    "question": "What metrics would you use to evaluate a regression model vs a classification model?",
-    "keyPoints": [
-      "regression: MSE, RMSE, MAE, R²",
-      "classification: accuracy, precision, recall, F1, AUC-ROC",
-      "when to use which",
-      "business context for metric selection"
-    ]
-  },
-  {
-    "role": "Data Analyst",
-    "category": "technical",
-    "question": "How would you investigate a sudden drop in a key business metric?",
-    "keyPoints": [
-      "data validation first",
-      "segment analysis",
-      "time-series decomposition",
-      "stakeholder communication of findings"
-    ]
-  },
-  {
-    "role": "Data Analyst",
-    "category": "technical",
-    "question": "Explain the difference between INNER JOIN, LEFT JOIN, RIGHT JOIN, and FULL OUTER JOIN with examples.",
-    "keyPoints": [
-      "matching rows only vs all from one/both tables",
-      "NULL handling",
-      "performance implications",
-      "real-world use cases"
-    ]
-  },
-  {
-    "role": "Data Analyst",
-    "category": "technical",
-    "question": "How do you ensure data quality in your analysis pipeline?",
-    "keyPoints": [
-      "validation checks and constraints",
-      "automated testing",
-      "data profiling",
-      "documentation and lineage tracking"
-    ]
-  },
-  {
-    "role": "Data Analyst",
-    "category": "technical",
-    "question": "Describe how you would build a dashboard to track KPIs. What tools and design principles would you apply?",
-    "keyPoints": [
-      "identify key stakeholders and metrics",
-      "visual hierarchy and layout",
-      "tool selection (Tableau, Power BI, Looker)",
-      "refresh frequency and data freshness"
-    ]
-  },
-  {
-    "role": "Data Engineer",
-    "category": "technical",
-    "question": "How would you design an ETL pipeline that needs to process terabytes of data daily?",
-    "keyPoints": [
-      "batch vs streaming architecture",
-      "partitioning strategies",
-      "idempotency and retry logic",
-      "monitoring and alerting"
-    ]
-  },
-  {
-    "role": "Data Engineer",
-    "category": "technical",
-    "question": "Explain the difference between data lakes and data warehouses. When would you use each?",
-    "keyPoints": [
-      "schema-on-read vs schema-on-write",
-      "structured vs raw data",
-      "cost and performance tradeoffs",
-      "lakehouse architecture as hybrid"
-    ]
-  },
-  {
-    "role": "Data Engineer",
-    "category": "technical",
-    "question": "How do you handle schema evolution in a data pipeline?",
-    "keyPoints": [
-      "forward/backward compatibility",
-      "schema registry",
-      "versioning strategies",
-      "migration scripts and backfilling"
-    ]
-  },
-  {
-    "role": "Data Engineer",
-    "category": "technical",
-    "question": "What is data lineage and why is it important? How would you implement it?",
-    "keyPoints": [
-      "tracking data origin and transformations",
-      "debugging and compliance",
-      "tools (Apache Atlas, dbt)",
-      "metadata management"
-    ]
-  },
-  {
-    "role": "DevOps Engineer",
-    "category": "technical",
-    "question": "Explain the concept of Infrastructure as Code (IaC). Compare Terraform and CloudFormation.",
-    "keyPoints": [
-      "declarative infrastructure management",
-      "state management",
-      "multi-cloud vs AWS-specific",
-      "drift detection"
-    ]
-  },
-  {
-    "role": "DevOps Engineer",
-    "category": "technical",
-    "question": "How would you design a CI/CD pipeline for a microservices application?",
-    "keyPoints": [
-      "build/test/deploy stages",
-      "parallel pipeline execution",
-      "environment promotion",
-      "rollback strategies"
-    ]
-  },
-  {
-    "role": "DevOps Engineer",
-    "category": "technical",
-    "question": "What is observability and how does it differ from monitoring?",
-    "keyPoints": [
-      "three pillars: logs, metrics, traces",
-      "understanding unknown unknowns",
-      "distributed tracing",
-      "tools (Prometheus, Grafana, Jaeger)"
-    ]
-  },
-  {
-    "role": "DevOps Engineer",
-    "category": "technical",
-    "question": "How do you manage secrets and sensitive configuration in a DevOps workflow?",
-    "keyPoints": [
-      "vault solutions (HashiCorp Vault, AWS Secrets Manager)",
-      "never in source code",
-      "rotation policies",
-      "principle of least privilege"
-    ]
-  },
-  {
-    "role": "Cloud Engineer (AWS)",
-    "category": "technical",
-    "question": "How would you design a highly available and fault-tolerant architecture on AWS?",
-    "keyPoints": [
-      "multi-AZ deployment",
-      "auto-scaling groups",
-      "load balancers (ALB/NLB)",
-      "disaster recovery strategies (RTO/RPO)"
-    ]
-  },
-  {
-    "role": "Cloud Engineer (AWS)",
-    "category": "technical",
-    "question": "Explain the AWS shared responsibility model.",
-    "keyPoints": [
-      "AWS responsible for infrastructure",
-      "customer responsible for data and configuration",
-      "varies by service type (IaaS vs PaaS vs SaaS)",
-      "compliance implications"
-    ]
-  },
-  {
-    "role": "Cloud Engineer (AWS)",
-    "category": "technical",
-    "question": "Compare ECS, EKS, and Lambda for running containerized applications on AWS.",
-    "keyPoints": [
-      "ECS for Docker-native orchestration",
-      "EKS for Kubernetes compatibility",
-      "Lambda for event-driven serverless",
-      "cost and operational overhead tradeoffs"
-    ]
-  },
-  {
-    "role": "Cloud Engineer (AWS)",
-    "category": "technical",
-    "question": "How do you implement least-privilege access using IAM policies?",
-    "keyPoints": [
-      "principle of least privilege",
-      "policy evaluation logic",
-      "service control policies",
-      "IAM roles vs users for applications"
-    ]
-  },
-  {
-    "role": "Mobile Developer (Android / Kotlin)",
-    "category": "technical",
-    "question": "Explain Kotlin coroutines and how they differ from Java threads for Android development.",
-    "keyPoints": [
-      "lightweight vs OS threads",
-      "structured concurrency",
-      "suspend functions",
-      "dispatchers (Main, IO, Default)"
-    ]
-  },
-  {
-    "role": "Mobile Developer (Android / Kotlin)",
-    "category": "technical",
-    "question": "What is Jetpack Compose and how does it differ from the traditional View system?",
-    "keyPoints": [
-      "declarative vs imperative UI",
-      "composable functions",
-      "state management with remember/mutableStateOf",
-      "recomposition"
-    ]
-  },
-  {
-    "role": "Mobile Developer (Android / Kotlin)",
-    "category": "technical",
-    "question": "How do you handle configuration changes (like screen rotation) in Android?",
-    "keyPoints": [
-      "ViewModel survives config changes",
-      "SavedStateHandle for process death",
-      "avoid storing UI references",
-      "onSaveInstanceState limitations"
-    ]
-  },
-  {
-    "role": "Mobile Developer (Android / Kotlin)",
-    "category": "technical",
-    "question": "Describe the Android application lifecycle and how it affects resource management.",
-    "keyPoints": [
-      "Activity/Fragment lifecycle callbacks",
-      "background process limits",
-      "WorkManager for deferred tasks",
-      "memory leak prevention"
-    ]
-  },
-  {
-    "role": "Mobile Developer (iOS / Swift)",
-    "category": "technical",
-    "question": "Explain Swift's value types vs reference types and when to use structs vs classes.",
-    "keyPoints": [
-      "structs are value types (copied)",
-      "classes are reference types (shared)",
-      "copy-on-write optimization",
-      "protocol-oriented design favoring structs"
-    ]
-  },
-  {
-    "role": "Mobile Developer (iOS / Swift)",
-    "category": "technical",
-    "question": "What is SwiftUI's @State, @Binding, @ObservedObject, and @EnvironmentObject?",
-    "keyPoints": [
-      "@State for local view state",
-      "@Binding for two-way data flow",
-      "@ObservedObject for external observable",
-      "@EnvironmentObject for dependency injection"
-    ]
-  },
-  {
-    "role": "Mobile Developer (iOS / Swift)",
-    "category": "technical",
-    "question": "How does ARC (Automatic Reference Counting) work in Swift and how do you prevent retain cycles?",
-    "keyPoints": [
-      "reference counting at compile time",
-      "strong/weak/unowned references",
-      "closure capture lists",
-      "delegate patterns with weak references"
-    ]
-  },
-  {
-    "role": "Mobile Developer (iOS / Swift)",
-    "category": "technical",
-    "question": "Explain the Combine framework and how it handles asynchronous data streams.",
-    "keyPoints": [
-      "Publisher/Subscriber pattern",
-      "operators for transformation",
-      "cancellable subscriptions",
-      "integration with SwiftUI"
-    ]
-  },
-  {
-    "role": "Cybersecurity Analyst",
-    "category": "technical",
-    "question": "Explain the OWASP Top 10. Which vulnerabilities do you consider most critical and why?",
-    "keyPoints": [
-      "injection, broken access control, cryptographic failures",
-      "risk-based prioritization",
-      "mitigation strategies for each",
-      "real-world breach examples"
-    ]
-  },
-  {
-    "role": "Cybersecurity Analyst",
-    "category": "technical",
-    "question": "How would you respond to a suspected data breach? Walk through your incident response process.",
-    "keyPoints": [
-      "identification and containment",
-      "eradication and recovery",
-      "post-incident review",
-      "communication and regulatory compliance"
-    ]
-  },
-  {
-    "role": "Cybersecurity Analyst",
-    "category": "technical",
-    "question": "What is the difference between penetration testing and vulnerability scanning?",
-    "keyPoints": [
-      "automated scanning vs manual exploitation",
-      "scope and depth differences",
-      "compliance requirements",
-      "when to use each approach"
-    ]
-  },
-  {
-    "role": "Cybersecurity Analyst",
-    "category": "technical",
-    "question": "Explain how a man-in-the-middle attack works and how TLS/SSL prevents it.",
-    "keyPoints": [
-      "interception of communication",
-      "certificate validation",
-      "public key infrastructure",
-      "HSTS and certificate pinning"
-    ]
-  },
-  {
-    "role": "Database Administrator / SQL Developer",
-    "category": "technical",
-    "question": "What are database isolation levels and how do they affect concurrency?",
-    "keyPoints": [
-      "READ UNCOMMITTED to SERIALIZABLE",
-      "dirty/phantom/non-repeatable reads",
-      "performance vs consistency tradeoff",
-      "MVCC in PostgreSQL"
-    ]
-  },
-  {
-    "role": "Database Administrator / SQL Developer",
-    "category": "technical",
-    "question": "How would you diagnose and fix a slow SQL query?",
-    "keyPoints": [
-      "EXPLAIN/EXPLAIN ANALYZE",
-      "index usage and missing indexes",
-      "query plan interpretation",
-      "table statistics and vacuuming"
-    ]
-  },
-  {
-    "role": "Database Administrator / SQL Developer",
-    "category": "technical",
-    "question": "Explain database sharding strategies and their tradeoffs.",
-    "keyPoints": [
-      "horizontal vs vertical partitioning",
-      "shard key selection",
-      "cross-shard queries challenges",
-      "consistent hashing"
-    ]
-  },
-  {
-    "role": "Database Administrator / SQL Developer",
-    "category": "technical",
-    "question": "How do you implement database backup and disaster recovery strategies?",
-    "keyPoints": [
-      "full vs incremental vs differential backups",
-      "point-in-time recovery",
-      "replication (sync vs async)",
-      "RTO/RPO planning"
-    ]
-  },
-  {
-    "role": "UI/UX Designer",
-    "category": "technical",
-    "question": "How do you conduct user research and translate findings into design decisions?",
-    "keyPoints": [
-      "qualitative vs quantitative methods",
-      "user interviews and surveys",
-      "persona creation",
-      "journey mapping to identify pain points"
-    ]
-  },
-  {
-    "role": "UI/UX Designer",
-    "category": "technical",
-    "question": "Explain your process for creating a design system from scratch.",
-    "keyPoints": [
-      "audit existing patterns",
-      "define tokens (colors, typography, spacing)",
-      "component library architecture",
-      "documentation and governance"
-    ]
-  },
-  {
-    "role": "UI/UX Designer",
-    "category": "technical",
-    "question": "How do you measure the success of a UX design change?",
-    "keyPoints": [
-      "quantitative metrics (task completion, error rates)",
-      "qualitative feedback",
-      "A/B testing",
-      "analytics and heatmaps"
-    ]
-  },
-  {
-    "role": "UI/UX Designer",
-    "category": "technical",
-    "question": "What accessibility standards do you follow and how do you implement them?",
-    "keyPoints": [
-      "WCAG 2.1 guidelines",
-      "color contrast ratios",
-      "keyboard navigation",
-      "screen reader compatibility and ARIA attributes"
-    ]
-  },
-  {
-    "role": "QA / SDET (Software Development Engineer in Test)",
-    "category": "technical",
-    "question": "How would you design a test automation framework from scratch?",
-    "keyPoints": [
-      "page object model or screenplay pattern",
-      "test data management",
-      "CI/CD integration",
-      "reporting and parallel execution"
-    ]
-  },
-  {
-    "role": "QA / SDET (Software Development Engineer in Test)",
-    "category": "technical",
-    "question": "Explain the testing pyramid and how you decide what to test at each level.",
-    "keyPoints": [
-      "unit tests at base (most)",
-      "integration tests in middle",
-      "E2E tests at top (fewest)",
-      "cost and speed tradeoffs"
-    ]
-  },
-  {
-    "role": "QA / SDET (Software Development Engineer in Test)",
-    "category": "technical",
-    "question": "How do you approach testing microservices? What challenges arise?",
-    "keyPoints": [
-      "contract testing (Pact)",
-      "service virtualization",
-      "environment management",
-      "distributed tracing for test debugging"
-    ]
-  },
-  {
-    "role": "QA / SDET (Software Development Engineer in Test)",
-    "category": "technical",
-    "question": "What is mutation testing and how does it improve test quality?",
-    "keyPoints": [
-      "introduces code mutations to verify test detection",
-      "mutation score metric",
-      "identifies weak test cases",
-      "tools (PIT, Stryker)"
-    ]
-  },
-  {
-    "role": ".NET Developer (C#)",
-    "category": "technical",
-    "question": "Explain async/await in C# and how it differs from multi-threading.",
-    "keyPoints": [
-      "task-based asynchronous pattern",
-      "no new thread for I/O-bound work",
-      "SynchronizationContext",
-      "ConfigureAwait(false) usage"
-    ]
-  },
-  {
-    "role": ".NET Developer (C#)",
-    "category": "technical",
-    "question": "What is dependency injection in .NET and how does the built-in DI container work?",
-    "keyPoints": [
-      "constructor injection pattern",
-      "service lifetimes (Transient, Scoped, Singleton)",
-      "IServiceCollection registration",
-      "interface-based abstraction"
-    ]
-  },
-  {
-    "role": ".NET Developer (C#)",
-    "category": "technical",
-    "question": "How does Entity Framework Core handle database migrations?",
-    "keyPoints": [
-      "code-first approach",
-      "migration scaffolding",
-      "snapshot comparison",
-      "production migration strategies"
-    ]
-  },
-  {
-    "role": ".NET Developer (C#)",
-    "category": "technical",
-    "question": "Explain LINQ and how deferred execution works.",
-    "keyPoints": [
-      "Language Integrated Query",
-      "IEnumerable vs IQueryable",
-      "deferred vs immediate execution",
-      "expression trees for database translation"
-    ]
-  },
-  {
-    "role": ".NET Developer (C#)",
-    "category": "technical",
-    "question": "What are the differences between .NET Framework, .NET Core, and .NET 5+?",
-    "keyPoints": [
-      "cross-platform support",
-      "performance improvements",
-      "unified platform strategy",
-      "side-by-side deployment"
-    ]
-  },
-  {
-    "role": "Flutter Developer",
-    "category": "technical",
-    "question": "Explain Flutter's widget tree and how the framework handles rendering.",
-    "keyPoints": [
-      "Widget, Element, RenderObject trees",
-      "immutable widgets rebuilt on state change",
-      "element tree for identity tracking",
-      "layout and paint phases"
-    ]
-  },
-  {
-    "role": "Flutter Developer",
-    "category": "technical",
-    "question": "How does state management work in Flutter? Compare Provider, Riverpod, and BLoC.",
-    "keyPoints": [
-      "InheritedWidget as foundation",
-      "Provider for simple dependency injection",
-      "Riverpod for compile-safe providers",
-      "BLoC for event-driven architecture"
-    ]
-  },
-  {
-    "role": "Flutter Developer",
-    "category": "technical",
-    "question": "What is the difference between StatelessWidget and StatefulWidget? When do you use each?",
-    "keyPoints": [
-      "StatelessWidget for static UI",
-      "StatefulWidget manages mutable state",
-      "setState triggers rebuild",
-      "lifecycle methods in State class"
-    ]
-  },
-  {
-    "role": "Flutter Developer",
-    "category": "technical",
-    "question": "How do you handle platform-specific code in Flutter?",
-    "keyPoints": [
-      "platform channels (MethodChannel)",
-      "conditional imports",
-      "Dart FFI for native libraries",
-      "plugins and federated plugins"
-    ]
-  },
-  {
-    "role": "Flutter Developer",
-    "category": "technical",
-    "question": "Explain how Flutter achieves near-native performance on both iOS and Android.",
-    "keyPoints": [
-      "Skia rendering engine (now Impeller)",
-      "compiled to native ARM code",
-      "no bridge like React Native",
-      "direct GPU access for rendering"
-    ]
-  },
-  {
-    "role": "Generative AI / Prompt Engineer",
-    "category": "technical",
-    "question": "What is prompt engineering and what techniques produce the most reliable LLM outputs?",
-    "keyPoints": [
-      "few-shot and zero-shot prompting",
-      "chain-of-thought reasoning",
-      "system/user role separation",
-      "output format constraints"
-    ]
-  },
-  {
-    "role": "Generative AI / Prompt Engineer",
-    "category": "technical",
-    "question": "How do you handle prompt injection attacks in a production LLM application?",
-    "keyPoints": [
-      "input sanitization",
-      "system prompt hardening",
-      "output validation",
-      "sandboxing and content filtering"
-    ]
-  },
-  {
-    "role": "Generative AI / Prompt Engineer",
-    "category": "technical",
-    "question": "Explain the concept of temperature and top-p sampling in LLM generation.",
-    "keyPoints": [
-      "temperature controls randomness",
-      "top-p (nucleus) sampling",
-      "trade-off between creativity and determinism",
-      "when to use low vs high temperature"
-    ]
-  },
-  {
-    "role": "Generative AI / Prompt Engineer",
-    "category": "technical",
-    "question": "How would you build a multi-step agentic workflow using LLMs?",
-    "keyPoints": [
-      "tool use and function calling",
-      "planning and decomposition",
-      "memory and context management",
-      "error recovery and guardrails"
-    ]
-  },
-  {
-    "role": "Generative AI / Prompt Engineer",
-    "category": "technical",
-    "question": "What are embeddings and how are they used in semantic search applications?",
-    "keyPoints": [
-      "dense vector representations",
-      "cosine similarity for matching",
-      "embedding models (OpenAI, BERT)",
-      "vector databases (Pinecone, Weaviate)"
-    ]
-  },
-  {
-    "role": "Golang Developer",
-    "category": "technical",
-    "question": "Explain Go's goroutines and channels. How do they enable concurrent programming?",
-    "keyPoints": [
-      "lightweight green threads",
-      "channel-based communication",
-      "select statement for multiplexing",
-      "goroutine scheduling by Go runtime"
-    ]
-  },
-  {
-    "role": "Golang Developer",
-    "category": "technical",
-    "question": "How does Go handle errors? Compare this approach with try/catch in other languages.",
-    "keyPoints": [
-      "explicit error return values",
-      "errors.Is and errors.As for wrapping",
-      "no exceptions philosophy",
-      "sentinel errors and custom error types"
-    ]
-  },
-  {
-    "role": "Golang Developer",
-    "category": "technical",
-    "question": "What are Go interfaces and how does implicit implementation work?",
-    "keyPoints": [
-      "structural typing (no implements keyword)",
-      "interface satisfaction by method sets",
-      "empty interface (any/interface{})",
-      "interface composition"
-    ]
-  },
-  {
-    "role": "Golang Developer",
-    "category": "technical",
-    "question": "How would you structure a large Go project? What patterns do you follow?",
-    "keyPoints": [
-      "cmd/ and internal/ layout",
-      "package by feature vs layer",
-      "dependency injection without frameworks",
-      "standard project layout conventions"
-    ]
-  },
-  {
-    "role": "Golang Developer",
-    "category": "technical",
-    "question": "Explain Go's memory management and garbage collector.",
-    "keyPoints": [
-      "concurrent tri-color mark-and-sweep",
-      "stack vs heap allocation",
-      "escape analysis",
-      "GOGC tuning parameter"
-    ]
-  },
-  {
-    "role": "React Native Developer",
-    "category": "technical",
-    "question": "How does the React Native bridge work, and what are the performance implications?",
-    "keyPoints": [
-      "JS thread to native thread communication",
-      "serialization overhead",
-      "new architecture (Fabric/TurboModules)",
-      "avoiding bridge bottlenecks"
-    ]
-  },
-  {
-    "role": "React Native Developer",
-    "category": "technical",
-    "question": "How do you debug performance issues in a React Native application?",
-    "keyPoints": [
-      "React DevTools profiler",
-      "Flipper integration",
-      "avoiding unnecessary re-renders",
-      "native module optimization"
-    ]
-  },
-  {
-    "role": "React Native Developer",
-    "category": "technical",
-    "question": "Explain the difference between Expo and bare React Native workflows.",
-    "keyPoints": [
-      "Expo managed vs bare workflow",
-      "native module limitations in Expo",
-      "EAS for building and deploying",
-      "ejecting considerations"
-    ]
-  },
-  {
-    "role": "React Native Developer",
-    "category": "technical",
-    "question": "How do you handle navigation in React Native? Compare React Navigation and native navigation solutions.",
-    "keyPoints": [
-      "JavaScript-based vs native navigation",
-      "stack, tab, and drawer navigators",
-      "deep linking configuration",
-      "performance differences"
-    ]
-  },
-  {
-    "role": "React Native Developer",
-    "category": "technical",
-    "question": "What strategies do you use for handling offline-first functionality in React Native?",
-    "keyPoints": [
-      "local storage (AsyncStorage, MMKV)",
-      "queue and sync patterns",
-      "conflict resolution",
-      "optimistic UI updates"
-    ]
-  },
-  {
-    "role": "Site Reliability Engineer (SRE)",
-    "category": "technical",
-    "question": "What are SLIs, SLOs, and SLAs? How do they relate to each other?",
-    "keyPoints": [
-      "SLI measures service behavior",
-      "SLO defines target threshold",
-      "SLA is contractual commitment",
-      "error budgets derived from SLOs"
-    ]
-  },
-  {
-    "role": "Site Reliability Engineer (SRE)",
-    "category": "technical",
-    "question": "How would you implement a chaos engineering practice in an organization?",
-    "keyPoints": [
-      "steady-state hypothesis",
-      "controlled blast radius",
-      "tools (Chaos Monkey, Litmus)",
-      "gameday exercises and postmortems"
-    ]
-  },
-  {
-    "role": "Site Reliability Engineer (SRE)",
-    "category": "technical",
-    "question": "Explain how you'd design an alerting strategy that minimizes alert fatigue.",
-    "keyPoints": [
-      "symptom-based vs cause-based alerts",
-      "severity levels and routing",
-      "aggregation and deduplication",
-      "on-call rotation best practices"
-    ]
-  },
-  {
-    "role": "Site Reliability Engineer (SRE)",
-    "category": "technical",
-    "question": "How do you approach capacity planning for a growing service?",
-    "keyPoints": [
-      "load testing and benchmarking",
-      "traffic forecasting",
-      "resource utilization modeling",
-      "auto-scaling vs pre-provisioning"
-    ]
-  },
-  {
-    "role": "Site Reliability Engineer (SRE)",
-    "category": "technical",
-    "question": "What is a postmortem/incident review and what makes one effective?",
-    "keyPoints": [
-      "blameless culture",
-      "timeline reconstruction",
-      "root cause analysis",
-      "action items with owners and deadlines"
-    ]
-  },
-  {
-    "role": "Technical Product Manager",
-    "category": "technical",
-    "question": "How do you prioritize features when you have limited engineering resources?",
-    "keyPoints": [
-      "frameworks (RICE, ICE, MoSCoW)",
-      "stakeholder alignment",
-      "data-driven vs intuition",
-      "opportunity cost consideration"
-    ]
-  },
-  {
-    "role": "Technical Product Manager",
-    "category": "technical",
-    "question": "Describe how you would define and track success metrics for a new product feature.",
-    "keyPoints": [
-      "North Star metric identification",
-      "leading vs lagging indicators",
-      "instrumentation and analytics",
-      "review cadence and iteration"
-    ]
-  },
-  {
-    "role": "Technical Product Manager",
-    "category": "technical",
-    "question": "How do you manage technical debt from a product perspective?",
-    "keyPoints": [
-      "quantifying impact on velocity",
-      "dedicated tech debt sprints",
-      "trade-off communication with stakeholders",
-      "prevention through architecture reviews"
-    ]
-  },
-  {
-    "role": "Technical Product Manager",
-    "category": "technical",
-    "question": "Walk me through how you'd write a PRD (Product Requirements Document) for a complex feature.",
-    "keyPoints": [
-      "problem statement and goals",
-      "user stories and acceptance criteria",
-      "technical constraints and dependencies",
-      "success metrics and rollout plan"
-    ]
-  },
-  {
-    "role": "Technical Product Manager",
-    "category": "technical",
-    "question": "How do you facilitate alignment between engineering, design, and business stakeholders?",
-    "keyPoints": [
-      "shared OKRs",
-      "design sprints and RFC process",
-      "regular cross-functional syncs",
-      "decision documentation and RACI"
-    ]
-  },
-  {
-    "role": "Technical Support Engineer",
-    "category": "technical",
-    "question": "How do you troubleshoot an issue that you cannot reproduce locally?",
-    "keyPoints": [
-      "gather logs and environment details",
-      "identify differences from reproducible cases",
-      "bisect with feature flags or versions",
-      "customer communication during investigation"
-    ]
-  },
-  {
-    "role": "Technical Support Engineer",
-    "category": "technical",
-    "question": "Describe your approach to writing technical documentation for end users.",
-    "keyPoints": [
-      "audience-appropriate language",
-      "step-by-step with screenshots",
-      "searchable and well-organized",
-      "versioning and maintenance plan"
-    ]
-  },
-  {
-    "role": "Technical Support Engineer",
-    "category": "technical",
-    "question": "How would you handle an escalation from an angry enterprise customer?",
-    "keyPoints": [
-      "active listening and empathy",
-      "ownership and accountability",
-      "clear timeline communication",
-      "post-resolution follow-up"
-    ]
-  },
-  {
-    "role": "Technical Support Engineer",
-    "category": "technical",
-    "question": "Explain how you'd build a knowledge base to reduce ticket volume.",
-    "keyPoints": [
-      "analyze common ticket categories",
-      "self-service articles with search",
-      "feedback loops from support agents",
-      "metrics to measure deflection rate"
-    ]
-  },
-  {
-    "role": "Technical Support Engineer",
-    "category": "technical",
-    "question": "How do you prioritize support tickets when the queue is overwhelmed?",
-    "keyPoints": [
-      "severity and impact classification",
-      "SLA-driven prioritization",
-      "customer tier consideration",
-      "communication of expected wait times"
+      "Document N-gram extraction",
+      "MinHash signature generation",
+      "Locality-Sensitive Hashing (LSH) bucket candidate generation",
+      "cosine similarity verification"
     ]
   }
 ]

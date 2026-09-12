@@ -90,28 +90,26 @@ function fisherYatesShuffle<T>(arr: T[]): T[] {
 }
 
 /**
- * Curates a demo session question sequence (default 4 questions):
- * - 3 technical questions randomly selected from the role's question bank
- * - 1 behavioral question randomly selected from the shared set
+ * Curates a demo session question sequence:
+ * - Default roles: 3 technical + 1 behavioral (4 questions limit)
+ * - Core Java Developer: 5 random technical Core Java questions (selected from the 10 Core Java questions)
  *
  * RANDOMIZATION POLICY:
  * - Technical questions are shuffled using Fisher-Yates before selection
  * - Behavioral questions are also shuffled before selection
  * - Every session produces a different random combination and order
- * - From 10 available questions, 4 unique questions are selected
  *
  * Graceful Underfill Policy:
- * If a role has fewer than 3 technical questions, it uses all available technical questions
- * and pads the remainder with distinct questions from the Shared Behavioral bank up to limit
- * (guaranteeing exactly 4 unique questions with no crashes or repeats).
+ * If a role has fewer technical questions than requested, it uses all available technical questions
+ * and pads the remainder with distinct questions from the Shared Behavioral bank up to limit.
  *
  * @param role - The target role string (will be resolved to canonical)
- * @param limit - Total questions to select (default 4)
+ * @param limit - Total questions to select (defaults based on role: 5 for Core Java, 4 for others)
  * @param excludeQuestions - Question texts to exclude (for cross-round deduplication)
  */
 export function getDemoQuestionsForRole(
   role: string,
-  limit = 4,
+  limit?: number,
   excludeQuestions?: string[]
 ): {
   questions: DemoQuestion[];
@@ -129,6 +127,11 @@ export function getDemoQuestionsForRole(
     };
   }
 
+  const isCoreJava = canonicalRole === "Core Java Developer";
+  const effectiveLimit = typeof limit === "number" && limit > 0
+    ? limit
+    : (isCoreJava ? 5 : 4);
+
   const allTechnicalQuestions = getQuestionsForRole(canonicalRole) || [];
   const allBehavioralQuestions = getSharedBehavioralQuestions();
 
@@ -142,22 +145,33 @@ export function getDemoQuestionsForRole(
   const shuffledBeh = fisherYatesShuffle(availableBeh);
 
   const selectedQuestions: DemoQuestion[] = [];
-  const targetTechnicalCount = Math.min(limit - 1, shuffledTech.length);
 
-  // Take up to (limit - 1) random technical questions
-  for (let i = 0; i < targetTechnicalCount; i++) {
-    selectedQuestions.push(shuffledTech[i]);
-  }
-
-  // Add random behavioral question(s) to reach the required session limit
-  let behIndex = 0;
-  while (selectedQuestions.length < limit && behIndex < shuffledBeh.length) {
-    selectedQuestions.push(shuffledBeh[behIndex]);
-    behIndex++;
+  if (isCoreJava) {
+    // For Core Java Developer: Force random 5 questions from the 10 Core Java questions
+    const targetTechCount = Math.min(effectiveLimit, shuffledTech.length);
+    for (let i = 0; i < targetTechCount; i++) {
+      selectedQuestions.push(shuffledTech[i]);
+    }
+    // Pad with behavioral if technical questions were exhausted
+    let behIndex = 0;
+    while (selectedQuestions.length < effectiveLimit && behIndex < shuffledBeh.length) {
+      selectedQuestions.push(shuffledBeh[behIndex]);
+      behIndex++;
+    }
+  } else {
+    // Standard role policy: up to (effectiveLimit - 1) technical questions + 1 behavioral question
+    const targetTechnicalCount = Math.min(effectiveLimit - 1, shuffledTech.length);
+    for (let i = 0; i < targetTechnicalCount; i++) {
+      selectedQuestions.push(shuffledTech[i]);
+    }
+    let behIndex = 0;
+    while (selectedQuestions.length < effectiveLimit && behIndex < shuffledBeh.length) {
+      selectedQuestions.push(shuffledBeh[behIndex]);
+      behIndex++;
+    }
   }
 
   // Final shuffle of the combined selection so question ordering is also randomized
-  // (prevents technical questions always appearing before behavioral)
   const finalQuestions = fisherYatesShuffle(selectedQuestions);
 
   return {

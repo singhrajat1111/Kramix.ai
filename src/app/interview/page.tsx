@@ -23,7 +23,7 @@ import { UpgradeBanner } from "@/components/UpgradeBanner";
 import { useUserAccount } from "@/components/auth/AuthProvider";
 import { RouteGuard } from "@/components/common/RouteGuard";
 import { getDemoQuestionsForRole } from "@/lib/demo/question-bank";
-import { shouldShowUpgradeGate, DEMO_QUESTION_LIMIT } from "@/lib/demo/session-limit";
+import { shouldShowUpgradeGate, DEMO_QUESTION_LIMIT, getDemoQuestionLimit } from "@/lib/demo/session-limit";
 import { DemoEndModal } from "@/components/demo/DemoEndModal";
 import {
   AlertTriangle,
@@ -354,10 +354,11 @@ export default function InterviewRoomPage() {
       r.answers.map((a) => a.questionText)
     );
 
+    const demoLimit = getDemoQuestionLimit(cand.targetRole);
     const director = new InterviewDirector(cand, plan, nextRoundInfo, provider, {
       interviewMode: mode,
       maxDurationMinutes: nextRoundInfo.typicalDurationMinutes || 25,
-      maxQuestions: mode === "demo" ? DEMO_QUESTION_LIMIT : plan.blueprint?.questionBudget || 4,
+      maxQuestions: mode === "demo" ? demoLimit : plan.blueprint?.questionBudget || 4,
       maxFollowUpsPerQuestion: plan.blueprint?.followUpPolicy?.maxFollowUps ?? 2,
       blueprint: plan.blueprint,
       previousRoundContext,
@@ -421,13 +422,14 @@ export default function InterviewRoomPage() {
         setCurrentPrompt(interviewerResponse);
         setLiveSpeech("");
 
-        // In Demo Mode: Enforce DEMO_QUESTION_LIMIT (4 questions)
+        // In Demo Mode: Enforce dynamic demo limit
         const questionsAnsweredSoFar = newState.candidateResponses.length;
-        if (isDemoMode && shouldShowUpgradeGate(questionsAnsweredSoFar)) {
+        if (isDemoMode && shouldShowUpgradeGate(questionsAnsweredSoFar, candidate.targetRole)) {
           setInterviewState("ROUND_COMPLETE");
           setAuthoritativeAvatarState("IDLE");
+          const limit = getDemoQuestionLimit(candidate.targetRole);
           speakText(
-            "That concludes your 4-question demo interview. Thank you for participating!",
+            `That concludes your ${limit}-question demo interview. Thank you for participating!`,
             () => {
               setDemoModalState({
                 isOpen: true,
@@ -583,7 +585,8 @@ export default function InterviewRoomPage() {
       const prevAsked = (session?.rounds || []).flatMap((r) =>
         r.answers.map((a) => a.questionText)
       );
-      const demoResult = getDemoQuestionsForRole(loadedCandidate.targetRole, DEMO_QUESTION_LIMIT, prevAsked);
+      const demoLimit = getDemoQuestionLimit(loadedCandidate.targetRole);
+      const demoResult = getDemoQuestionsForRole(loadedCandidate.targetRole, demoLimit, prevAsked);
       if (!demoResult.roleCovered) {
         setDemoModalState({
           isOpen: true,
@@ -625,11 +628,12 @@ export default function InterviewRoomPage() {
       r.answers.map((a) => a.questionText)
     );
 
+    const demoLimit = getDemoQuestionLimit(loadedCandidate.targetRole);
     const provider = getLLMProvider(aiConfig);
     const director = new InterviewDirector(loadedCandidate, loadedPlan, loadedRound, provider, {
       interviewMode: mode,
       maxDurationMinutes: loadedRound.typicalDurationMinutes || 25,
-      maxQuestions: isDemo ? DEMO_QUESTION_LIMIT : loadedPlan.blueprint?.questionBudget || 4,
+      maxQuestions: isDemo ? demoLimit : loadedPlan.blueprint?.questionBudget || 4,
       maxFollowUpsPerQuestion: loadedPlan.blueprint?.followUpPolicy?.maxFollowUps ?? 2,
       blueprint: loadedPlan.blueprint,
       previousRoundContext,
@@ -856,7 +860,8 @@ export default function InterviewRoomPage() {
                   const loadedPlan = StorageManager.getResearchPlan();
                   const loadedCandidate = StorageManager.getCandidateProfile();
                   if (loadedRound && loadedPlan) {
-                    const demoResult = getDemoQuestionsForRole(loadedCandidate.targetRole, DEMO_QUESTION_LIMIT);
+                    const demoLimit = getDemoQuestionLimit(loadedCandidate.targetRole);
+                    const demoResult = getDemoQuestionsForRole(loadedCandidate.targetRole, demoLimit);
                     if (demoResult.roleCovered) {
                       loadedRound.sampleQuestions = demoResult.questions.map((q) => q.question);
                       loadedPlan.questionBank = demoResult.questions.map((q, idx) => ({
@@ -874,7 +879,7 @@ export default function InterviewRoomPage() {
                     const director = new InterviewDirector(loadedCandidate, loadedPlan, loadedRound, provider, {
                       interviewMode: "demo",
                       maxDurationMinutes: loadedRound.typicalDurationMinutes || 25,
-                      maxQuestions: DEMO_QUESTION_LIMIT,
+                      maxQuestions: demoLimit,
                       maxFollowUpsPerQuestion: loadedPlan.blueprint?.followUpPolicy?.maxFollowUps ?? 2,
                       blueprint: loadedPlan.blueprint,
                     });
@@ -1256,7 +1261,7 @@ export default function InterviewRoomPage() {
         reason={demoModalState.reason}
         role={demoModalState.role || candidate.targetRole || "Software Engineer"}
         company={demoModalState.company || candidate.targetCompanies[0] || "Target Company"}
-        questionsCompleted={demoModalState.questionsCompleted || DEMO_QUESTION_LIMIT}
+        questionsCompleted={demoModalState.questionsCompleted || getDemoQuestionLimit(candidate.targetRole)}
         onClose={() => setDemoModalState((prev) => ({ ...prev, isOpen: false }))}
         onBringOwnKey={() => {
           setDemoModalState((prev) => ({ ...prev, isOpen: false }));

@@ -91,20 +91,51 @@ Format: `Role → Category → Question → Key points`
 6. **How would you handle a memory leak in a long-running Python service?**
    Key points: profiling tools (tracemalloc, memory_profiler), identifying reference cycles, closing resources properly.
 
+## Core Java Developer
+
+1. **Explain the Java Memory Model (JMM) and JVM runtime memory areas (Heap, Stack, Metaspace, PC Registers). How does generational garbage collection (G1, ZGC) work?**
+   Key points: Stack stores local variables and frame calls per thread, Heap stores all allocated objects, Metaspace holds class metadata in native off-heap memory replacing PermGen, GC algorithms: G1 partitions heap into regions, ZGC performs concurrent low-latency cycles.
+2. **How does Java HashMap work internally under the hood? Explain bucket indexing, hash collision handling, and the Java 8+ treeification threshold to Red-Black trees.**
+   Key points: Array of Node buckets indexed via (n - 1) & hash where hash is spread via key.hashCode() ^ (h >>> 16), Collision resolution via singly linked list until TREEIFY_THRESHOLD of 8 turns it into a Red-Black tree, Load factor (0.75) triggers resizing: bucket capacity doubles and entries are re-indexed, ConcurrentHashMap uses CAS for empty bucket initialization and synchronized lock on bucket heads.
+3. **Why is String immutable in Java, and how does the String Constant Pool operate? Contrast String, StringBuilder, and StringBuffer with regard to performance and synchronization.**
+   Key points: Immutability enables String Pool caching, thread safety, secure class loading, and hashCode caching, String Constant Pool lives in Heap and reuses string literals via interning, StringBuilder is mutable and un-synchronized (fastest for single-threaded string manipulation), StringBuffer is thread-safe with synchronized methods, adding locking overhead.
+4. **Explain the nuances of Polymorphism in Java. What are the exact rules for method overriding regarding access modifiers, return types (covariant), and checked exceptions?**
+   Key points: Compile-time polymorphism via method overloading; Runtime polymorphism via method overriding, Overridden method cannot have more restrictive access (e.g. public cannot become protected), Covariant return types allow overriding method to return a subtype of the superclass method return type, Overridden method cannot throw new or broader checked exceptions than declared in superclass.
+5. **Compare abstract classes and interfaces in modern Java (Java 8/17/21). When should you choose one over the other, and how do default and private interface methods affect design?**
+   Key points: Abstract classes can define state (instance fields), constructors, and partial implementations, Interfaces define behavior contracts and support multiple interface inheritance, Java 8 added default and static methods in interfaces for backward-compatible API evolution, Java 9 added private interface methods for code sharing between default methods.
+6. **How does Java guarantee thread safety? Explain the difference between synchronized methods/blocks, the volatile keyword, and Atomic classes in the context of the Java Memory Model.**
+   Key points: synchronized provides mutual exclusion and memory visibility via intrinsic monitor locks, volatile prevents instruction reordering and guarantees immediate visibility from CPU caches, but lacks atomicity, Atomic classes (e.g., AtomicInteger) rely on hardware-level Compare-And-Swap (CAS) lock-free operations, Happens-before guarantee establishes deterministic memory ordering between threads.
+7. **Explain the Java Executor Framework and how ThreadPoolExecutor manages task lifecycles. What are core pool size, max pool size, work queue types, and saturation/rejection policies?**
+   Key points: Decouples task submission (Runnable/Callable) from execution mechanics and thread management, Tasks first populate core threads, then queue in BlockingQueue, then expand to maxPoolSize, then trigger rejection, RejectedExecutionHandler policies: AbortPolicy, CallerRunsPolicy, DiscardPolicy, and DiscardOldestPolicy, Future and CompletableFuture allow non-blocking asynchronous composition and callback chaining.
+8. **How do Java Streams process data? Explain lazy evaluation, intermediate versus terminal operations, and the performance trade-offs of using parallel streams.**
+   Key points: Streams are declarative computational pipelines that do not store data or modify underlying sources, Intermediate operations (filter, map) are lazy and assemble a pipeline; terminal operations (collect, reduce) execute it, Short-circuiting operations (findFirst, anyMatch) terminate computation early, Parallel streams leverage Spliterator and the Common ForkJoinPool; can degrade performance with small or un-splittable data.
+9. **Explain the Java exception hierarchy from Throwable. How does try-with-resources work with the AutoCloseable interface, and how are suppressed exceptions handled?**
+   Key points: Throwable splits into Error (JVM/system fatal issues) and Exception (application level), Checked exceptions extend Exception and require handling; Unchecked extend RuntimeException, try-with-resources guarantees close() invocation in reverse order of resource declaration, Suppressed exceptions are attached to the primary exception via Throwable.addSuppressed().
+10. **Explain how Java implements Generics. What is type erasure, and how do you apply the Producer Extends, Consumer Super (PECS) principle with wildcards?**
+    Key points: Generics provide compile-time type safety and eliminate explicit casting, Type erasure removes generic type parameters at runtime, replacing them with bounds or Object, Cannot instantiate generic types (new T()) or create generic arrays (new T[]) due to erasure, PECS rule: use ? extends T when reading data from a producer, ? super T when writing data into a consumer.
+
 ## Java Developer
 
-1. **Explain the difference between JDK, JRE, and JVM.**
-   Key points: JDK = development kit, JRE = runtime environment, JVM = execution engine that runs bytecode.
-2. **What is the difference between an abstract class and an interface?**
-   Key points: abstract class can have state/partial implementation, interface is a contract (default methods in modern Java), multiple inheritance via interfaces.
-3. **Explain garbage collection in Java.**
-   Key points: automatic memory management, generational GC (young/old gen), stop-the-world pauses, tuning options.
-4. **What are Java Streams and why use them?**
-   Key points: functional-style operations on collections, lazy evaluation, map/filter/reduce chaining.
-5. **How does exception handling work in Java (checked vs unchecked)?**
-   Key points: checked exceptions must be declared/handled, unchecked (RuntimeException) don't require it, try-with-resources.
-6. **What is dependency injection and why is it useful?**
-   Key points: inversion of control, testability, decoupling components, common in Spring.
+1. **Explain JVM architecture, memory layout (Heap, Metaspace, Stack), and Garbage Collection algorithms (G1, ZGC) for production applications.**
+   Key points: JVM memory zones (Young/Eden/Survivor, Tenured Heap, Metaspace for metadata), G1GC regional partitioning and pause-time goals, ZGC low-latency concurrent garbage collection (<1ms pause times), Heap dump analysis and profiling tools (JConsole, VisualVM, JProfiler) for memory leaks.
+2. **How does Java manage Concurrency and Multithreading? Compare traditional Threads/Executors with Virtual Threads (Project Loom in Java 21) and CompletableFuture.**
+   Key points: Platform threads mapped 1:1 to OS kernel threads vs lightweight Virtual Threads managed by JVM carrier threads, ThreadPoolExecutor parameters and BlockingQueue backpressure strategies, CompletableFuture asynchronous composition (thenApply, supplyAsync, allOf), Synchronized, ReentrantLock, volatile memory barriers, and lock-free CAS atomics.
+3. **Explain the Spring Framework Core architecture, Dependency Injection (IoC Container), and Spring Bean Lifecycle phases.**
+   Key points: Inversion of Control (IoC) container decouples component instantiation and lifecycle management, Bean creation steps (Instantiation -> Dependency Injection -> BeanPostProcessor -> @PostConstruct -> Usage -> @PreDestroy), Bean scopes (Singleton, Prototype, Request, Session), Constructor injection vs Field injection best practices.
+4. **How does Spring Boot Auto-Configuration work under the hood? Explain @EnableAutoConfiguration, spring.factories/AutoConfiguration.imports, and custom Actuators.**
+   Key points: @EnableAutoConfiguration scans classpath for libraries and conditionally configures Beans, Uses @ConditionalOnClass, @ConditionalOnMissingBean, and @ConditionalOnProperty annotations, Spring Boot 3 uses META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports, Actuators expose metrics, health checks, and thread dumps for observability.
+5. **Explain Object-Relational Mapping (ORM) with Spring Data JPA and Hibernate. How do you resolve lazy loading exceptions and the N+1 SELECT query problem?**
+   Key points: JPA specification implemented by Hibernate ORM engine, Entity states (Transient, Persistent, Detached, Removed), N+1 query problem solved via JOIN FETCH, EntityGraphs, or DTO projections, First-level session cache vs Second-level shared cache (Ehcache, Redis), Transactional boundary management (@Transactional propagation and isolation levels).
+6. **How do you secure Enterprise Java REST APIs using Spring Security and OAuth2 / JWT stateless token authentication?**
+   Key points: SecurityFilterChain delegate chain processing incoming requests, AuthenticationManager and UserDetailsService for identity validation, JWT issuance, signing, and stateless filter verification per request, Role-Based Access Control (RBAC) via @PreAuthorize and @Secured annotations, Protection against CSRF, CORS misconfigurations, and SQL injection.
+7. **How do you architect resilient Spring Cloud Microservices? Explain API Gateway, Service Discovery (Eureka), and Circuit Breakers (Resilience4j).**
+   Key points: API Gateway for routing, rate limiting, and cross-cutting security, Service Discovery (Eureka/Consul) for dynamic IP/port registration, Resilience4j Circuit Breaker states (CLOSED, OPEN, HALF_OPEN) preventing cascading failures, Distributed configuration management and fault-tolerant fallbacks.
+8. **Explain Event-Driven Architecture with Spring Kafka and Apache Kafka. How do you ensure idempotent message processing and at-least-once delivery?**
+   Key points: Kafka topics, partitions, consumer groups, and offset management, Producer acknowledgement modes (acks=all, min.insync.replicas), Idempotent producers and unique message IDs for deduplication in consumer services, Dead Letter Topics (DLT) for unprocessable message recovery and error handling.
+9. **How do you optimize High-Performance Enterprise Java systems? Discuss HikariCP database connection pooling and Reactive Programming with Spring WebFlux.**
+   Key points: HikariCP fast connection pool initialization, sizing, and leak detection timeouts, Non-blocking reactive I/O using Project Reactor (Flux/Mono) over Netty engine, Backpressure handling strategies in reactive streams, When to choose WebFlux (high concurrency I/O) vs Spring MVC (imperative blocking thread-per-request).
+10. **Describe key Enterprise Java Design Patterns (Factory, Singleton, Builder, Observer, Strategy) and how they promote Clean Architecture.**
+    Key points: Creational patterns (Factory, Builder, Thread-safe Singleton via Enum or Double-Checked Locking), Behavioral patterns (Observer, Strategy, Template Method), Structural patterns (Adapter, Decorator, Proxy for Spring AOP), Clean/Hexagonal Architecture separating domain core logic from external adapters and frameworks.
 
 ## Spring Boot Developer
 
@@ -419,6 +450,52 @@ Format: `Role → Category → Question → Key points`
    Key points: clear reproduction steps, root cause, resolution steps, searchable KB formatting.
 5. **How do you manage multiple concurrent support tickets with different priorities?**
    Key points: triage by severity/impact, clear communication of expected timelines to each customer.
+
+## Distributed Systems Engineer
+
+1. **How do you design a consensus-based distributed lock service?**
+   Key points: Raft or Paxos consensus algorithm, lease renewal mechanisms, fencing tokens to prevent split-brain writes.
+2. **Explain the CAP theorem and PACELC extension in modern distributed databases.**
+   Key points: Consistency vs Availability during Partition; Else Latency vs Consistency trade-offs during normal operation.
+3. **How do you manage vector clock drift and causality in multi-region active-active clusters?**
+   Key points: Vector clocks, hybrid logical clocks (HLC), conflict-free replicated data types (CRDTs), last-write-wins resolution.
+4. **What strategies mitigate cascading failures and thread starvation in microservices?**
+   Key points: Circuit breakers, adaptive rate limiting, client-side load balancing with power-of-two choices, bulkheading.
+5. **How would you architect a distributed rate limiter scaling to 500,000 QPS with sub-5ms latency?**
+   Key points: Sliding window counter in Redis cluster, local token bucket caching, asynchronous batch synchronization.
+6. **How do you implement distributed transaction recovery using 2PC (Two-Phase Commit) vs Saga orchestrator pattern?**
+   Key points: Prepare and Commit phases, coordinator blocking vulnerabilities, Saga compensating transactions, forward/backward recovery strategies.
+7. **How do you design an idempotent event processing pipeline in Kafka under at-least-once delivery semantics?**
+   Key points: Unique transaction IDs, deduplication store with Redis/DynamoDB, atomic consumer offsets, idempotent database upserts.
+8. **Explain how consistent hashing with virtual nodes minimizes data movement during cluster scaling.**
+   Key points: Hash ring partitioning, virtual node distribution preventing hot spots, minimal key reassignment on node join/leave.
+9. **How do you prevent split-brain scenarios and manage quorum consensus in multi-datacenter etcd clusters?**
+   Key points: Odd node counts (3, 5, 7), majority quorum requirements (N/2 + 1), leader election timeouts, network partition isolation.
+10. **Walk through designing a high-throughput distributed tracing collector for microservice observability.**
+    Key points: OpenTelemetry protocol (OTLP), head-based vs tail-based sampling, batching collector buffering, Jaeger/Zipkin backend storage.
+
+## AI Infrastructure Architect
+
+1. **How do you optimize GPU cluster utilization for multi-node LLM distributed training?**
+   Key points: Megatron-LM tensor and pipeline parallelism, Zero Redundancy Optimizer (ZeRO-3), FlashAttention-2 memory reduction.
+2. **Explain KV-cache optimization techniques in high-throughput LLM inference.**
+   Key points: PagedAttention (vLLM) memory allocation, continuous batching, speculative decoding, quantized KV-cache (FP8/INT4).
+3. **How do you architect a vector database cluster for billion-scale hybrid semantic search?**
+   Key points: HNSW index graph partitioning, product quantization (PQ), disk-ANN storage, hybrid lexical-dense re-ranking.
+4. **How do you prevent data leakage and ensure prompt injection resilience in enterprise LLM gateways?**
+   Key points: Dual-LLM validation architecture, regex and embedding guardrails, canary token tracking, untrusted XML sandboxing.
+5. **How would you build a real-time feature store for sub-20ms model inference?**
+   Key points: Low-latency key-value store (Redis/RocksDB), streaming ingestion via Kafka, point-in-time correctness, feature drift detection.
+6. **How do you optimize inference throughput for LLM serving using speculative decoding and Medusa heads?**
+   Key points: Small draft model draft token generation, target LLM parallel verification step, acceptance rate metrics, reduced latency per token.
+7. **Explain how FlashAttention-3 leverages GPU Tensor Cores and asynchronous memory copy for long-context windows.**
+   Key points: Tiling attention computation in SRAM, FP8 precision GEMM execution, overlapping memory transfers with Tensor Core math, linear memory complexity.
+8. **How do you design an automated model validation and canary deployment pipeline for real-time safety guardrails?**
+   Key points: Shadow traffic mirroring, automated regression benchmarks (MMLU, GSM8K, toxicity filters), automated rollback triggers, traffic shifting.
+9. **How do you approach quantization-aware training (QAT) vs post-training quantization (PTQ) for edge LLM deployment?**
+   Key points: Simulated quantization during backprop, weight vs activation clipping, AWQ/GPTQ algorithms, latency and accuracy retention trade-offs.
+10. **Walk through building an automated dataset deduplication pipeline using MinHash LSH and semantic embedding clustering.**
+    Key points: Document N-gram extraction, MinHash signature generation, Locality-Sensitive Hashing (LSH) bucket candidate generation, cosine similarity verification.
 
 ---
 

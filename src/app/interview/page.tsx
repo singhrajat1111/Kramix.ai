@@ -478,9 +478,16 @@ export default function InterviewRoomPage() {
     submitAnswerRef.current = submitAnswer;
   }, [submitAnswer]);
 
-  // Advance to Q1 after greeting audio finishes completely
+  // Advance to Q1 after greeting audio finishes completely or when skipped
   const advanceToQuestionOne = useCallback(() => {
     if (!directorRef.current) return;
+
+    // Invalidate any ongoing speech session (e.g. greeting intro) and stop active audio
+    speechSessionIdRef.current++;
+    if (ttsEngineRef.current) {
+      ttsEngineRef.current.stop();
+    }
+    setAvatarActivity(0);
 
     const q1 = directorRef.current.getNextQuestion();
     setDirectorState(q1.state);

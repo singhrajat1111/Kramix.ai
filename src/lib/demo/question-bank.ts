@@ -77,18 +77,42 @@ export function getQuestionsForRole(role: string): DemoQuestion[] | null {
 }
 
 /**
+ * Fisher-Yates (Knuth) shuffle — produces an unbiased random permutation.
+ * Returns a new array; does not mutate the input.
+ */
+function fisherYatesShuffle<T>(arr: T[]): T[] {
+  const result = [...arr];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+/**
  * Curates a demo session question sequence (default 4 questions):
- * - 3 technical questions matched to the role
- * - 1 behavioral question from the shared set
+ * - 3 technical questions randomly selected from the role's question bank
+ * - 1 behavioral question randomly selected from the shared set
+ *
+ * RANDOMIZATION POLICY:
+ * - Technical questions are shuffled using Fisher-Yates before selection
+ * - Behavioral questions are also shuffled before selection
+ * - Every session produces a different random combination and order
+ * - From 10 available questions, 4 unique questions are selected
  *
  * Graceful Underfill Policy:
  * If a role has fewer than 3 technical questions, it uses all available technical questions
  * and pads the remainder with distinct questions from the Shared Behavioral bank up to limit
  * (guaranteeing exactly 4 unique questions with no crashes or repeats).
+ *
+ * @param role - The target role string (will be resolved to canonical)
+ * @param limit - Total questions to select (default 4)
+ * @param excludeQuestions - Question texts to exclude (for cross-round deduplication)
  */
 export function getDemoQuestionsForRole(
   role: string,
-  limit = 4
+  limit = 4,
+  excludeQuestions?: string[]
 ): {
   questions: DemoQuestion[];
   roleCovered: boolean;
@@ -105,26 +129,39 @@ export function getDemoQuestionsForRole(
     };
   }
 
-  const technicalQuestions = getQuestionsForRole(canonicalRole) || [];
-  const behavioralQuestions = getSharedBehavioralQuestions();
+  const allTechnicalQuestions = getQuestionsForRole(canonicalRole) || [];
+  const allBehavioralQuestions = getSharedBehavioralQuestions();
+
+  // Filter out previously asked questions (cross-round deduplication)
+  const excludeSet = new Set(excludeQuestions || []);
+  const availableTech = allTechnicalQuestions.filter((q) => !excludeSet.has(q.question));
+  const availableBeh = allBehavioralQuestions.filter((q) => !excludeSet.has(q.question));
+
+  // Shuffle both pools independently using Fisher-Yates
+  const shuffledTech = fisherYatesShuffle(availableTech);
+  const shuffledBeh = fisherYatesShuffle(availableBeh);
 
   const selectedQuestions: DemoQuestion[] = [];
-  const targetTechnicalCount = Math.min(3, technicalQuestions.length);
+  const targetTechnicalCount = Math.min(limit - 1, shuffledTech.length);
 
-  // Take up to 3 technical questions
+  // Take up to (limit - 1) random technical questions
   for (let i = 0; i < targetTechnicalCount; i++) {
-    selectedQuestions.push(technicalQuestions[i]);
+    selectedQuestions.push(shuffledTech[i]);
   }
 
-  // Add behavioral question(s) to reach the required session limit (typically 1 behavioral to make 4 total)
+  // Add random behavioral question(s) to reach the required session limit
   let behIndex = 0;
-  while (selectedQuestions.length < limit && behIndex < behavioralQuestions.length) {
-    selectedQuestions.push(behavioralQuestions[behIndex]);
+  while (selectedQuestions.length < limit && behIndex < shuffledBeh.length) {
+    selectedQuestions.push(shuffledBeh[behIndex]);
     behIndex++;
   }
 
+  // Final shuffle of the combined selection so question ordering is also randomized
+  // (prevents technical questions always appearing before behavioral)
+  const finalQuestions = fisherYatesShuffle(selectedQuestions);
+
   return {
-    questions: selectedQuestions,
+    questions: finalQuestions,
     roleCovered: true,
     canonicalRole,
   };

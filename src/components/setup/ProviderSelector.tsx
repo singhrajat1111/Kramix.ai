@@ -83,9 +83,15 @@ export function ProviderSelector({ config, onChange }: ProviderSelectorProps) {
     const newKey = e.target.value;
     const detected = detectProviderFromKey(newKey);
     // If not manually locked to a specific provider, auto-route to detected provider
-    const nextProvider = config.provider === "universal" || config.provider === "gemini" || config.provider === "openai" || config.provider === "openrouter"
-      ? (newKey.trim() ? detected : "universal")
-      : config.provider;
+    const nextProvider =
+      config.provider === "universal" ||
+      config.provider === "groq" ||
+      config.provider === "anthropic" ||
+      config.provider === "gemini" ||
+      config.provider === "openai" ||
+      config.provider === "openrouter"
+        ? (newKey.trim() ? detected : "universal")
+        : config.provider;
 
     onChange({
       ...config,
@@ -124,9 +130,13 @@ export function ProviderSelector({ config, onChange }: ProviderSelectorProps) {
   };
 
   const activeProviderLabel = () => {
+    if (config.provider === "groq") return "Groq (Llama 3.3 70B)";
+    if (config.provider === "anthropic") return "Anthropic (Claude 3.5 Haiku)";
     if (config.provider === "gemini") return "Google Gemini (1.5 Flash)";
     if (config.provider === "openai") return "OpenAI (GPT-4o)";
     if (config.provider === "openrouter") return "OpenRouter (Universal Gateway)";
+    if (detectedProvider === "groq") return "Groq (Auto-Detected)";
+    if (detectedProvider === "anthropic") return "Anthropic (Auto-Detected)";
     if (detectedProvider === "gemini") return "Google Gemini (Auto-Detected)";
     if (detectedProvider === "openai") return "OpenAI (Auto-Detected)";
     if (detectedProvider === "openrouter") return "OpenRouter (Auto-Detected)";
@@ -196,6 +206,8 @@ export function ProviderSelector({ config, onChange }: ProviderSelectorProps) {
             Universal key acceptor. Paste your key and Kramix automatically detects and routes to the correct engine.
           </span>
           <div className="flex items-center gap-1.5 text-[10px] font-mono text-slate-400">
+            <span className="px-1.5 py-0.5 rounded bg-slate-800/80 border border-slate-700/60">Groq</span>
+            <span className="px-1.5 py-0.5 rounded bg-slate-800/80 border border-slate-700/60">Anthropic</span>
             <span className="px-1.5 py-0.5 rounded bg-slate-800/80 border border-slate-700/60">Gemini</span>
             <span className="px-1.5 py-0.5 rounded bg-slate-800/80 border border-slate-700/60">OpenAI</span>
             <span className="px-1.5 py-0.5 rounded bg-slate-800/80 border border-slate-700/60">OpenRouter</span>
@@ -218,14 +230,22 @@ export function ProviderSelector({ config, onChange }: ProviderSelectorProps) {
                 {activeProviderLabel() ? (
                   <span
                     className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium border ${
-                      config.provider === "gemini" || detectedProvider === "gemini"
+                      config.provider === "groq" || detectedProvider === "groq"
+                        ? "bg-orange-500/10 text-orange-300 border-orange-500/30"
+                        : config.provider === "anthropic" || detectedProvider === "anthropic"
+                        ? "bg-amber-600/10 text-amber-300 border-amber-500/30"
+                        : config.provider === "gemini" || detectedProvider === "gemini"
                         ? "bg-cyan-500/10 text-cyan-300 border-cyan-500/30"
                         : config.provider === "openai" || detectedProvider === "openai"
                         ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/30"
                         : "bg-purple-500/10 text-purple-300 border-purple-500/30"
                     }`}
                   >
-                    {config.provider === "gemini" || detectedProvider === "gemini" ? (
+                    {config.provider === "groq" || detectedProvider === "groq" ? (
+                      <Zap className="h-3 w-3 text-orange-400" />
+                    ) : config.provider === "anthropic" || detectedProvider === "anthropic" ? (
+                      <Sparkles className="h-3 w-3 text-amber-400" />
+                    ) : config.provider === "gemini" || detectedProvider === "gemini" ? (
                       <Sparkles className="h-3 w-3 text-cyan-400" />
                     ) : config.provider === "openai" || detectedProvider === "openai" ? (
                       <Zap className="h-3 w-3 text-emerald-400" />
@@ -236,7 +256,7 @@ export function ProviderSelector({ config, onChange }: ProviderSelectorProps) {
                   </span>
                 ) : (
                   <span className="hidden sm:inline-block text-[11px] text-slate-400">
-                    Accepts Gemini (AIza...), OpenAI (sk-...), OpenRouter (sk-or-...)
+                    Accepts Groq (gsk_...), Anthropic (sk-ant-...), Gemini (AIza...), OpenAI (sk-...), OpenRouter (sk-or-...)
                   </span>
                 )}
 
@@ -250,7 +270,7 @@ export function ProviderSelector({ config, onChange }: ProviderSelectorProps) {
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
-                placeholder="Paste any API key (e.g. AIzaSy..., sk-..., sk-or-...)"
+                placeholder="Paste any API key (e.g. gsk_..., sk-ant-..., AIzaSy..., sk-..., sk-or-...)"
                 value={config.apiKey || ""}
                 onChange={handleApiKeyChange}
                 className="w-full rounded-lg border border-slate-700 bg-surface-200/80 pl-3.5 pr-10 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 font-mono transition-colors"
@@ -291,6 +311,28 @@ export function ProviderSelector({ config, onChange }: ProviderSelectorProps) {
                   }`}
                 >
                   Auto
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleProviderOverride("groq")}
+                  className={`px-2 py-0.5 rounded text-[11px] border transition-colors ${
+                    config.provider === "groq"
+                      ? "bg-orange-500/20 text-orange-300 border-orange-500/40 font-medium"
+                      : "bg-slate-800/80 text-slate-400 border-slate-700 hover:text-slate-200"
+                  }`}
+                >
+                  Groq
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleProviderOverride("anthropic")}
+                  className={`px-2 py-0.5 rounded text-[11px] border transition-colors ${
+                    config.provider === "anthropic"
+                      ? "bg-amber-600/20 text-amber-300 border-amber-500/40 font-medium"
+                      : "bg-slate-800/80 text-slate-400 border-slate-700 hover:text-slate-200"
+                  }`}
+                >
+                  Claude
                 </button>
                 <button
                   type="button"

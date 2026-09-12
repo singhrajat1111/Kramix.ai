@@ -13,6 +13,7 @@ import { InterviewTranscript } from "@/components/interview/InterviewTranscript"
 import { InterviewControls } from "@/components/interview/InterviewControls";
 import { CandidateProfile, DEFAULT_CANDIDATE_PROFILE } from "@/types/candidate";
 import { ConversationTurn, InterviewDirectorState, InterviewState } from "@/types/interview";
+import { resolveInterviewMode } from "@/types/interview-mode";
 import { AuthoritativeAvatarState, AvatarMode } from "@/types/avatar";
 import { InterviewRoundInfo, ResearchPlan } from "@/types/research";
 import { InterviewSession } from "@/types/session";
@@ -91,6 +92,10 @@ export default function InterviewRoomPage() {
   const [avatarActivity, setAvatarActivity] = useState(0);
   const [isLoadingEvaluation, setIsLoadingEvaluation] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // AI Question Generation State
+  const [aiGenerationStatus, setAiGenerationStatus] = useState<string>("");
+  const [aiGenerationError, setAiGenerationError] = useState<string | null>(null);
 
   // Speech turn session tracking to prevent duplicate or interrupted speech races
   const speechSessionIdRef = useRef<number>(0);
@@ -335,6 +340,7 @@ export default function InterviewRoomPage() {
     const aiConfig = StorageManager.getAIConfig();
     const provider = getLLMProvider(aiConfig);
     const cand = StorageManager.getCandidateProfile();
+    const mode = resolveInterviewMode(aiConfig);
 
     const previousRoundContext = session.roundResults.map((r) => ({
       roundTitle: r.roundName,
@@ -349,14 +355,32 @@ export default function InterviewRoomPage() {
     );
 
     const director = new InterviewDirector(cand, plan, nextRoundInfo, provider, {
+      interviewMode: mode,
       maxDurationMinutes: nextRoundInfo.typicalDurationMinutes || 25,
-      maxQuestions: plan.blueprint?.questionBudget || 4,
+      maxQuestions: mode === "demo" ? DEMO_QUESTION_LIMIT : plan.blueprint?.questionBudget || 4,
       maxFollowUpsPerQuestion: plan.blueprint?.followUpPolicy?.maxFollowUps ?? 2,
       blueprint: plan.blueprint,
       previousRoundContext,
       previouslyAskedQuestions,
     });
     directorRef.current = director;
+
+    // AI MODE: Pre-generate questions for next round
+    if (mode === "ai") {
+      setInterviewState("GENERATING");
+      setAiGenerationStatus("Preparing next round...");
+      setShowOrientation(true);
+
+      director.initializeAIQuestions((status) => {
+        setAiGenerationStatus(status);
+      }).then(() => {
+        setInterviewState("IDLE");
+        setAiGenerationStatus("");
+      }).catch((err: Error) => {
+        setInterviewState("FAILED");
+        setAiGenerationError(err.message || "Failed to generate questions for this round.");
+      });
+    }
   }, [handleConcludeFinalDossier]);
 
   const isSubmittingRef = useRef(false);
@@ -548,12 +572,18 @@ export default function InterviewRoomPage() {
       return;
     }
 
-    const isDemo = aiConfig.provider === "demo" || !aiConfig.apiKey;
+    // AUTHORITATIVE MODE DECISION — single source of truth
+    const mode = resolveInterviewMode(aiConfig);
+    const isDemo = mode === "demo";
     setIsDemoMode(isDemo);
 
-    // In Demo Mode: Source questions directly from kramix-question-bank.md
+    // In Demo Mode: Source randomized questions from question bank
     if (isDemo) {
-      const demoResult = getDemoQuestionsForRole(loadedCandidate.targetRole, DEMO_QUESTION_LIMIT);
+      // Gather previously asked questions for cross-round deduplication
+      const prevAsked = (session?.rounds || []).flatMap((r) =>
+        r.answers.map((a) => a.questionText)
+      );
+      const demoResult = getDemoQuestionsForRole(loadedCandidate.targetRole, DEMO_QUESTION_LIMIT, prevAsked);
       if (!demoResult.roleCovered) {
         setDemoModalState({
           isOpen: true,
@@ -562,7 +592,7 @@ export default function InterviewRoomPage() {
           company: loadedCandidate.targetCompanies[0] || "Target Company",
         });
       } else {
-        // Populate round questions with the curated demo bank (3 technical + 1 behavioral)
+        // Populate round questions with randomized demo bank questions
         loadedRound.sampleQuestions = demoResult.questions.map((q) => q.question);
         loadedPlan.questionBank = demoResult.questions.map((q, idx) => ({
           id: `demo_bank_q_${idx + 1}`,
@@ -597,6 +627,7 @@ export default function InterviewRoomPage() {
 
     const provider = getLLMProvider(aiConfig);
     const director = new InterviewDirector(loadedCandidate, loadedPlan, loadedRound, provider, {
+      interviewMode: mode,
       maxDurationMinutes: loadedRound.typicalDurationMinutes || 25,
       maxQuestions: isDemo ? DEMO_QUESTION_LIMIT : loadedPlan.blueprint?.questionBudget || 4,
       maxFollowUpsPerQuestion: loadedPlan.blueprint?.followUpPolicy?.maxFollowUps ?? 2,
@@ -605,6 +636,25 @@ export default function InterviewRoomPage() {
       previouslyAskedQuestions,
     });
     directorRef.current = director;
+
+    // AI MODE: Pre-generate personalized questions before interview starts
+    if (mode === "ai") {
+      setInterviewState("GENERATING");
+      setAiGenerationStatus("Preparing your personalized interview...");
+      setAiGenerationError(null);
+
+      director.initializeAIQuestions((status) => {
+        setAiGenerationStatus(status);
+      }).then(() => {
+        setInterviewState("IDLE");
+        setAiGenerationStatus("");
+      }).catch((err: Error) => {
+        setInterviewState("FAILED");
+        setAiGenerationError(
+          err.message || "Failed to generate personalized questions. You can retry or continue with Demo Interview."
+        );
+      });
+    }
 
     sttEngineRef.current = new SpeechToTextEngine();
     ttsEngineRef.current = new TextToSpeechEngine();
@@ -703,6 +753,144 @@ export default function InterviewRoomPage() {
         <div className="flex-1 flex items-center justify-center p-8 text-center text-slate-400">
           <Loader2 className="h-6 w-6 animate-spin text-brand-500 mb-2" />
           <p className="text-xs font-medium">Preparing interview room...</p>
+        </div>
+      </RouteGuard>
+    );
+  }
+
+  {/* AI MODE: Question generation in progress */}
+  if (interviewState === "GENERATING") {
+    return (
+      <RouteGuard>
+        <div className="flex-1 flex items-center justify-center p-8">
+          <div className="text-center max-w-md space-y-6">
+            <div className="relative mx-auto w-16 h-16">
+              <div className="absolute inset-0 rounded-full bg-brand-500/20 animate-ping" />
+              <div className="relative flex items-center justify-center w-16 h-16 rounded-full bg-surface-100 border border-brand-500/40">
+                <Sparkles className="h-7 w-7 text-brand-400 animate-pulse" />
+              </div>
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-white mb-2">Preparing Your Personalized Interview</h2>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                Our AI is analyzing your profile and generating interview questions tailored specifically to your skills, experience, and target role.
+              </p>
+            </div>
+            <div className="flex items-center justify-center gap-2 text-brand-300">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span className="text-sm font-medium">{aiGenerationStatus || "Generating personalized questions..."}</span>
+            </div>
+            <div className="space-y-2 text-left">
+              {["Analyzing your profile", "Retrieving relevant context", "Generating personalized questions", "Validating question quality"].map((step, idx) => {
+                const statusSteps = ["Analyzing your profile...", "Retrieving relevant context...", "Generating personalized questions...", "Validating question quality..."];
+                const currentIdx = statusSteps.findIndex((s) => aiGenerationStatus.includes(s.replace("...", "")));
+                const isComplete = idx < currentIdx;
+                const isCurrent = idx === currentIdx;
+                return (
+                  <div key={step} className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-300 ${
+                    isComplete ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/20" :
+                    isCurrent ? "bg-brand-500/10 text-brand-300 border border-brand-500/30" :
+                    "bg-surface-100 text-slate-500 border border-slate-800"
+                  }`}>
+                    {isComplete ? <CheckCircle2 className="h-3.5 w-3.5" /> : isCurrent ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Clock className="h-3.5 w-3.5" />}
+                    <span>{step}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </RouteGuard>
+    );
+  }
+
+  {/* AI MODE: Generation failed — explicit error with retry/demo fallback */}
+  if (interviewState === "FAILED" && aiGenerationError) {
+    return (
+      <RouteGuard>
+        <div className="flex-1 flex items-center justify-center p-8">
+          <div className="text-center max-w-md space-y-6">
+            <div className="mx-auto flex items-center justify-center w-16 h-16 rounded-full bg-rose-500/10 border border-rose-500/30">
+              <XCircle className="h-7 w-7 text-rose-400" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-white mb-2">Unable to Generate Personalized Interview</h2>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                {aiGenerationError}
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setAiGenerationError(null);
+                  setInterviewState("GENERATING");
+                  setAiGenerationStatus("Retrying question generation...");
+                  if (directorRef.current) {
+                    directorRef.current.initializeAIQuestions((status) => {
+                      setAiGenerationStatus(status);
+                    }).then(() => {
+                      setInterviewState("IDLE");
+                      setAiGenerationStatus("");
+                    }).catch((err: Error) => {
+                      setInterviewState("FAILED");
+                      setAiGenerationError(err.message || "Retry failed. Please check your API key.");
+                    });
+                  }
+                }}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold transition-colors shadow-sm"
+              >
+                <ArrowRight className="h-4 w-4" />
+                Retry
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  // EXPLICIT demo fallback — user consciously chose this
+                  setAiGenerationError(null);
+                  setIsDemoMode(true);
+                  setInterviewState("IDLE");
+
+                  // Re-initialize as demo mode
+                  const loadedRound = StorageManager.getSelectedRound();
+                  const loadedPlan = StorageManager.getResearchPlan();
+                  const loadedCandidate = StorageManager.getCandidateProfile();
+                  if (loadedRound && loadedPlan) {
+                    const demoResult = getDemoQuestionsForRole(loadedCandidate.targetRole, DEMO_QUESTION_LIMIT);
+                    if (demoResult.roleCovered) {
+                      loadedRound.sampleQuestions = demoResult.questions.map((q) => q.question);
+                      loadedPlan.questionBank = demoResult.questions.map((q, idx) => ({
+                        id: `demo_bank_q_${idx + 1}`,
+                        roundCategory: loadedRound.category,
+                        category: q.category === "behavioral" ? ("Behavioral" as const) : ("Technical" as const),
+                        questionText: q.question,
+                        intent: q.keyPoints.join(", "),
+                        evaluationCriteria: q.keyPoints,
+                        difficulty: "Mid" as const,
+                      }));
+                    }
+                    const aiConfig = StorageManager.getAIConfig();
+                    const provider = getLLMProvider(aiConfig);
+                    const director = new InterviewDirector(loadedCandidate, loadedPlan, loadedRound, provider, {
+                      interviewMode: "demo",
+                      maxDurationMinutes: loadedRound.typicalDurationMinutes || 25,
+                      maxQuestions: DEMO_QUESTION_LIMIT,
+                      maxFollowUpsPerQuestion: loadedPlan.blueprint?.followUpPolicy?.maxFollowUps ?? 2,
+                      blueprint: loadedPlan.blueprint,
+                    });
+                    directorRef.current = director;
+                  }
+                }}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-surface-100 hover:bg-surface-200 text-slate-300 text-sm font-semibold transition-colors border border-slate-700 shadow-sm"
+              >
+                <Compass className="h-4 w-4" />
+                Continue with Demo Interview
+              </button>
+            </div>
+            <p className="text-[11px] text-slate-500">
+              Demo mode uses curated questions from our question bank. AI mode generates personalized questions using your API key.
+            </p>
+          </div>
         </div>
       </RouteGuard>
     );

@@ -124,7 +124,13 @@ export async function getEffectiveServerAIConfig(
       // 2. Check subscriber status
       if (dbUser.plan === "subscriber") {
         const serverKey =
-          clientConfig?.provider === "openai"
+          clientConfig?.provider === "groq"
+            ? process.env.GROQ_API_KEY
+            : clientConfig?.provider === "anthropic"
+            ? process.env.ANTHROPIC_API_KEY
+            : clientConfig?.provider === "openrouter"
+            ? process.env.OPENROUTER_API_KEY
+            : clientConfig?.provider === "openai"
             ? process.env.OPENAI_API_KEY
             : process.env.GEMINI_API_KEY;
         return {
@@ -142,7 +148,13 @@ export async function getEffectiveServerAIConfig(
       // 3. Check credits balance
       if (dbUser.credits > 0) {
         const serverKey =
-          clientConfig?.provider === "openai"
+          clientConfig?.provider === "groq"
+            ? process.env.GROQ_API_KEY
+            : clientConfig?.provider === "anthropic"
+            ? process.env.ANTHROPIC_API_KEY
+            : clientConfig?.provider === "openrouter"
+            ? process.env.OPENROUTER_API_KEY
+            : clientConfig?.provider === "openai"
             ? process.env.OPENAI_API_KEY
             : process.env.GEMINI_API_KEY;
         return {

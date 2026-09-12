@@ -25,15 +25,24 @@ export async function POST(req: NextRequest) {
     let provider = getLLMProvider(body);
     let result = await provider.testConnection();
 
-    // If universal mode failed and provider was guessed, attempt the other major provider as fallback
+    // If universal mode failed and provider was guessed, probe remaining candidates
     if (!result.success && body.provider === "universal" && body.apiKey) {
-      const detected = detectProviderFromKey(body.apiKey);
-      const alternate = detected === "gemini" ? "openai" : "gemini";
-      const fallbackProvider = getLLMProvider({ ...body, provider: alternate });
-      const fallbackResult = await fallbackProvider.testConnection();
-      if (fallbackResult.success) {
-        provider = fallbackProvider;
-        result = fallbackResult;
+      const candidates: ("groq" | "anthropic" | "gemini" | "openai" | "openrouter")[] = [
+        "groq",
+        "anthropic",
+        "gemini",
+        "openai",
+        "openrouter",
+      ];
+      for (const candidate of candidates) {
+        if (candidate === provider.type) continue;
+        const fallbackProvider = getLLMProvider({ ...body, provider: candidate });
+        const fallbackResult = await fallbackProvider.testConnection();
+        if (fallbackResult.success) {
+          provider = fallbackProvider;
+          result = fallbackResult;
+          break;
+        }
       }
     }
 

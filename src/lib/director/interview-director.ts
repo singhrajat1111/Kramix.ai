@@ -8,8 +8,14 @@ import {
   InterviewDirectorState,
   InterviewState,
 } from "@/types/interview";
+import { InterviewMode } from "@/types/interview-mode";
+import { AIGeneratedQuestion } from "@/types/ai-question";
 import { InterviewRoundInfo, ResearchPlan } from "@/types/research";
 import { constructGuardedSystemPrompt, sanitizeUntrustedText } from "../ai/prompt-defense";
+import {
+  generateInterviewQuestions,
+  AIQuestionGenerationError,
+} from "../ai/question-generator";
 
 export class InterviewDirector {
   private state: InterviewDirectorState;
@@ -17,6 +23,7 @@ export class InterviewDirector {
   private candidate: CandidateProfile;
   private researchPlan: ResearchPlan;
   private llm: LLMProvider;
+  private aiQuestionQueue: AIGeneratedQuestion[] = [];
 
   constructor(
     candidate: CandidateProfile,
@@ -30,8 +37,10 @@ export class InterviewDirector {
     this.llm = llm;
 
     const blueprint = customConfig?.blueprint || researchPlan.blueprint;
+    const interviewMode: InterviewMode = customConfig?.interviewMode || "demo";
 
     this.config = {
+      interviewMode,
       maxDurationMinutes: customConfig?.maxDurationMinutes || selectedRound.typicalDurationMinutes || 25,
       maxQuestions: customConfig?.maxQuestions ?? blueprint?.questionBudget ?? 5,
       maxFollowUpsPerQuestion: customConfig?.maxFollowUpsPerQuestion ?? blueprint?.followUpPolicy?.maxFollowUps ?? 2,
@@ -43,11 +52,13 @@ export class InterviewDirector {
     };
 
     // Filter questions relevant to the selected round or fallback to round focus questions
+    // In AI mode, this is a placeholder — real questions are loaded via initializeAIQuestions()
     const initialQuestions = this.getPlannedQuestions();
 
     const initialTopics = blueprint?.competencyTopics?.map((t) => t.topic) || [...selectedRound.focusAreas];
 
     this.state = {
+      interviewMode,
       currentState: "IDLE",
       currentQuestionIndex: 0,
       totalQuestionsPlanned: Math.min(initialQuestions.length, this.config.maxQuestions),
@@ -65,7 +76,75 @@ export class InterviewDirector {
     };
   }
 
+  /**
+   * AI MODE ONLY: Pre-generates personalized interview questions using the LLM.
+   * Must be called before startInterview() when interviewMode is "ai".
+   *
+   * Flow:
+   *  1. Updates state to GENERATING
+   *  2. Calls AI question generator (single batch API call)
+   *  3. Validates and stores questions in aiQuestionQueue
+   *  4. Updates state to READY
+   *
+   * Throws AIQuestionGenerationError on failure (caller handles fallback UX).
+   */
+  async initializeAIQuestions(onProgress?: (status: string) => void): Promise<void> {
+    if (this.config.interviewMode !== "ai") return;
+
+    this.state.currentState = "GENERATING";
+    onProgress?.("Analyzing your profile...");
+
+    try {
+      onProgress?.("Generating personalized questions...");
+
+      const questions = await generateInterviewQuestions(
+        this.llm,
+        this.candidate,
+        this.researchPlan,
+        this.config.targetRound,
+        {
+          questionCount: this.config.maxQuestions,
+          previousQuestions: this.config.previouslyAskedQuestions || [],
+          maxRetries: 1,
+        }
+      );
+
+      onProgress?.("Validating question quality...");
+
+      this.aiQuestionQueue = questions;
+      this.state.totalQuestionsPlanned = questions.length;
+      this.state.currentState = "READY";
+
+      // Update topics from generated questions
+      this.state.topicsRemaining = questions.map((q) => q.topic);
+
+      onProgress?.("Interview ready!");
+    } catch (err) {
+      this.state.currentState = "FAILED";
+      if (err instanceof AIQuestionGenerationError) {
+        throw err;
+      }
+      throw new AIQuestionGenerationError(
+        "Failed to generate personalized interview questions.",
+        err instanceof Error ? err : undefined
+      );
+    }
+  }
+
+  /**
+   * Returns the AI-generated question queue (for external access, e.g., evaluation).
+   */
+  getAIQuestionQueue(): readonly AIGeneratedQuestion[] {
+    return this.aiQuestionQueue;
+  }
+
   private getPlannedQuestions(): string[] {
+    // AI MODE: Return questions from the pre-generated AI queue
+    if (this.config.interviewMode === "ai" && this.aiQuestionQueue.length > 0) {
+      return this.aiQuestionQueue.map((q) => q.question);
+    }
+
+    // DEMO MODE: Return questions from the research plan question bank
     const roundCategory = this.config.targetRound?.category?.toLowerCase() || "";
     const previouslyAsked = new Set(this.config.previouslyAskedQuestions || []);
     const roundQuestions = (this.researchPlan?.questionBank || []).filter(
@@ -513,7 +592,26 @@ Produce a JSON evaluation matching this EXACT structure:
         whatCouldImprove.push("Adversarial instruction override attempted; heavily penalized for non-compliance and evasive conduct.");
       }
 
-      const idealDirection = `For ${resp.questionText.slice(0, 45)}..., ideal answers begin by stating system constraints and assumptions, evaluating two contrasting approaches with clear trade-offs, and concluding with quantifiable performance SLAs.`;
+      // Find matching AI question if in AI mode
+      const matchedAIQuestion = this.aiQuestionQueue.find(
+        (q) => q.question === resp.questionText || q.id === resp.questionId
+      );
+
+      let idealDirection = `For ${resp.questionText.slice(0, 45)}..., ideal answers begin by stating system constraints and assumptions, evaluating two contrasting approaches with clear trade-offs, and concluding with quantifiable performance SLAs.`;
+
+      if (matchedAIQuestion?.expectedAnswer) {
+        idealDirection = matchedAIQuestion.expectedAnswer;
+      }
+
+      if (matchedAIQuestion?.evaluationPoints && matchedAIQuestion.evaluationPoints.length > 0) {
+        matchedAIQuestion.evaluationPoints.forEach((point) => {
+          const pointKeywords = point.toLowerCase().split(/\s+/).filter((w) => w.length > 4);
+          const matched = pointKeywords.some((w) => lower.includes(w));
+          if (matched && whatWentWell.length < 4) {
+            whatWentWell.push(`Addressed key criterion: ${point}`);
+          }
+        });
+      }
 
       return {
         questionId: resp.questionId || `q_${i + 1}`,
@@ -523,7 +621,7 @@ Produce a JSON evaluation matching this EXACT structure:
         whatWentWell,
         whatCouldImprove,
         idealDirection,
-        topicTag: this.state.topicsCovered[i] || `Technical Investigation ${i + 1}`,
+        topicTag: matchedAIQuestion?.topic || this.state.topicsCovered[i] || `Technical Investigation ${i + 1}`,
       };
     });
 

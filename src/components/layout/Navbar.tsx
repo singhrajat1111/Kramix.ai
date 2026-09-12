@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 
 import { KramixLogo } from "@/components/brand/KramixLogo";
+import { resolveInterviewMode } from "@/types/interview-mode";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -103,25 +104,30 @@ export function Navbar() {
           </button>
 
           {/* Mode Pill */}
-          <Link
-            href="/setup"
-            className="hidden sm:flex items-center gap-1.5 rounded-full border border-slate-700/80 bg-surface-100/90 px-3 py-1 text-xs text-slate-300 hover:border-slate-600 transition-colors"
-          >
-            {resolvedAccess.mode === "live" ? (
-              <>
-                <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/50" />
-                <span className="font-medium text-slate-200">
-                  Live {resolvedAccess.reason === "byok" ? "(BYOK)" : ""}
-                </span>
-              </>
-            ) : (
-              <>
-                <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
-                <span className="font-medium text-slate-300">Demo Mode</span>
-              </>
-            )}
-            <Cpu className="h-3.5 w-3.5 text-slate-400 ml-0.5" />
-          </Link>
+          {(() => {
+            const isLive = resolvedAccess.mode === "live" || resolveInterviewMode(aiConfig) === "ai";
+            return (
+              <Link
+                href="/setup"
+                className="hidden sm:flex items-center gap-1.5 rounded-full border border-slate-700/80 bg-surface-100/90 px-3 py-1 text-xs text-slate-300 hover:border-slate-600 transition-colors"
+              >
+                {isLive ? (
+                  <>
+                    <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/50" />
+                    <span className="font-medium text-slate-200">
+                      Live (BYOK)
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
+                    <span className="font-medium text-slate-300">Demo Mode</span>
+                  </>
+                )}
+                <Cpu className="h-3.5 w-3.5 text-slate-400 ml-0.5" />
+              </Link>
+            );
+          })()}
 
           {/* User Profile / Auth State */}
           {user ? (

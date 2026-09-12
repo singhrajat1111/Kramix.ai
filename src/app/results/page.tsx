@@ -9,10 +9,11 @@ import { ScoreCard } from "@/components/results/ScoreCard";
 import { QuestionReview } from "@/components/results/QuestionReview";
 import { PreparationRoadmap } from "@/components/results/PreparationRoadmap";
 import { HiringCommitteeDossierView } from "@/components/results/HiringCommitteeDossierView";
+import { ReportExportModal } from "@/components/results/ReportExportModal";
 import { UpgradeBanner } from "@/components/UpgradeBanner";
 import { useUserAccount } from "@/components/auth/AuthProvider";
 import { RouteGuard } from "@/components/common/RouteGuard";
-import { Sparkles, ArrowRight, HelpCircle, Layers, Award, RotateCcw } from "lucide-react";
+import { Sparkles, ArrowRight, HelpCircle, Layers, Award, RotateCcw, Download } from "lucide-react";
 
 export default function ResultsPage() {
   const { openCheckoutModal } = useUserAccount();
@@ -23,6 +24,7 @@ export default function ResultsPage() {
   const [isLoaded, setIsLoaded] = useState(false);
 
   const [isDemoMode, setIsDemoMode] = useState<boolean>(true);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   useEffect(() => {
     const loadedReport = StorageManager.getLatestReport();
@@ -105,7 +107,16 @@ export default function ResultsPage() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 no-print">
+          <button
+            type="button"
+            onClick={() => setIsExportModalOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-brand-500/40 bg-brand-500/10 hover:bg-brand-500/20 px-3.5 py-2 text-xs font-semibold text-brand-300 transition-all shadow-sm"
+          >
+            <Download className="h-3.5 w-3.5" />
+            <span>Export Report</span>
+          </button>
+
           <Link
             href="/research"
             className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-surface-100 hover:bg-surface-200 px-3.5 py-2 text-xs font-medium text-slate-300 transition-colors"
@@ -177,10 +188,18 @@ export default function ResultsPage() {
 
       {/* Conversion CTA: Placed at the end of the demo report/dossier screen */}
       {isDemoMode && (
-        <div className="pt-4">
+        <div className="pt-4 no-print">
           <UpgradeBanner onUnlock={openCheckoutModal} />
         </div>
       )}
+
+      {/* Export Report Modal */}
+      <ReportExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        report={report}
+        dossier={dossier}
+      />
       </div>
     </RouteGuard>
   );

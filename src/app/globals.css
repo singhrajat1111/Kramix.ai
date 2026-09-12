@@ -143,3 +143,28 @@ body {
     transform: translateX(-50%) scaleY(1.1) scaleX(1.05);
   }
 }
+
+/* Print / PDF Export Styling */
+@media print {
+  .no-print,
+  header,
+  footer,
+  .upgrade-banner,
+  button:not(.print-include) {
+    display: none !important;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Page break rules for clean multi-page PDF output */
+  .space-y-8 > * {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 1.5rem;
+  }
+}

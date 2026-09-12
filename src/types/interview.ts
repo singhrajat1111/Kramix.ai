@@ -1,8 +1,11 @@
 import { InterviewRoundInfo } from "./research";
+import { InterviewMode } from "./interview-mode";
 
 export type InterviewState =
   | "IDLE"
   | "PREPARING"
+  | "GENERATING"
+  | "READY"
   | "INTRO"
   | "QUESTION"
   | "ASKING"
@@ -12,7 +15,8 @@ export type InterviewState =
   | "FOLLOW_UP"
   | "TRANSITIONING"
   | "ROUND_COMPLETE"
-  | "EVALUATION";
+  | "EVALUATION"
+  | "FAILED";
 
 export interface CandidateAnswer {
   questionId: string;
@@ -43,6 +47,7 @@ export interface PreviousRoundSummary {
 }
 
 export interface InterviewDirectorConfig {
+  interviewMode: InterviewMode;
   maxDurationMinutes: number;
   maxQuestions: number;
   maxFollowUpsPerQuestion: number;
@@ -54,6 +59,7 @@ export interface InterviewDirectorConfig {
 }
 
 export interface InterviewDirectorState {
+  interviewMode: InterviewMode;
   currentState: InterviewState;
   currentQuestionIndex: number;
   totalQuestionsPlanned: number;

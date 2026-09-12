@@ -1,4 +1,4 @@
-export type LLMProviderType = "openai" | "gemini" | "openrouter" | "universal" | "demo";
+export type LLMProviderType = "openai" | "gemini" | "groq" | "anthropic" | "openrouter" | "universal" | "demo";
 
 export interface AIConfig {
   provider: LLMProviderType;

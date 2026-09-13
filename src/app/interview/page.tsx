@@ -401,7 +401,7 @@ function InterviewContent() {
                       </div>
                       <p className="text-sm font-medium text-white mb-2">{qp.question_text}</p>
                       <p className="text-xs text-slate-400 italic bg-slate-950 p-2.5 rounded-lg border border-slate-800/60 mb-2">
-                        "{qp.candidate_answer}"
+                        &ldquo;{qp.candidate_answer}&rdquo;
                       </p>
                       <div className="flex flex-wrap gap-1.5 text-[10px]">
                         {qp.covered_concepts?.map((c, i) => (

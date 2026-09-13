@@ -1,40 +1,117 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# ==============================================================================
+# Kramix V2 - Comprehensive .gitignore
+# Next.js (TypeScript) + Python (FastAPI / Uvicorn / Pytest / SQLite)
+# ==============================================================================
 
-# dependencies
-/node_modules
+# ------------------------------------------------------------------------------
+# Environment Variables & Secrets (CRITICAL: Never commit credentials)
+# ------------------------------------------------------------------------------
+.env
+.env*.local
+.env.development
+.env.test
+.env.production
+!.env.example
+*.pem
+*.key
+*.cert
+*.crt
+
+# ------------------------------------------------------------------------------
+# Databases & Local Runtime Storage
+# ------------------------------------------------------------------------------
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+.dev_kramix_db.json
+kramix_dev.db*
+
+# ------------------------------------------------------------------------------
+# Python & Bytecode
+# ------------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ------------------------------------------------------------------------------
+# Python Virtual Environments
+# ------------------------------------------------------------------------------
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# ------------------------------------------------------------------------------
+# Testing, Coverage & Linters
+# ------------------------------------------------------------------------------
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage/
+.tox/
+.nox/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+
+# ------------------------------------------------------------------------------
+# Node.js & Next.js
+# ------------------------------------------------------------------------------
+node_modules/
 /.pnp
 .pnp.js
 .yarn/cache
-
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
-# misc
-.DS_Store
-*.pem
-
-# debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# local env files
-.env*.local
-.env
-
-# local database dev store
-.dev_kramix_db.json
-
-# vercel
+# Next.js build outputs
+.next/
+out/
 .vercel
 
-# typescript
+# TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# ------------------------------------------------------------------------------
+# OS & Editor Artifacts
+# ------------------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDEs
+.idea/
+*.swp
+*.swo
+*~

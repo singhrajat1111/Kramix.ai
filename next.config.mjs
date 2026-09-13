@@ -36,7 +36,7 @@ const nextConfig = {
               "font-src 'self' https://fonts.gstatic.com data:",
               "img-src 'self' data: https: blob:",
               "media-src 'self' blob: data:",
-              "connect-src 'self' ws: wss: https://api.razorpay.com https://api.stripe.com https://generativelanguage.googleapis.com https://api.groq.com https://api.deepseek.com https://api.openai.com https://api.anthropic.com",
+              "connect-src 'self' ws: wss: http://localhost:8000 http://127.0.0.1:8000 ws://localhost:8000 ws://127.0.0.1:8000 https://api.razorpay.com https://api.stripe.com https://generativelanguage.googleapis.com https://api.groq.com https://api.deepseek.com https://api.openai.com https://api.anthropic.com",
               "frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com https://js.stripe.com",
               "frame-ancestors 'self'",
               "base-uri 'self'",
@@ -69,6 +69,22 @@ const nextConfig = {
             value: "0",
           },
         ],
+      },
+    ];
+  },
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: "http://localhost:8000/api/:path*",
+      },
+      {
+        source: "/health",
+        destination: "http://localhost:8000/health",
+      },
+      {
+        source: "/ready",
+        destination: "http://localhost:8000/ready",
       },
     ];
   },
